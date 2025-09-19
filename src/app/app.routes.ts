@@ -1,10 +1,21 @@
 import { Route } from '@angular/router';
-import App from './app';
+import { userAuthenticatedGuard } from '@tmdjr/ngx-user-metadata';
+import { mfeRemoteResolver } from './resolvers/mfe-remote.resolver';
 
 export const Routes: Route[] = [
-  { path: '', redirectTo: 'hello-world', pathMatch: 'full' },
   {
-    path: 'hello-world',
-    component: App,
+    path: '',
+    canActivate: [userAuthenticatedGuard],
+    children: [
+      { path: '', redirectTo: 'list-mfe-remotes', pathMatch: 'full' },
+      {
+        path: 'list-mfe-remotes',
+        loadComponent: () =>
+          import('./routes/list-mfe-remotes').then(
+            (m) => m.ListMfeRemotes
+          ),
+        resolve: { mfeRemotes: mfeRemoteResolver },
+      },
+    ],
   },
 ];
