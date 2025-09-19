@@ -99,6 +99,7 @@ export class MfeForm {
     structuralSubType: 'header',
     useRoutes: false,
     requiresAuth: false,
+    isAdmin: false,
     structuralOverrides: {
       header: 'disabled',
       nav: 'disabled',
@@ -115,6 +116,7 @@ export class MfeForm {
         ...baseFormGroup,
         useRoutes: [value.useRoutes ?? false],
         requiresAuth: [value.requiresAuth ?? false],
+        isAdmin: [value.isAdmin ?? false],
         structuralOverrides: this.createStructuralOverridesFormGroup(
           value.structuralOverrides
         ),

@@ -35,13 +35,23 @@ import type { MfeRemoteType } from '@tmdjr/ngx-mfe-orchestrator-contracts';
       <mat-slide-toggle formControlName="useRoutes">
         <b>
           Uses Routes
-          {{ mfeRemoteForm.get('useRoutes')?.value ? 'On' : 'Off' }}</b
+          {{
+            mfeRemoteForm.get('useRoutes')?.value ? 'On' : 'Off'
+          }}</b
         >
       </mat-slide-toggle>
       <mat-slide-toggle formControlName="requiresAuth">
         <b>
           Authenticated Route
-          {{ mfeRemoteForm.get('requiresAuth')?.value ? 'On' : 'Off' }}</b
+          {{
+            mfeRemoteForm.get('requiresAuth')?.value ? 'On' : 'Off'
+          }}</b
+        >
+      </mat-slide-toggle>
+      <mat-slide-toggle formControlName="requiresAuth">
+        <b>
+          Is Admin Route
+          {{ mfeRemoteForm.get('isAdmin')?.value ? 'On' : 'Off' }}</b
         >
       </mat-slide-toggle>
       <ngx-structural-overrides
