@@ -48,7 +48,7 @@ import type { MfeRemoteType } from '@tmdjr/ngx-mfe-orchestrator-contracts';
           }}</b
         >
       </mat-slide-toggle>
-      <mat-slide-toggle formControlName="requiresAuth">
+      <mat-slide-toggle formControlName="isAdmin">
         <b>
           Is Admin Route
           {{ mfeRemoteForm.get('isAdmin')?.value ? 'On' : 'Off' }}</b
