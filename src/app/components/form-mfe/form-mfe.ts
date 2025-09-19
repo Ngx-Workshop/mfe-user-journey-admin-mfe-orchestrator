@@ -1,6 +1,5 @@
 import { AsyncPipe } from '@angular/common';
-import { Component, inject, input, output } from '@angular/core';
-import { toObservable } from '@angular/core/rxjs-interop';
+import { Component, inject, Input, output } from '@angular/core';
 import {
   FormBuilder,
   FormControl,
@@ -10,7 +9,15 @@ import {
   Validators,
 } from '@angular/forms';
 import { MatExpansionModule } from '@angular/material/expansion';
-import { forkJoin, lastValueFrom, map, mergeMap, startWith, tap } from 'rxjs';
+import {
+  BehaviorSubject,
+  forkJoin,
+  lastValueFrom,
+  map,
+  mergeMap,
+  startWith,
+  tap,
+} from 'rxjs';
 import { ApiMfeRemotes } from '../../services/api-mfe-remotes';
 import { MfeBasicFields } from './form-mfe-basic-fields';
 
@@ -79,7 +86,12 @@ export class MfeForm {
 
   valueChange = output<Partial<MfeRemoteDto>>();
   formStatus = output<FormControlStatus | null>();
-  initialValue = input<Partial<MfeRemoteDto>>({
+
+  @Input('initialValue')
+  set initialValue(value: Partial<MfeRemoteDto>) {
+    this.initialValue$.next(value);
+  }
+  initialValue$ = new BehaviorSubject<Partial<MfeRemoteDto>>({
     name: '',
     description: '',
     remoteEntryUrl: '',
@@ -93,7 +105,6 @@ export class MfeForm {
       footer: 'disabled',
     },
   });
-  initialValue$ = toObservable(this.initialValue);
 
   private createFormGroup(
     baseFormGroup: any,
@@ -113,9 +124,12 @@ export class MfeForm {
     // STRUCTURAL: ensure the structuralSubType control exists at creation time
     return {
       ...baseFormGroup,
-      structuralSubType: new FormControl(value.structuralSubType ?? 'header', {
-        nonNullable: true,
-      }),
+      structuralSubType: new FormControl(
+        value.structuralSubType ?? 'header',
+        {
+          nonNullable: true,
+        }
+      ),
     };
   }
 
@@ -127,9 +141,18 @@ export class MfeForm {
     }>
   ): FormGroup {
     return this.formBuilder.nonNullable.group({
-      header: [structuralOverrides?.header || 'disabled', Validators.required],
-      nav: [structuralOverrides?.nav || 'disabled', Validators.required],
-      footer: [structuralOverrides?.footer || 'disabled', Validators.required],
+      header: [
+        structuralOverrides?.header || 'disabled',
+        Validators.required,
+      ],
+      nav: [
+        structuralOverrides?.nav || 'disabled',
+        Validators.required,
+      ],
+      footer: [
+        structuralOverrides?.footer || 'disabled',
+        Validators.required,
+      ],
     });
   }
 
@@ -180,7 +203,8 @@ export class MfeForm {
       tap((value) => {
         // If type is STRUCTURAL, remove structuralOverrides from the emitted value
         if (value.type === 'structural') {
-          const { structuralOverrides, ...valueWithoutOverrides } = value;
+          const { structuralOverrides, ...valueWithoutOverrides } =
+            value;
           this.valueChange.emit(valueWithoutOverrides);
         } else {
           this.valueChange.emit(value);
@@ -199,7 +223,9 @@ export class MfeForm {
             this.createStructuralOverridesFormGroup()
           );
         } else if (type === 'structural') {
-          viewModel.mfeRemoteForm.removeControl('structuralOverrides');
+          viewModel.mfeRemoteForm.removeControl(
+            'structuralOverrides'
+          );
           viewModel.mfeRemoteForm.addControl(
             'structuralSubType',
             new FormControl('header', { nonNullable: true })
