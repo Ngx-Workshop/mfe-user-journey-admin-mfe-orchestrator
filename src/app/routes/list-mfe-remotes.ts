@@ -6,7 +6,12 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatFormField, MatLabel } from '@angular/material/form-field';
 import { MatIcon } from '@angular/material/icon';
 import { MatInput } from '@angular/material/input';
-import { BehaviorSubject, combineLatest, lastValueFrom, map } from 'rxjs';
+import {
+  BehaviorSubject,
+  combineLatest,
+  lastValueFrom,
+  map,
+} from 'rxjs';
 import { Hero } from '../components/hero';
 import { MfeRemoteCard } from '../components/mfe-remote-card';
 import { ApiMfeRemotes } from '../services/api-mfe-remotes';
@@ -55,7 +60,6 @@ import type { MfeRemoteDto } from '@tmdjr/ngx-mfe-orchestrator-contracts';
   styles: [
     `
       :host {
-        margin-top: 56px;
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -103,7 +107,9 @@ export class ListMfeRemotes {
           // Search in _id, name, remoteEntryUrl, type, and status
           mfeRemote._id.toLowerCase().includes(lowerSearchTerm) ||
           mfeRemote.name.toLowerCase().includes(lowerSearchTerm) ||
-          mfeRemote.remoteEntryUrl.toLowerCase().includes(lowerSearchTerm) ||
+          mfeRemote.remoteEntryUrl
+            .toLowerCase()
+            .includes(lowerSearchTerm) ||
           mfeRemote.type.toLowerCase().includes(lowerSearchTerm) ||
           (mfeRemote.status &&
             mfeRemote.status.toLowerCase().includes(lowerSearchTerm))
