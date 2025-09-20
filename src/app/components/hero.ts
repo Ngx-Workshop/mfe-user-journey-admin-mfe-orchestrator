@@ -12,7 +12,7 @@ import { CreateMFEDialog } from './dialog/dialog-create-mfe';
     <header class="header-background">
       <div class="header-section">
         <div class="header-headline">
-          <h1>MFE Orchestrator YOYO</h1>
+          <h1>MFE Orchestrator</h1>
           <h2>A tool to manage ngx-workshop remotes</h2>
         </div>
         <div class="header-actions">
