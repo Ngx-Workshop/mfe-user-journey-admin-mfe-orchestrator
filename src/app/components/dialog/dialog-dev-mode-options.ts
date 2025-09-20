@@ -28,12 +28,15 @@ import { LocalStorageBrokerService } from '@tmdjr/ngx-local-storage-client';
   template: `
     <h1 mat-dialog-title>Dev Mode Options</h1>
     <mat-dialog-content>
-      <p>Here you can configure development mode options for the MFE.</p>
+      <p>
+        Here you can configure development mode options for the MFE.
+      </p>
       <mat-slide-toggle
         labelPosition="before"
         [(ngModel)]="devModeEnabled"
         (ngModelChange)="devModeEnabledValueChange()"
-        >Turn {{ devModeEnabled ? 'Off' : 'On' }} Dev Mode</mat-slide-toggle
+        >Turn {{ devModeEnabled ? 'Off' : 'On' }} Dev
+        Mode</mat-slide-toggle
       >
       <mat-form-field>
         <mat-label>Remote Entry Point</mat-label>
@@ -71,18 +74,21 @@ export class DevModeOptions {
   devModeEnabled = false;
 
   constructor() {
-    this.localStorageBrokerService.getItem(this.mfeRemote._id).then((value) => {
-      if (value) {
-        this.devModeEnabled = true;
-        this.remoteEntryPoint = value;
-      }
-    });
+    this.localStorageBrokerService
+      .getItem(this.mfeRemote._id)
+      .then((value) => {
+        if (value) {
+          this.devModeEnabled = true;
+          this.remoteEntryPoint = value;
+        }
+      });
   }
 
   devModeEnabledValueChange() {
     if (this.devModeEnabled) {
       if (!this.remoteEntryPoint) {
-        this.remoteEntryPoint = 'http://localhost:4201/remoteEntry.js';
+        this.remoteEntryPoint =
+          'http://localhost:4201/remoteEntry.js';
         this.localStorageBrokerService.setItem(
           this.mfeRemote._id,
           this.remoteEntryPoint
@@ -96,8 +102,11 @@ export class DevModeOptions {
 
   remoteEntryPointValueChange() {
     if (!this.devModeEnabled) return;
+
+    const localStorageKey = `mfe-remotes:${this.mfeRemote._id}`;
+    localStorage.setItem(localStorageKey, this.remoteEntryPoint);
     this.localStorageBrokerService.setItem(
-      this.mfeRemote._id,
+      localStorageKey,
       this.remoteEntryPoint
     );
   }
