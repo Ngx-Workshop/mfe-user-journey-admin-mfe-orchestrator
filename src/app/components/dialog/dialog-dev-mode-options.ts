@@ -89,14 +89,17 @@ export class DevModeOptions {
       if (!this.remoteEntryPoint) {
         this.remoteEntryPoint =
           'http://localhost:4201/remoteEntry.js';
-        const localStorageKey = `mfe-remotes:${this.mfeRemote._id}`;
-        localStorage.setItem(localStorageKey, this.remoteEntryPoint);
+        localStorage.setItem(
+          `mfe-remotes:${this.mfeRemote._id}`,
+          this.remoteEntryPoint
+        );
         this.localStorageBrokerService.setItem(
           this.mfeRemote._id,
           this.remoteEntryPoint
         );
       }
     } else {
+      localStorage.removeItem(`mfe-remotes:${this.mfeRemote._id}`);
       this.localStorageBrokerService.removeItem(this.mfeRemote._id);
       this.remoteEntryPoint = '';
     }
