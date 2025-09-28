@@ -5,6 +5,8 @@ import {
   transition,
   trigger,
 } from '@angular/animations';
+import { CdkAccordionModule } from '@angular/cdk/accordion';
+import { NgClass } from '@angular/common';
 import { Component, inject, input, output } from '@angular/core';
 import { FormBuilder } from '@angular/forms';
 import { MatButton, MatIconButton } from '@angular/material/button';
@@ -12,13 +14,11 @@ import { MatCardModule } from '@angular/material/card';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIcon } from '@angular/material/icon';
 import { lastValueFrom, tap } from 'rxjs';
+import { MfeRemoteDtoExtraProps } from '../app.types';
 import { ConfirmDeleteDialog } from './dialog/dialog-confirm-delete';
 import { DevModeOptions } from './dialog/dialog-dev-mode-options';
 import { MfePreview } from './dialog/dialog-mfe-preview';
 import { MfeForm } from './form-mfe/form-mfe';
-
-import { CdkAccordionModule } from '@angular/cdk/accordion';
-import type { MfeRemoteDto } from '@tmdjr/ngx-mfe-orchestrator-contracts';
 import { MfeRemoteCardHeader } from './mfe-remote-card-header';
 
 @Component({
@@ -31,6 +31,7 @@ import { MfeRemoteCardHeader } from './mfe-remote-card-header';
     MatIcon,
     MfeForm,
     MfeRemoteCardHeader,
+    NgClass,
   ],
   animations: [
     trigger('expandCollapse', [
@@ -72,11 +73,16 @@ import { MfeRemoteCardHeader } from './mfe-remote-card-header';
   ],
   template: `
     @if (initialValue(); as mfe) {
-    <mat-card appearance="filled">
+    <mat-card
+      appearance="filled"
+      [ngClass]="{ 'dev-mode': mfe.isDevMode }"
+    >
       <div class="accordion-toggle" (click)="accordionItem.toggle()">
         <p>{{ mfe.name }}</p>
         <mat-icon
-          [@iconRotate]="accordionItem.expanded ? 'expanded' : 'collapsed'"
+          [@iconRotate]="
+            accordionItem.expanded ? 'expanded' : 'collapsed'
+          "
         >
           expand_more
         </mat-icon>
@@ -99,7 +105,9 @@ import { MfeRemoteCardHeader } from './mfe-remote-card-header';
             <mat-card-content>
               <ngx-mfe-form
                 [initialValue]="initialValue()"
-                (formStatus)="disableUpdateButton = $event !== 'VALID'"
+                (formStatus)="
+                  disableUpdateButton = $event !== 'VALID'
+                "
                 (valueChange)="mfeRemote = $event"
               ></ngx-mfe-form>
             </mat-card-content>
@@ -168,6 +176,22 @@ import { MfeRemoteCardHeader } from './mfe-remote-card-header';
         .flex-spacer {
           flex: 1;
         }
+
+        .dev-mode {
+          animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+          0% {
+            box-shadow: 0 0 0 0 rgba(255, 152, 0, 0.4);
+          }
+          70% {
+            box-shadow: 0 0 0 10px rgba(255, 152, 0, 0);
+          }
+          100% {
+            box-shadow: 0 0 0 0 rgba(255, 152, 0, 0);
+          }
+        }
       }
     `,
   ],
@@ -175,13 +199,13 @@ import { MfeRemoteCardHeader } from './mfe-remote-card-header';
 export class MfeRemoteCard {
   dialog = inject(MatDialog);
   formBuilder = inject(FormBuilder);
-  initialValue = input.required<MfeRemoteDto>();
+  initialValue = input.required<MfeRemoteDtoExtraProps>();
 
-  mfeRemote: Partial<MfeRemoteDto> = {};
+  mfeRemote: Partial<MfeRemoteDtoExtraProps> = {};
 
-  update = output<MfeRemoteDto>();
-  archive = output<MfeRemoteDto>();
-  delete = output<MfeRemoteDto>();
+  update = output<MfeRemoteDtoExtraProps>();
+  archive = output<MfeRemoteDtoExtraProps>();
+  delete = output<MfeRemoteDtoExtraProps>();
 
   disableUpdateButton = false;
 
@@ -199,18 +223,20 @@ export class MfeRemoteCard {
       this.dialog
         .open(ConfirmDeleteDialog, { data: this.initialValue() })
         .afterClosed()
-        .pipe(tap((mfeRemote) => mfeRemote && this.delete.emit(mfeRemote)))
+        .pipe(
+          tap((mfeRemote) => mfeRemote && this.delete.emit(mfeRemote))
+        )
     );
   }
 
-  previewMfeRemote(mfeRemote: MfeRemoteDto) {
+  previewMfeRemote(mfeRemote: MfeRemoteDtoExtraProps) {
     this.dialog.open(MfePreview, {
       data: mfeRemote,
       panelClass: ['mfe-preview', 'full-width-dialog'],
     });
   }
 
-  openDevModeOptions(mfe: MfeRemoteDto) {
+  openDevModeOptions(mfe: MfeRemoteDtoExtraProps) {
     this.dialog.open(DevModeOptions, {
       data: mfe,
       width: '600px',

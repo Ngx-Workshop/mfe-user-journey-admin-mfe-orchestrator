@@ -1,7 +1,16 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { BehaviorSubject, catchError, of, switchMap, tap } from 'rxjs';
+import {
+  BehaviorSubject,
+  catchError,
+  forkJoin,
+  map,
+  of,
+  switchMap,
+  tap,
+} from 'rxjs';
 
+import { LocalStorageBrokerService } from '@tmdjr/ngx-local-storage-client';
 import type { MfeRemoteDto } from '@tmdjr/ngx-mfe-orchestrator-contracts';
 
 @Injectable({
@@ -9,9 +18,23 @@ import type { MfeRemoteDto } from '@tmdjr/ngx-mfe-orchestrator-contracts';
 })
 export class ApiMfeRemotes {
   httpClient = inject(HttpClient);
+  localStorageBrokerService = inject(LocalStorageBrokerService);
 
   mfeRemotes = new BehaviorSubject<MfeRemoteDto[]>([]);
-  mfeRemotes$ = this.mfeRemotes.asObservable();
+  mfeRemotes$ = this.mfeRemotes.asObservable().pipe(
+    switchMap((mfeRemotes) =>
+      forkJoin([
+        of(mfeRemotes),
+        this.localStorageBrokerService.keys(),
+      ])
+    ),
+    map(([mfeRemotes, localStorageKeys]) =>
+      mfeRemotes.map((remote) => ({
+        ...remote,
+        isDevMode: localStorageKeys.includes(remote._id),
+      }))
+    )
+  );
 
   testAuthEndpoint() {
     return this.httpClient
@@ -23,20 +46,25 @@ export class ApiMfeRemotes {
           }
         }),
         catchError((error) => {
-          console.warn('Error testing authentication endpoint:', error);
+          console.warn(
+            'Error testing authentication endpoint:',
+            error
+          );
           return of({ status: 'error' });
         })
       );
   }
 
   fetchMfeRemotes() {
-    return this.httpClient.get<MfeRemoteDto[]>('/api/mfe-remotes').pipe(
-      tap((remotes) => this.mfeRemotes.next(remotes)),
-      catchError((error) => {
-        console.warn('Error fetching MFE remotes:', error);
-        return of([]);
-      })
-    );
+    return this.httpClient
+      .get<MfeRemoteDto[]>('/api/mfe-remotes')
+      .pipe(
+        tap((remotes) => this.mfeRemotes.next(remotes)),
+        catchError((error) => {
+          console.warn('Error fetching MFE remotes:', error);
+          return of([]);
+        })
+      );
   }
 
   createMfeRemote(mfeRemote: MfeRemoteDto) {
@@ -59,7 +87,10 @@ export class ApiMfeRemotes {
     ...partialMfeRemote
   }: MfeRemoteDto) {
     return this.httpClient
-      .patch<MfeRemoteDto>(`/api/mfe-remotes/${_id}`, partialMfeRemote)
+      .patch<MfeRemoteDto>(
+        `/api/mfe-remotes/${_id}`,
+        partialMfeRemote
+      )
       .pipe(
         switchMap(() => this.fetchMfeRemotes()),
         catchError((error) => {
@@ -99,16 +130,18 @@ export class ApiMfeRemotes {
   }
 
   verifyMfeUrl(remoteEntryUrl: string) {
-    return this.httpClient.get<{ status: string }>(remoteEntryUrl).pipe(
-      tap((response) => {
-        if (response.status !== 'ok') {
-          throw new Error('Remote entry URL is not valid');
-        }
-      }),
-      catchError((error) => {
-        console.warn('Error verifying MFE URL:', error);
-        return of({ status: 'error' });
-      })
-    );
+    return this.httpClient
+      .get<{ status: string }>(remoteEntryUrl)
+      .pipe(
+        tap((response) => {
+          if (response.status !== 'ok') {
+            throw new Error('Remote entry URL is not valid');
+          }
+        }),
+        catchError((error) => {
+          console.warn('Error verifying MFE URL:', error);
+          return of({ status: 'error' });
+        })
+      );
   }
 }
