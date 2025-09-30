@@ -12,6 +12,7 @@ import {
 
 import { LocalStorageBrokerService } from '@tmdjr/ngx-local-storage-client';
 import type { MfeRemoteDto } from '@tmdjr/ngx-mfe-orchestrator-contracts';
+import { MfeRemoteDtoExtraProps } from '../app.types';
 
 @Injectable({
   providedIn: 'root',
@@ -83,9 +84,10 @@ export class ApiMfeRemotes {
     _id,
     lastUpdated,
     version,
+    isDevMode,
     __v,
     ...partialMfeRemote
-  }: MfeRemoteDto) {
+  }: MfeRemoteDtoExtraProps) {
     return this.httpClient
       .patch<MfeRemoteDto>(
         `/api/mfe-remotes/${_id}`,

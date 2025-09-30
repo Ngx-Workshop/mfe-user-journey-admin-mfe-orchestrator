@@ -17,6 +17,7 @@ import { MfeRemoteCard } from '../components/mfe-remote-card';
 import { ApiMfeRemotes } from '../services/api-mfe-remotes';
 
 import type { MfeRemoteDto } from '@tmdjr/ngx-mfe-orchestrator-contracts';
+import { MfeRemoteDtoExtraProps } from '../app.types';
 
 @Component({
   selector: 'ngx-mfe-remotes',
@@ -123,7 +124,7 @@ export class ListMfeRemotes {
     this.searchSubject.next(this.searchTerm);
   }
 
-  updateMfeRemote(remote: MfeRemoteDto) {
+  updateMfeRemote(remote: MfeRemoteDtoExtraProps) {
     lastValueFrom(this.apiMfeRemotes.updateMfeRemote(remote));
   }
 
