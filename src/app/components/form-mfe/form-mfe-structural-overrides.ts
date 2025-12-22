@@ -2,20 +2,15 @@ import { UpperCasePipe } from '@angular/common';
 import { Component, input, signal } from '@angular/core';
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MatExpansionModule } from '@angular/material/expansion';
-import { MatRadioButton, MatRadioGroup } from '@angular/material/radio';
+import {
+  MatRadioButton,
+  MatRadioGroup,
+} from '@angular/material/radio';
 
-import type {
-  StructuralNavOverrideMode,
-  StructuralOverrideMode,
-} from '@tmdjr/ngx-mfe-orchestrator-contracts';
+import type { StructuralOverrideMode } from '@tmdjr/ngx-mfe-orchestrator-contracts';
 
 type StructuralOverrideModes = {
   value: StructuralOverrideMode;
-  label: string;
-}[];
-
-type StructuralNavOverrideModes = {
-  value: StructuralNavOverrideMode;
   label: string;
 }[];
 
@@ -46,19 +41,22 @@ type StructuralNavOverrideModes = {
               <span
                 >Header:
                 {{
-                  structuralOverridesForm().get('header')?.value | uppercase
+                  structuralOverridesForm().get('header')?.value
+                    | uppercase
                 }}</span
               >
               <span
                 >Nav:
                 {{
-                  structuralOverridesForm().get('nav')?.value | uppercase
+                  structuralOverridesForm().get('nav')?.value
+                    | uppercase
                 }}</span
               >
               <span>
                 Footer:
                 {{
-                  structuralOverridesForm().get('footer')?.value | uppercase
+                  structuralOverridesForm().get('footer')?.value
+                    | uppercase
                 }}</span
               >
             </mat-panel-description>
@@ -68,7 +66,8 @@ type StructuralNavOverrideModes = {
             <div class="override-section">
               <label>Header:</label>
               <mat-radio-group formControlName="header">
-                @for (mode of structuralOverrideModes; track mode.value) {
+                @for (mode of structuralOverrideModes; track
+                mode.value) {
                 <mat-radio-button [value]="mode.value">{{
                   mode.label
                 }}</mat-radio-button>
@@ -79,7 +78,8 @@ type StructuralNavOverrideModes = {
             <div class="override-section">
               <label>Navigation:</label>
               <mat-radio-group formControlName="nav">
-                @for (mode of structuralNavOverrideModes; track mode.value) {
+                @for (mode of structuralOverrideModes; track
+                mode.value) {
                 <mat-radio-button [value]="mode.value">{{
                   mode.label
                 }}</mat-radio-button>
@@ -90,7 +90,8 @@ type StructuralNavOverrideModes = {
             <div class="override-section">
               <label>Footer:</label>
               <mat-radio-group formControlName="footer">
-                @for (mode of structuralOverrideModes; track mode.value) {
+                @for (mode of structuralOverrideModes; track
+                mode.value) {
                 <mat-radio-button [value]="mode.value">{{
                   mode.label
                 }}</mat-radio-button>
@@ -122,7 +123,10 @@ type StructuralNavOverrideModes = {
             }
             mat-radio-group {
               display: grid;
-              grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+              grid-template-columns: repeat(
+                auto-fit,
+                minmax(120px, 1fr)
+              );
               gap: 1rem;
               align-items: center;
             }
@@ -140,12 +144,6 @@ export class StructuralOverrides {
   structuralOverrideModes: StructuralOverrideModes = [
     { value: 'full', label: 'Full' },
     { value: 'compact', label: 'Compact' },
-    { value: 'disabled', label: 'Disabled' },
-  ];
-
-  structuralNavOverrideModes: StructuralNavOverrideModes = [
-    { value: 'verbose', label: 'Verbose' },
-    { value: 'minimal', label: 'Minimal' },
     { value: 'disabled', label: 'Disabled' },
   ];
 }

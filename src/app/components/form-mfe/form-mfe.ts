@@ -24,7 +24,6 @@ import { MfeBasicFields } from './form-mfe-basic-fields';
 import { MatDivider } from '@angular/material/divider';
 import type {
   MfeRemoteDto,
-  StructuralNavOverrideMode,
   StructuralOverrideMode,
 } from '@tmdjr/ngx-mfe-orchestrator-contracts';
 import { StructuralFields } from './form-mfe-structural-fields';
@@ -138,7 +137,7 @@ export class MfeForm {
   private createStructuralOverridesFormGroup(
     structuralOverrides?: Partial<{
       header: StructuralOverrideMode;
-      nav: StructuralNavOverrideMode;
+      nav: StructuralOverrideMode;
       footer: StructuralOverrideMode;
     }>
   ): FormGroup {
