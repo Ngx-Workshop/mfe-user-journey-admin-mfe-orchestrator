@@ -1,28 +1,32 @@
 import { AsyncPipe } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { MatButton } from '@angular/material/button';
 import { MatCard } from '@angular/material/card';
 import { MatDialog } from '@angular/material/dialog';
 import { MatFormField, MatLabel } from '@angular/material/form-field';
 import { MatIcon } from '@angular/material/icon';
 import { MatInput } from '@angular/material/input';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import type { MfeRemoteDto } from '@tmdjr/ngx-mfe-orchestrator-contracts';
+import { NgxParticleHeader } from '@tmdjr/ngx-shared-headers';
 import {
   BehaviorSubject,
   combineLatest,
+  iif,
   lastValueFrom,
   map,
+  of,
+  switchMap,
 } from 'rxjs';
-import { Hero } from '../components/hero';
+import { MfeRemoteDtoExtraProps } from '../app.types';
+import { CreateMFEDialog } from '../components/dialog/dialog-create-mfe';
 import { MfeRemoteCard } from '../components/mfe-remote-card';
 import { ApiMfeRemotes } from '../services/api-mfe-remotes';
-
-import type { MfeRemoteDto } from '@tmdjr/ngx-mfe-orchestrator-contracts';
-import { MfeRemoteDtoExtraProps } from '../app.types';
 
 @Component({
   selector: 'ngx-mfe-remotes',
   imports: [
-    Hero,
     MfeRemoteCard,
     AsyncPipe,
     MatCard,
@@ -31,10 +35,22 @@ import { MfeRemoteDtoExtraProps } from '../app.types';
     MatInput,
     MatIcon,
     FormsModule,
+    NgxParticleHeader,
+    MatButton,
+    MatProgressSpinnerModule,
   ],
   template: `
-    <ngx-hero></ngx-hero>
-    <mat-card appearance="outlined">
+    <ngx-particle-header>
+      <h1>MFE Orchestrator</h1>
+    </ngx-particle-header>
+    <div class="action-bar">
+      <div class="flex-spacer"></div>
+      <button matButton="filled" (click)="openDialog()">
+        <mat-icon>note_add</mat-icon>
+        Create a New MFE Remote
+      </button>
+    </div>
+    <mat-card class="remote-list" appearance="outlined">
       <!-- Search Bar -->
       <mat-form-field appearance="outline" class="search-field">
         <mat-label>Search MFE Remotes</mat-label>
@@ -55,6 +71,14 @@ import { MfeRemoteDtoExtraProps } from '../app.types';
         (archive)="archiveMfeRemote($event)"
         (delete)="deleteMfeRemote($event)"
       ></ngx-mfe-remote>
+      } @empty {
+      <div class="loading-state">
+        <mat-progress-spinner
+          mode="indeterminate"
+          diameter="48"
+        ></mat-progress-spinner>
+        <p>Loading MFE Remotes</p>
+      </div>
       }
     </mat-card>
   `,
@@ -64,12 +88,17 @@ import { MfeRemoteDtoExtraProps } from '../app.types';
         display: flex;
         flex-direction: column;
         align-items: center;
-        gap: 3em;
+
+        ngx-particle-header h1 {
+          font-size: 1.85rem;
+          font-weight: 100;
+          margin: 1.7rem 1rem;
+        }
 
         mat-card {
           width: 100%;
           max-width: 800px;
-          margin-bottom: 2em;
+          margin: 2em 0;
           padding: 1.7em;
           display: flex;
           flex-direction: column;
@@ -79,6 +108,33 @@ import { MfeRemoteDtoExtraProps } from '../app.types';
         .search-field {
           width: 100%;
         }
+
+        .loading-state {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 1rem;
+          padding: 3rem 1rem;
+          color: rgba(0, 0, 0, 0.6);
+        }
+
+        .action-bar {
+          position: sticky;
+          top: 56px;
+          height: 56px;
+          z-index: 5;
+          display: flex;
+          flex-direction: row;
+          width: 100%;
+          background: var(--mat-sys-primary);
+          align-items: center;
+          a,
+          button {
+            color: var(--mat-sys-on-primary);
+            background: var(--mat-sys-primary);
+            margin: 0 12px;
+          }
+        }
       }
     `,
   ],
@@ -87,6 +143,25 @@ export class ListMfeRemotes {
   dialog = inject(MatDialog);
   apiMfeRemotes = inject(ApiMfeRemotes);
   mfeRemotes = this.apiMfeRemotes.mfeRemotes$;
+
+  openDialog(): void {
+    lastValueFrom(
+      this.dialog
+        .open(CreateMFEDialog, {
+          panelClass: 'full-width-dialog',
+        })
+        .afterClosed()
+        .pipe(
+          switchMap((mfeRemote) =>
+            iif(
+              () => !!mfeRemote,
+              this.apiMfeRemotes.createMfeRemote(mfeRemote),
+              of(void 0)
+            )
+          )
+        )
+    );
+  }
 
   // Search functionality
   searchTerm = '';

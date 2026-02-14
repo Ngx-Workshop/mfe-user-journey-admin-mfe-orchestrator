@@ -178,18 +178,19 @@ import { MfeRemoteCardHeader } from './mfe-remote-card-header';
         }
 
         .dev-mode {
+          border: 2px dashed var(--mat-sys-error);
           animation: pulse 2s infinite;
         }
 
         @keyframes pulse {
           0% {
-            box-shadow: 0 0 0 0 rgba(255, 152, 0, 0.4);
+            box-shadow: 0 0 0 0 rgba(255, 0, 0, 0.4);
           }
           70% {
-            box-shadow: 0 0 0 10px rgba(255, 152, 0, 0);
+            box-shadow: 0 0 0 10px rgba(255, 0, 0, 0);
           }
           100% {
-            box-shadow: 0 0 0 0 rgba(255, 152, 0, 0);
+            box-shadow: 0 0 0 0 rgba(255, 0, 0, 0);
           }
         }
       }
