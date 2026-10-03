@@ -1,5 +1,11 @@
 import { AsyncPipe } from '@angular/common';
-import { Component, inject, Input, output } from '@angular/core';
+import {
+  Component,
+  inject,
+  Input,
+  output,
+  signal,
+} from '@angular/core';
 import {
   FormBuilder,
   FormControl,
@@ -8,7 +14,7 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { MatExpansionModule } from '@angular/material/expansion';
+import { MatIcon } from '@angular/material/icon';
 import {
   BehaviorSubject,
   forkJoin,
@@ -19,9 +25,10 @@ import {
   tap,
 } from 'rxjs';
 import { ApiMfeRemotes } from '../../services/api-mfe-remotes';
-import { MfeBasicFields } from './form-mfe-basic-fields';
-
-import { MatDivider } from '@angular/material/divider';
+import {
+  MfeBasicFields,
+  UrlVerificationState,
+} from './form-mfe-basic-fields';
 import type {
   MfeRemoteDto,
   StructuralOverrideMode,
@@ -39,41 +46,135 @@ type ViewModel = {
   imports: [
     AsyncPipe,
     ReactiveFormsModule,
-    MatExpansionModule,
     MfeBasicFields,
     StructuralFields,
-    MatDivider,
+    MatIcon,
   ],
   template: `
     @if (viewModel$ | async; as vm) {
-    <form [formGroup]="vm.mfeRemoteForm">
-      <h3>Structural Configuration</h3>
-      <mat-divider></mat-divider>
-      <ngx-structural-fields
-        [mfeRemoteForm]="vm.mfeRemoteForm"
-      ></ngx-structural-fields>
+      <form [formGroup]="vm.mfeRemoteForm" novalidate>
+        <section class="form-section">
+          <div class="section-heading">
+            <span class="section-icon">
+              <mat-icon>description</mat-icon>
+            </span>
+            <div>
+              <h3>Remote details</h3>
+              <p>
+                Identify the remote and connect it to its deployed
+                entry point.
+              </p>
+            </div>
+            <span class="required-note">Required fields marked *</span>
+          </div>
+          <ngx-mfe-basic-fields
+            [mfeRemoteForm]="vm.mfeRemoteForm"
+            [errorMessages]="vm.formErrorMessages"
+            [verificationState]="verificationState()"
+            (verifyUrlClick)="verifyMfeUrl($event)"
+            (urlChanged)="resetUrlVerification()"
+          ></ngx-mfe-basic-fields>
+        </section>
 
-      <h3>Details</h3>
-      <mat-divider></mat-divider>
-      <ngx-mfe-basic-fields
-        [mfeRemoteForm]="vm.mfeRemoteForm"
-        [errorMessages]="vm.formErrorMessages"
-        (verifyUrlClick)="verifyMfeUrl($event)"
-      ></ngx-mfe-basic-fields>
-      <mat-divider></mat-divider>
-    </form>
+        <section class="form-section">
+          <div class="section-heading">
+            <span class="section-icon">
+              <mat-icon>tune</mat-icon>
+            </span>
+            <div>
+              <h3>Integration behavior</h3>
+              <p>
+                Define how this remote participates in the host
+                application.
+              </p>
+            </div>
+          </div>
+          <ngx-structural-fields
+            [mfeRemoteForm]="vm.mfeRemoteForm"
+          ></ngx-structural-fields>
+        </section>
+      </form>
     }
   `,
   styles: [
     `
       :host {
-        form {
-          display: flex;
-          flex-direction: column;
-          gap: 0.5em;
-          mat-divider {
-            margin-bottom: 1em;
-          }
+        display: block;
+      }
+
+      form {
+        display: grid;
+        gap: 1rem;
+      }
+
+      .form-section {
+        padding: 1.15rem;
+        background: var(--mat-sys-surface-container-lowest);
+        border: 1px solid var(--mat-sys-outline-variant);
+        border-radius: 16px;
+      }
+
+      .section-heading {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 1.25rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid var(--mat-sys-outline-variant);
+      }
+
+      .section-icon {
+        display: grid;
+        flex: 0 0 auto;
+        place-items: center;
+        width: 40px;
+        height: 40px;
+        color: var(--mat-sys-primary);
+        background: var(--mat-sys-primary-container);
+        border-radius: 12px;
+      }
+
+      .section-icon mat-icon {
+        width: 1.25rem;
+        height: 1.25rem;
+        font-size: 1.25rem;
+      }
+
+      h3,
+      p {
+        margin: 0;
+      }
+
+      h3 {
+        font-size: 1rem;
+        font-weight: 600;
+      }
+
+      p {
+        margin-top: 0.2rem;
+        color: var(--mat-sys-on-surface-variant);
+        font-size: 0.76rem;
+        line-height: 1.4;
+      }
+
+      .required-note {
+        margin-left: auto;
+        color: var(--mat-sys-on-surface-variant);
+        font-size: 0.65rem;
+        white-space: nowrap;
+      }
+
+      @media (max-width: 620px) {
+        .form-section {
+          padding: 0.85rem;
+        }
+
+        .section-heading {
+          align-items: flex-start;
+        }
+
+        .required-note {
+          display: none;
         }
       }
     `,
@@ -85,6 +186,8 @@ export class MfeForm {
 
   valueChange = output<Partial<MfeRemoteDto>>();
   formStatus = output<FormControlStatus | null>();
+  verificationState = signal<UrlVerificationState>('idle');
+  private verificationRequestId = 0;
 
   @Input('initialValue')
   set initialValue(value: Partial<MfeRemoteDto>) {
@@ -250,7 +353,22 @@ export class MfeForm {
     });
   }
 
-  verifyMfeUrl(url: string) {
-    lastValueFrom(this.apiMfeRemotes.verifyMfeUrl(url));
+  resetUrlVerification() {
+    this.verificationRequestId++;
+    this.verificationState.set('idle');
+  }
+
+  async verifyMfeUrl(url: string) {
+    const requestId = ++this.verificationRequestId;
+    this.verificationState.set('verifying');
+    const result = await lastValueFrom(
+      this.apiMfeRemotes.verifyMfeUrl(url)
+    );
+
+    if (requestId === this.verificationRequestId) {
+      this.verificationState.set(
+        result.status === 'ok' ? 'success' : 'error'
+      );
+    }
   }
 }
