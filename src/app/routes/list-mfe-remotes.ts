@@ -1,15 +1,7 @@
 import { AsyncPipe } from '@angular/common';
 import { Component, inject } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { MatButton } from '@angular/material/button';
-import { MatCard } from '@angular/material/card';
 import { MatDialog } from '@angular/material/dialog';
-import { MatFormField, MatLabel } from '@angular/material/form-field';
-import { MatIcon } from '@angular/material/icon';
-import { MatInput } from '@angular/material/input';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import type { MfeRemoteDto } from '@tmdjr/ngx-mfe-orchestrator-contracts';
-import { NgxParticleHeader } from '@tmdjr/ngx-shared-headers';
 import {
   BehaviorSubject,
   combineLatest,
@@ -21,128 +13,156 @@ import {
 } from 'rxjs';
 import { MfeRemoteDtoExtraProps } from '../app.types';
 import { CreateMFEDialog } from '../components/dialog/dialog-create-mfe';
-import { MfeRemoteCard } from '../components/mfe-remote-card';
+import { MfeRemoteCatalogActions } from '../components/mfe-remote-catalog-actions';
+import { MfeRemoteCatalogHeader } from '../components/mfe-remote-catalog-header';
+import { MfeRemoteDetail } from '../components/mfe-remote-detail';
+import { MfeRemoteRail } from '../components/mfe-remote-rail';
 import { ApiMfeRemotes } from '../services/api-mfe-remotes';
+
+type CatalogViewModel = {
+  filtered: MfeRemoteDtoExtraProps[];
+  selected: MfeRemoteDtoExtraProps | null;
+  activeCount: number;
+  archivedCount: number;
+  devModeCount: number;
+};
 
 @Component({
   selector: 'ngx-mfe-remotes',
   imports: [
-    MfeRemoteCard,
     AsyncPipe,
-    MatCard,
-    MatFormField,
-    MatLabel,
-    MatInput,
-    MatIcon,
-    FormsModule,
-    NgxParticleHeader,
-    MatButton,
-    MatProgressSpinnerModule,
+    MfeRemoteCatalogActions,
+    MfeRemoteCatalogHeader,
+    MfeRemoteDetail,
+    MfeRemoteRail,
   ],
   template: `
-    <ngx-particle-header>
-      <h1>MFE Orchestrator</h1>
-    </ngx-particle-header>
-    <div class="action-bar">
-      <div class="flex-spacer"></div>
-      <button matButton="filled" (click)="openDialog()">
-        <mat-icon>note_add</mat-icon>
-        Create a New MFE Remote
-      </button>
-    </div>
-    <mat-card class="remote-list" appearance="outlined">
-      <!-- Search Bar -->
-      <mat-form-field appearance="outline" class="search-field">
-        <mat-label>Search MFE Remotes</mat-label>
-        <input
-          matInput
-          type="text"
-          placeholder="Search by ID, name, URL, type, or status..."
-          [(ngModel)]="searchTerm"
-          (input)="onSearchChange($event)"
-        />
-        <mat-icon matPrefix>search</mat-icon>
-      </mat-form-field>
+    <ngx-mfe-remote-catalog-header></ngx-mfe-remote-catalog-header>
+    <ngx-mfe-remote-catalog-actions
+      (createRemote)="openDialog()"
+    ></ngx-mfe-remote-catalog-actions>
 
-      @for (mfeRemote of filteredMfeRemotes | async; track $index) {
-      <ngx-mfe-remote
-        [initialValue]="mfeRemote"
-        (update)="updateMfeRemote($event)"
-        (archive)="archiveMfeRemote($event)"
-        (delete)="deleteMfeRemote($event)"
-      ></ngx-mfe-remote>
-      } @empty {
-      <div class="loading-state">
-        <mat-progress-spinner
-          mode="indeterminate"
-          diameter="48"
-        ></mat-progress-spinner>
-        <p>Loading MFE Remotes</p>
-      </div>
-      }
-    </mat-card>
+    @if (viewModel$ | async; as vm) {
+      <main>
+        <ngx-mfe-remote-rail
+          [remotes]="vm.filtered"
+          [selectedRemoteId]="vm.selected?._id ?? null"
+          [searchTerm]="searchTerm"
+          [activeCount]="vm.activeCount"
+          [archivedCount]="vm.archivedCount"
+          [devModeCount]="vm.devModeCount"
+          (remoteSelected)="selectRemote($event)"
+          (searchChanged)="setSearchTerm($event)"
+        ></ngx-mfe-remote-rail>
+
+        <ngx-mfe-remote-detail
+          [remote]="vm.selected"
+          (createRemote)="openDialog()"
+          (update)="updateMfeRemote($event)"
+          (archive)="archiveMfeRemote($event)"
+          (delete)="deleteMfeRemote($event)"
+        ></ngx-mfe-remote-detail>
+      </main>
+    }
   `,
   styles: [
     `
       :host {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
+        display: block;
+        min-height: 100vh;
+        background:
+          radial-gradient(
+            circle at 85% 15%,
+            color-mix(
+              in srgb,
+              var(--mat-sys-primary) 8%,
+              transparent
+            ),
+            transparent 28rem
+          ),
+          var(--mat-sys-surface-container-lowest);
+      }
 
-        ngx-particle-header h1 {
-          font-size: 1.85rem;
-          font-weight: 100;
-          margin: 1.7rem 1rem;
-        }
+      main {
+        display: grid;
+        grid-template-columns: minmax(280px, 340px) minmax(0, 1fr);
+        gap: 1.5rem;
+        width: min(100% - 3rem, 1440px);
+        margin: 0 auto;
+        padding: 1.5rem 0 3rem;
+        align-items: start;
+      }
 
-        mat-card {
+      @media (max-width: 900px) {
+        main {
+          grid-template-columns: 280px minmax(440px, 1fr);
           width: 100%;
-          max-width: 800px;
-          margin: 2em 0;
-          padding: 1.7em;
+          padding: 1rem;
+          overflow-x: auto;
+        }
+      }
+
+      @media (max-width: 700px) {
+        main {
           display: flex;
           flex-direction: column;
-          gap: 1.7em;
-        }
-
-        .search-field {
-          width: 100%;
-        }
-
-        .loading-state {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
           gap: 1rem;
-          padding: 3rem 1rem;
-          color: rgba(0, 0, 0, 0.6);
-        }
-
-        .action-bar {
-          position: sticky;
-          top: 56px;
-          height: 56px;
-          z-index: 5;
-          display: flex;
-          flex-direction: row;
-          width: 100%;
-          background: var(--mat-sys-primary);
-          align-items: center;
-          a,
-          button {
-            color: var(--mat-sys-on-primary);
-            background: var(--mat-sys-primary);
-            margin: 0 12px;
-          }
+          padding: 1rem;
+          overflow: visible;
         }
       }
     `,
   ],
 })
 export class ListMfeRemotes {
-  dialog = inject(MatDialog);
-  apiMfeRemotes = inject(ApiMfeRemotes);
-  mfeRemotes = this.apiMfeRemotes.mfeRemotes$;
+  private dialog = inject(MatDialog);
+  private apiMfeRemotes = inject(ApiMfeRemotes);
+  private searchSubject = new BehaviorSubject('');
+  private selectedRemoteId = new BehaviorSubject<string | null>(null);
+
+  searchTerm = '';
+
+  viewModel$ = combineLatest([
+    this.apiMfeRemotes.mfeRemotes$,
+    this.searchSubject,
+    this.selectedRemoteId,
+  ]).pipe(
+    map(
+      ([remotes, searchTerm, selectedRemoteId]): CatalogViewModel => {
+        const normalizedSearchTerm = searchTerm.toLowerCase().trim();
+        const filtered = normalizedSearchTerm
+          ? remotes.filter((remote) =>
+              [
+                remote._id,
+                remote.name,
+                remote.remoteEntryUrl,
+                remote.type,
+                remote.status,
+              ].some((value) =>
+                value
+                  ?.toLowerCase()
+                  .includes(normalizedSearchTerm)
+              )
+            )
+          : remotes;
+        const selected =
+          filtered.find((remote) => remote._id === selectedRemoteId) ??
+          filtered[0] ??
+          null;
+
+        return {
+          filtered,
+          selected,
+          activeCount: remotes.filter((remote) => !remote.archived)
+            .length,
+          archivedCount: remotes.filter((remote) => remote.archived)
+            .length,
+          devModeCount: remotes.filter((remote) => remote.isDevMode)
+            .length,
+        };
+      }
+    )
+  );
 
   openDialog(): void {
     lastValueFrom(
@@ -152,10 +172,10 @@ export class ListMfeRemotes {
         })
         .afterClosed()
         .pipe(
-          switchMap((mfeRemote) =>
+          switchMap((remote) =>
             iif(
-              () => !!mfeRemote,
-              this.apiMfeRemotes.createMfeRemote(mfeRemote),
+              () => !!remote,
+              this.apiMfeRemotes.createMfeRemote(remote),
               of(void 0)
             )
           )
@@ -163,40 +183,13 @@ export class ListMfeRemotes {
     );
   }
 
-  // Search functionality
-  searchTerm = '';
-  private searchSubject = new BehaviorSubject<string>('');
+  selectRemote(remoteId: string) {
+    this.selectedRemoteId.next(remoteId);
+  }
 
-  // Filtered MFE remotes based on search term
-  filteredMfeRemotes = combineLatest([
-    this.mfeRemotes,
-    this.searchSubject.asObservable(),
-  ]).pipe(
-    map(([mfeRemotes, searchTerm]) => {
-      if (!searchTerm || searchTerm.trim() === '') {
-        return mfeRemotes;
-      }
-
-      const lowerSearchTerm = searchTerm.toLowerCase().trim();
-      return mfeRemotes.filter(
-        (mfeRemote) =>
-          // Search in _id, name, remoteEntryUrl, type, and status
-          mfeRemote._id.toLowerCase().includes(lowerSearchTerm) ||
-          mfeRemote.name.toLowerCase().includes(lowerSearchTerm) ||
-          mfeRemote.remoteEntryUrl
-            .toLowerCase()
-            .includes(lowerSearchTerm) ||
-          mfeRemote.type.toLowerCase().includes(lowerSearchTerm) ||
-          (mfeRemote.status &&
-            mfeRemote.status.toLowerCase().includes(lowerSearchTerm))
-      );
-    })
-  );
-
-  onSearchChange(event: Event) {
-    const target = event.target as HTMLInputElement;
-    this.searchTerm = target.value;
-    this.searchSubject.next(this.searchTerm);
+  setSearchTerm(searchTerm: string) {
+    this.searchTerm = searchTerm;
+    this.searchSubject.next(searchTerm);
   }
 
   updateMfeRemote(remote: MfeRemoteDtoExtraProps) {

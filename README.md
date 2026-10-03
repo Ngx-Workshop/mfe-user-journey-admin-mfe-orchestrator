@@ -43,14 +43,15 @@ Angular 21 standalone micro-frontend (remote) for the NGX Workshop admin experie
 - Data layer
   - `ApiMfeRemotes` (`src/app/services/api-mfe-remotes.ts`) owns CRUD calls to `/api/mfe-remotes`, keeps a BehaviorSubject cache, enriches data with `isDevMode` flags from local storage, and offers helpers to verify remote URLs.
 - Feature flow
-  - `ListMfeRemotes` (`src/app/routes/list-mfe-remotes.ts`) renders the hero header plus a searchable list of remotes; uses `ApiMfeRemotes` for updates, archive/unarchive, and deletion.
+  - `ListMfeRemotes` (`src/app/routes/list-mfe-remotes.ts`) is the orchestration container. It derives filtered/selected catalog state, opens the create dialog, and delegates CRUD actions to `ApiMfeRemotes`.
+  - `MfeRemoteCatalogHeader`, `MfeRemoteCatalogActions`, `MfeRemoteRail`, and `MfeRemoteDetail` are presentational components that render the responsive workspace and communicate user intent through typed outputs.
   - `Hero` (`src/app/components/hero.ts`) opens `CreateMFEDialog` to create new remotes.
-  - `MfeRemoteCard` (`src/app/components/mfe-remote-card.ts`) shows each remote in a Material accordion with update, archive, delete, dev-mode, and preview actions.
+  - `MfeRemoteCard` (`src/app/components/mfe-remote-card.ts`) shows the selected remote's editable details with update, archive, delete, dev-mode, and preview actions.
   - Dialogs: `DevModeOptions` toggles local dev overrides (stored via `@tmdjr/ngx-local-storage-client`), `MfePreview` loads a remote module via `loadRemoteModule`, and `ConfirmDeleteDialog` handles destructive confirmation. `CreateMFEDialog` reuses the shared form for creation.
 - Forms
   - `MfeForm` (`src/app/components/form-mfe/form-mfe.ts`) builds typed reactive forms for both user-journey and structural MFEs, toggling fields for routes/auth/admin or structural subtype/overrides. Subforms live in `form-mfe-basic-fields.ts`, `form-mfe-structural-fields.ts`, `form-mfe-structural-overrides.ts`, and `form-mfe-structural-subtypes.ts`.
 - UI and styling
-  - Angular Material components, CDK accordion, and custom SCSS live in component styles and `src/styles.scss`; animations decorate accordion transitions and visual dev-mode cues.
+  - Angular Material components and custom SCSS live in component styles and `src/styles.scss`; the catalog includes responsive states, status summaries, keyboard focus treatments, and visual dev-mode cues.
 
 ### Integration notes
 

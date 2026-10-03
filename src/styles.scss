@@ -1,0 +1,24 @@
+html {
+  min-width: 320px;
+  background: var(--mat-sys-surface-container-lowest);
+}
+
+body {
+  margin: 0;
+  color: var(--mat-sys-on-surface);
+  background: var(--mat-sys-surface-container-lowest);
+  font-family: Roboto, 'Helvetica Neue', sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.full-width-dialog {
+  width: min(92vw, 860px);
+}
+
+.mfe-preview {
+  width: min(94vw, 1200px);
+  max-width: 1200px;
+}

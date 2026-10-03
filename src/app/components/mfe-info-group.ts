@@ -8,35 +8,41 @@ import type { MfeRemoteDto } from '@tmdjr/ngx-mfe-orchestrator-contracts';
   imports: [DatePipe],
   template: `
     <div class="mfe-remote-info-group">
-      <p>
-        <span class="label">Last Updated:</span>
-        <span class="value">{{ mfe().lastUpdated | date }}</span>
-      </p>
-      <p>
-        <span class="label">Version:</span>
-        <span class="value">{{ mfe().version }}</span>
-      </p>
+      <span class="info-item">
+        <span class="label">Last updated</span>
+        <strong>{{ mfe().lastUpdated | date : 'mediumDate' }}</strong>
+      </span>
+      <span class="info-item">
+        <span class="label">Version</span>
+        <strong>{{ mfe().version }}</strong>
+      </span>
     </div>
   `,
   styles: [
     `
       :host {
-        button {
-          float: right;
-          margin-left: 8px;
-        }
-        p {
-          margin: 0.2em 0;
+        .mfe-remote-info-group {
           display: flex;
+          flex-wrap: wrap;
+          gap: 0.75rem 1.5rem;
+        }
+
+        .info-item {
+          display: flex;
+          flex-direction: column;
+          gap: 0.15rem;
+
           .label {
+            color: var(--mat-sys-on-surface-variant);
+            font-size: 0.66rem;
             font-weight: 600;
-            text-align: right;
-            min-width: 120px;
-            margin-right: 8px;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
           }
-          .value {
-            text-align: left;
-            flex: 1;
+
+          strong {
+            font-size: 0.82rem;
+            font-weight: 600;
           }
         }
       }

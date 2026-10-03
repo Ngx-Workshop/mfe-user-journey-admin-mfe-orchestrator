@@ -10,23 +10,28 @@ import type { MfeRemoteDto } from '@tmdjr/ngx-mfe-orchestrator-contracts';
   selector: 'ngx-mfe-remote-card-header',
   imports: [MatIconButton, MatIcon, MfeInfoGroup, MatTooltip],
   template: `
-    <button mat-icon-button matTooltip="Hello I'm some info">
-      <mat-icon>info</mat-icon>
-    </button>
-    <button mat-icon-button (click)="openDevModeOptions()">
-      <mat-icon>code</mat-icon>
-    </button>
-    <button
-      mat-icon-button
-      matTooltip="Preview the MFE"
-      (click)="previewMfeRemote()"
-    >
-      <mat-icon>visibility</mat-icon>
-    </button>
-    <div class="flex-spacer"></div>
     <ngx-mfe-remote-info-group
       [mfe]="initialValue()"
     ></ngx-mfe-remote-info-group>
+    <div class="flex-spacer"></div>
+    <div class="quick-actions">
+      <button
+        mat-icon-button
+        matTooltip="Configure development mode"
+        aria-label="Configure development mode"
+        (click)="openDevModeOptions()"
+      >
+        <mat-icon>code</mat-icon>
+      </button>
+      <button
+        mat-icon-button
+        matTooltip="Preview this MFE"
+        aria-label="Preview this MFE"
+        (click)="previewMfeRemote()"
+      >
+        <mat-icon>visibility</mat-icon>
+      </button>
+    </div>
   `,
   styles: [
     `
@@ -34,7 +39,31 @@ import type { MfeRemoteDto } from '@tmdjr/ngx-mfe-orchestrator-contracts';
         width: 100%;
         display: flex;
         flex-direction: row;
-        margin-bottom: 1em;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1rem;
+
+        .flex-spacer {
+          flex: 1;
+        }
+
+        .quick-actions {
+          display: flex;
+          gap: 0.25rem;
+          padding: 0.2rem;
+          background: var(--mat-sys-surface-container);
+          border-radius: 12px;
+        }
+
+        @media (max-width: 520px) {
+          align-items: flex-start;
+          flex-direction: column;
+
+          .quick-actions {
+            align-self: stretch;
+            justify-content: flex-end;
+          }
+        }
       }
     `,
   ],
