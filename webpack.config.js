@@ -82,5 +82,30 @@ module.exports = withModuleFederationPlugin({
       strictVersion: true,
       requiredVersion: '21.0.5',
     },
+
+    // Used by the loaded MFE
+    '@tmdjr/ngx-theme-picker': {
+      singleton: true,
+      strictVersion: true,
+      requiredVersion: '21.0.3',
+    },
+
+    '@tmdjr/ngx-navigational-list': {
+      singleton: true,
+      strictVersion: true,
+      requiredVersion: '21.0.8',
+    },
+
+    '@tmdjr/ngx-editor-js2': {
+      singleton: true,
+      strictVersion: true,
+      requiredVersion: '21.0.9',
+    },
+
+    '@tmdjr/ngx-asset-manager': {
+      singleton: true,
+      strictVersion: true,
+      requiredVersion: '21.1.0',
+    },
   },
 });
