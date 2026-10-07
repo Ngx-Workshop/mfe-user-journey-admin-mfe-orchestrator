@@ -1,6 +1,6 @@
 import { Route } from '@angular/router';
 import { userAuthenticatedGuard } from '@tmdjr/ngx-user-metadata';
-import { mfeRemoteResolver } from './resolvers/mfe-remote.resolver';
+import { mfeRemoteResolver } from './features/mfe-remotes/resolvers/mfe-remote.resolver';
 
 export const Routes: Route[] = [
   {
@@ -11,9 +11,9 @@ export const Routes: Route[] = [
       {
         path: 'list-mfe-remotes',
         loadComponent: () =>
-          import('./routes/list-mfe-remotes').then(
-            (m) => m.ListMfeRemotes
-          ),
+          import(
+            './features/mfe-remotes/pages/catalog/list-mfe-remotes'
+          ).then((m) => m.ListMfeRemotes),
         resolve: { mfeRemotes: mfeRemoteResolver },
       },
     ],

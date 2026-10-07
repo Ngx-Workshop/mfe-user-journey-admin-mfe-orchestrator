@@ -1,0 +1,8 @@
+# Orchestrator feature specifications
+
+Follow the local [workflow](../.specify/README.md). Select work from the user's request rather than the highest feature number. Historical delivery records are distinct from the current source map in [architecture](../docs/architecture.md).
+
+| Feature                                  | Status                                                                                   | Artifacts                                                                                                                                                                                                           |
+| ---------------------------------------- | ---------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 001 MVVM refactor and external test tree | Implemented; unit/build and sampled live reads/forms verified; live writes not exercised | [Spec](001-mvvm-refactor/spec.md), [plan](001-mvvm-refactor/plan.md), [tasks](001-mvvm-refactor/tasks.md), [handoff](001-mvvm-refactor/handoff.md), [historical record](001-mvvm-refactor/implementation-record.md) |
+| 002 Workflow and source organization     | Complete; layout, tests, builds and helper checks verified                               | [Spec](002-source-organization/spec.md), [plan](002-source-organization/plan.md), [tasks](002-source-organization/tasks.md), [handoff](002-source-organization/handoff.md)                                          |

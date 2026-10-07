@@ -19,9 +19,9 @@ Angular 21 standalone micro-frontend (remote) for the NGX Workshop admin experie
    - `npm install`
 2. Run the dev server (serves `remoteEntry.js` on port 4201):
    - `npm start`
-   - Requires the backing API to expose `/api/mfe-remotes`, `/api/mfe-remotes/auth-test`, and related CRUD routes.
+   - Requires API/auth routing for `/api/mfe-remotes` and its CRUD routes; see the development guide for standalone versus shell origins.
 3. Serve a watchable production-style bundle (useful when hosted by another shell):
-   - `npm run dev:bundle` (runs a production watch and serves the built assets via `http-server` on port 4201).
+   - `npm run dev:bundle` (runs a development watch and serves the built assets via `http-server` on port 4201).
 4. Build for production:
    - `npm run build` (outputs to `dist/mfe-user-journey-admin-mfe-orchestrator`).
 5. Run unit tests:
@@ -29,35 +29,15 @@ Angular 21 standalone micro-frontend (remote) for the NGX Workshop admin experie
 6. Run the module-federation dev server helper (from `@angular-architects/module-federation`):
    - `npm run run:all`.
 
-### Test directory layout
+### Repository context and organization
 
-Specs live in `testing/app`, mirroring `src/app`, outside the application source tree. For example, `src/app/state/mfe-remotes-store.ts` is covered by `testing/app/state/mfe-remotes-store.spec.ts`.
+Start with [AGENTS.md](AGENTS.md), the [local workflow](.specify/README.md), [architecture](docs/architecture.md), [development guide](docs/development.md) and [feature index](specs/README.md).
 
-`tsconfig.spec.json` includes `testing/**/*.ts`. The test target in `angular.json` discovers `../testing/**/*.spec.ts` relative to the `src` source root. Run the suite with `npm test`; add future specs under the matching `testing/app` directory.
+Feature code lives under `src/app/features/mfe-remotes`, following the [source-organization convention](docs/source-organization.md). Stateless adapters live in `api`, shared model/commands in `state`, typed factories in `forms`, domain types in `models`, and route resolution in `resolvers`. Catalog-only views/local VM live in `pages/catalog`; reused edit/create form and configuration views live in `components/remote-configuration`.
 
-### Architectural overview
+Specs mirror these folders under `testing/app/features/mfe-remotes`; root app coverage remains in `testing/app/app.spec.ts`. See [testing](testing/README.md). Run `npm run check:layout`, `npm test -- --watch=false --browsers=ChromeHeadless` and `npm run build` after moving source.
 
-- Entry points
-  - `src/main.ts` dynamically imports `bootstrap.ts`, which bootstraps `App` with `appConfig`.
-  - Module federation config in `webpack.config.js` names the remote `ngx-seed-mfe` and exposes `./Component` and `./Routes` from `src/app` via `remoteEntry.js`.
-- Application configuration
-  - `appConfig` (`src/app/app.config.ts`) wires zoneless change detection, global error listeners, async animations, `HttpClient` (with DI interceptors), and `ReactiveFormsModule`.
-  - Root component `App` (`src/app/app.ts`) is a minimal `router-outlet` suitable for dynamic loading.
-- Routing and guards
-  - Routes (`src/app/app.routes.ts`) protect all children with `userAuthenticatedGuard` from `@tmdjr/ngx-user-metadata` and resolve data with `mfeRemoteResolver`.
-  - `mfeRemoteResolver` (`src/app/resolvers/mfe-remote.resolver.ts`) fetches remote definitions before activation.
-- Data layer
-  - `ApiMfeRemotes` (`src/app/services/api-mfe-remotes.ts`) owns CRUD calls to `/api/mfe-remotes`, keeps a BehaviorSubject cache, enriches data with `isDevMode` flags from local storage, and offers helpers to verify remote URLs.
-- Feature flow
-  - `ListMfeRemotes` (`src/app/routes/list-mfe-remotes.ts`) is the orchestration container. It derives filtered/selected catalog state, opens the create dialog, and delegates CRUD actions to `ApiMfeRemotes`.
-  - `MfeRemoteCatalogHeader`, `MfeRemoteCatalogActions`, `MfeRemoteRail`, and `MfeRemoteDetail` are presentational components that render the responsive workspace and communicate user intent through typed outputs.
-  - `Hero` (`src/app/components/hero.ts`) opens `CreateMFEDialog` to create new remotes.
-  - `MfeRemoteCard` (`src/app/components/mfe-remote-card.ts`) shows the selected remote's editable details with update, archive, delete, dev-mode, and preview actions.
-  - Dialogs: `DevModeOptions` toggles local dev overrides (stored via `@tmdjr/ngx-local-storage-client`), `MfePreview` loads a remote module via `loadRemoteModule`, and `ConfirmDeleteDialog` handles destructive confirmation. `CreateMFEDialog` reuses the shared form for creation.
-- Forms
-  - `MfeForm` (`src/app/components/form-mfe/form-mfe.ts`) builds typed reactive forms for both user-journey and structural MFEs, toggling fields for routes/auth/admin or structural subtype/overrides. Subforms live in `form-mfe-basic-fields.ts`, `form-mfe-structural-fields.ts`, `form-mfe-structural-overrides.ts`, and `form-mfe-structural-subtypes.ts`.
-- UI and styling
-  - Angular Material components and custom SCSS live in component styles and `src/styles.scss`; the catalog includes responsive states, status summaries, keyboard focus treatments, and visual dev-mode cues.
+`src/app/app.routes.ts` remains the public federation route entry and guards/resolves `list-mfe-remotes`. `ApiMfeRemotes` makes stateless requests; `MfeRemotesStore` owns root catalog state, ordered writes, refreshes and errors. Scoped catalog/form VMs derive UI state. Components keep inline HTML/SCSS and BEM classes. The earlier refactor plan is retained as a [historical implementation record](specs/001-mvvm-refactor/implementation-record.md).
 
 ### Integration notes
 
