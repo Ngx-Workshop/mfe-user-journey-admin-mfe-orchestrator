@@ -11,9 +11,9 @@ export const Routes: Route[] = [
       {
         path: 'list-mfe-remotes',
         loadComponent: () =>
-          import(
-            './features/mfe-remotes/pages/catalog/list-mfe-remotes'
-          ).then((m) => m.ListMfeRemotes),
+          import('./features/mfe-remotes/pages/catalog/list-mfe-remotes').then(
+            (m) => m.ListMfeRemotes
+          ),
         resolve: { mfeRemotes: mfeRemoteResolver },
       },
     ],

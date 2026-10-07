@@ -5,7 +5,4 @@ export type MfeRemoteDtoExtraProps = MfeRemoteDto & {
 };
 
 export type UrlVerificationState =
-  | 'idle'
-  | 'verifying'
-  | 'success'
-  | 'error';
+  'idle' | 'verifying' | 'success' | 'error';
