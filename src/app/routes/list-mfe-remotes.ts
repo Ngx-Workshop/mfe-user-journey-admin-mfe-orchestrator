@@ -43,26 +43,26 @@ type CatalogViewModel = {
     ></ngx-mfe-remote-catalog-actions>
 
     @if (viewModel$ | async; as vm) {
-      <main>
-        <ngx-mfe-remote-rail
-          [remotes]="vm.filtered"
-          [selectedRemoteId]="vm.selected?._id ?? null"
-          [searchTerm]="searchTerm"
-          [activeCount]="vm.activeCount"
-          [archivedCount]="vm.archivedCount"
-          [devModeCount]="vm.devModeCount"
-          (remoteSelected)="selectRemote($event)"
-          (searchChanged)="setSearchTerm($event)"
-        ></ngx-mfe-remote-rail>
+    <main>
+      <ngx-mfe-remote-rail
+        [remotes]="vm.filtered"
+        [selectedRemoteId]="vm.selected?._id ?? null"
+        [searchTerm]="searchTerm"
+        [activeCount]="vm.activeCount"
+        [archivedCount]="vm.archivedCount"
+        [devModeCount]="vm.devModeCount"
+        (remoteSelected)="selectRemote($event)"
+        (searchChanged)="setSearchTerm($event)"
+      ></ngx-mfe-remote-rail>
 
-        <ngx-mfe-remote-detail
-          [remote]="vm.selected"
-          (createRemote)="openDialog()"
-          (update)="updateMfeRemote($event)"
-          (archive)="archiveMfeRemote($event)"
-          (delete)="deleteMfeRemote($event)"
-        ></ngx-mfe-remote-detail>
-      </main>
+      <ngx-mfe-remote-detail
+        [remote]="vm.selected"
+        (createRemote)="openDialog()"
+        (update)="updateMfeRemote($event)"
+        (archive)="archiveMfeRemote($event)"
+        (delete)="deleteMfeRemote($event)"
+      ></ngx-mfe-remote-detail>
+    </main>
     }
   `,
   styles: [
@@ -70,8 +70,7 @@ type CatalogViewModel = {
       :host {
         display: block;
         min-height: 100vh;
-        background:
-          radial-gradient(
+        background: radial-gradient(
             circle at 85% 15%,
             color-mix(
               in srgb,
@@ -139,14 +138,14 @@ export class ListMfeRemotes {
                 remote.type,
                 remote.status,
               ].some((value) =>
-                value
-                  ?.toLowerCase()
-                  .includes(normalizedSearchTerm)
+                value?.toLowerCase().includes(normalizedSearchTerm)
               )
             )
           : remotes;
         const selected =
-          filtered.find((remote) => remote._id === selectedRemoteId) ??
+          filtered.find(
+            (remote) => remote._id === selectedRemoteId
+          ) ??
           filtered[0] ??
           null;
 
@@ -169,6 +168,7 @@ export class ListMfeRemotes {
       this.dialog
         .open(CreateMFEDialog, {
           panelClass: 'full-width-dialog',
+          backdropClass: 'blur-backdrop',
         })
         .afterClosed()
         .pipe(
