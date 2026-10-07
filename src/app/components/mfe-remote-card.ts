@@ -25,68 +25,68 @@ import { MfeRemoteCardHeader } from './mfe-remote-card-header';
   ],
   template: `
     @if (initialValue(); as mfe) {
-      <mat-card
-        appearance="filled"
-        [ngClass]="{ 'dev-mode': mfe.isDevMode }"
-      >
-        <div class="card-heading">
-          <div>
-            <div class="title-row">
-              <h3>Configuration</h3>
-              <span class="type-badge">{{ mfe.type }}</span>
-              @if (mfe.isDevMode) {
-                <span class="dev-badge">
-                  <mat-icon>code</mat-icon>
-                  Dev mode
-                </span>
-              }
-            </div>
-            <p>{{ mfe.description || 'No description provided.' }}</p>
+    <mat-card
+      appearance="filled"
+      [ngClass]="{ 'dev-mode': mfe.isDevMode }"
+    >
+      <div class="card-heading">
+        <div>
+          <div class="title-row">
+            <h3>Configuration</h3>
+            <span class="type-badge">{{ mfe.type }}</span>
+            @if (mfe.isDevMode) {
+            <span class="dev-badge">
+              <mat-icon>code</mat-icon>
+              Dev mode
+            </span>
+            }
           </div>
+          <p>{{ mfe.description || 'No description provided.' }}</p>
         </div>
+      </div>
 
-        <mat-card-header>
-          <ngx-mfe-remote-card-header
-            [initialValue]="initialValue()"
-            (openDevModeOptions)="openDevModeOptions(mfe)"
-            (previewMfeRemote)="previewMfeRemote(mfe)"
-          ></ngx-mfe-remote-card-header>
-        </mat-card-header>
+      <mat-card-header>
+        <ngx-mfe-remote-card-header
+          [initialValue]="initialValue()"
+          (openDevModeOptions)="openDevModeOptions(mfe)"
+          (previewMfeRemote)="previewMfeRemote(mfe)"
+        ></ngx-mfe-remote-card-header>
+      </mat-card-header>
 
-        <mat-card-content>
-          <ngx-mfe-form
-            [initialValue]="initialValue()"
-            (formStatus)="disableUpdateButton = $event !== 'VALID'"
-            (valueChange)="mfeRemote = $event"
-          ></ngx-mfe-form>
-        </mat-card-content>
+      <mat-card-content>
+        <ngx-mfe-form
+          [initialValue]="initialValue()"
+          (formStatus)="disableUpdateButton = $event !== 'VALID'"
+          (valueChange)="mfeRemote = $event"
+        ></ngx-mfe-form>
+      </mat-card-content>
 
-        <mat-card-actions>
-          <button
-            matButton
-            class="delete-action"
-            (click)="deleteRemote()"
-          >
-            <mat-icon>delete</mat-icon>
-            Delete
-          </button>
-          <button matButton (click)="archive.emit(mfe)">
-            <mat-icon>{{
-              mfe.archived ? 'unarchive' : 'archive'
-            }}</mat-icon>
-            {{ mfe.archived ? 'Unarchive' : 'Archive' }}
-          </button>
-          <div class="flex-spacer"></div>
-          <button
-            matButton="filled"
-            (click)="updateRemote()"
-            [disabled]="disableUpdateButton"
-          >
-            <mat-icon>save</mat-icon>
-            Save changes
-          </button>
-        </mat-card-actions>
-      </mat-card>
+      <mat-card-actions>
+        <button
+          matButton
+          class="delete-action"
+          (click)="deleteRemote()"
+        >
+          <mat-icon>delete</mat-icon>
+          Delete
+        </button>
+        <button matButton (click)="archive.emit(mfe)">
+          <mat-icon>{{
+            mfe.archived ? 'unarchive' : 'archive'
+          }}</mat-icon>
+          {{ mfe.archived ? 'Unarchive' : 'Archive' }}
+        </button>
+        <div class="flex-spacer"></div>
+        <button
+          matButton="filled"
+          (click)="updateRemote()"
+          [disabled]="disableUpdateButton"
+        >
+          <mat-icon>save</mat-icon>
+          Save changes
+        </button>
+      </mat-card-actions>
+    </mat-card>
     }
   `,
   styles: [
@@ -237,7 +237,10 @@ export class MfeRemoteCard {
   deleteRemote() {
     lastValueFrom(
       this.dialog
-        .open(ConfirmDeleteDialog, { data: this.initialValue() })
+        .open(ConfirmDeleteDialog, {
+          backdropClass: 'blur-backdrop',
+          data: this.initialValue(),
+        })
         .afterClosed()
         .pipe(
           tap((mfeRemote) => mfeRemote && this.delete.emit(mfeRemote))
@@ -247,6 +250,7 @@ export class MfeRemoteCard {
 
   previewMfeRemote(mfeRemote: MfeRemoteDtoExtraProps) {
     this.dialog.open(MfePreview, {
+      backdropClass: 'blur-backdrop',
       data: mfeRemote,
       panelClass: ['mfe-preview', 'full-width-dialog'],
     });
@@ -254,6 +258,7 @@ export class MfeRemoteCard {
 
   openDevModeOptions(mfe: MfeRemoteDtoExtraProps) {
     this.dialog.open(DevModeOptions, {
+      backdropClass: 'blur-backdrop',
       data: mfe,
       width: '600px',
     });

@@ -92,6 +92,7 @@ export class Hero {
       this.dialog
         .open(CreateMFEDialog, {
           panelClass: 'full-width-dialog',
+          backdropClass: 'blur-backdrop',
         })
         .afterClosed()
         .pipe(
