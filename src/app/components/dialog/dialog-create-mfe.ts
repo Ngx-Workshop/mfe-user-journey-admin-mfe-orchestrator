@@ -1,4 +1,8 @@
-import { Component, inject } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+} from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import {
   MatDialogActions,
@@ -10,9 +14,11 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MfeForm } from '../form-mfe/form-mfe';
 
-import type { MfeRemoteDto } from '@tmdjr/ngx-mfe-orchestrator-contracts';
+import type { CreateMfeRemoteDto } from '@tmdjr/ngx-mfe-orchestrator-contracts';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  host: { class: 'create-mfe' },
   selector: 'ngx-create-mfe-dialog',
   imports: [
     MatFormFieldModule,
@@ -59,5 +65,9 @@ import type { MfeRemoteDto } from '@tmdjr/ngx-mfe-orchestrator-contracts';
 export class CreateMFEDialog {
   dialogRef = inject(MatDialogRef<CreateMFEDialog>);
   disableCreateButton = true;
-  mfeRemote: Partial<MfeRemoteDto> = {};
+  mfeRemote: CreateMfeRemoteDto = {
+    name: '',
+    remoteEntryUrl: '',
+    type: 'user-journey',
+  };
 }

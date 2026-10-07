@@ -1,5 +1,13 @@
 import { loadRemoteModule } from '@angular-architects/module-federation';
-import { Component, ViewChild, ViewContainerRef, inject } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  ViewChild,
+  ViewContainerRef,
+  inject,
+  DestroyRef,
+  signal,
+} from '@angular/core';
 import { MatButton } from '@angular/material/button';
 import {
   MAT_DIALOG_DATA,
@@ -9,14 +17,23 @@ import {
   MatDialogTitle,
 } from '@angular/material/dialog';
 import { MfeRemoteDto } from '@tmdjr/ngx-mfe-orchestrator-contracts';
-import { ConfirmDeleteDialog } from './dialog-confirm-delete';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  host: { class: 'mfe-preview' },
   selector: 'ngx-mfe-preview',
-  imports: [MatButton, MatDialogTitle, MatDialogContent, MatDialogActions],
+  imports: [
+    MatButton,
+    MatDialogTitle,
+    MatDialogContent,
+    MatDialogActions,
+  ],
   template: `
     <h2 mat-dialog-title>You Are Previewing: {{ mfeRemote.name }}</h2>
     <mat-dialog-content>
+      @if (error()) {
+        <p role="alert">{{ error() }}</p>
+      }
       <ng-container #mfeHost></ng-container>
     </mat-dialog-content>
     <mat-dialog-actions>
@@ -36,8 +53,11 @@ export class MfePreview {
   @ViewChild('mfeHost', { read: ViewContainerRef, static: true })
   private mfeHost!: ViewContainerRef;
 
-  dialogRef = inject(MatDialogRef<ConfirmDeleteDialog>);
+  dialogRef = inject(MatDialogRef<MfePreview>);
   mfeRemote = inject<MfeRemoteDto>(MAT_DIALOG_DATA);
+
+  readonly error = signal<string | null>(null);
+  private readonly destroyRef = inject(DestroyRef);
 
   async ngOnInit() {
     try {
@@ -46,9 +66,12 @@ export class MfePreview {
         remoteEntry: this.mfeRemote.remoteEntryUrl,
         exposedModule: './Component',
       });
-      this.mfeHost.createComponent(remote.default);
+      if (!this.destroyRef.destroyed)
+        this.mfeHost.createComponent(remote.default);
     } catch (error) {
-      console.error('[MFE LOAD ERROR]', error);
+      this.error.set(
+        'This remote could not be loaded. Check its entry URL and try again.'
+      );
     }
   }
 }

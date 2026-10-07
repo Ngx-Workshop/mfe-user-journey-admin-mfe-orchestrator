@@ -1,8 +1,14 @@
-import { Component, output } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  output,
+} from '@angular/core';
 import { MatButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  host: { class: 'mfe-remote-catalog-actions' },
   selector: 'ngx-mfe-remote-catalog-actions',
   imports: [MatButton, MatIcon],
   template: `

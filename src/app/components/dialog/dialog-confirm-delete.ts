@@ -1,4 +1,8 @@
-import { Component, inject } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+} from '@angular/core';
 import { MatButton } from '@angular/material/button';
 import {
   MAT_DIALOG_DATA,
@@ -11,8 +15,15 @@ import {
 import type { MfeRemoteDto } from '@tmdjr/ngx-mfe-orchestrator-contracts';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  host: { class: 'confirm-delete' },
   selector: 'ngx-confirm-delete-dialog',
-  imports: [MatButton, MatDialogTitle, MatDialogContent, MatDialogActions],
+  imports: [
+    MatButton,
+    MatDialogTitle,
+    MatDialogContent,
+    MatDialogActions,
+  ],
   template: `
     <h3 mat-dialog-title>Confirm Delete</h3>
     <mat-dialog-content>

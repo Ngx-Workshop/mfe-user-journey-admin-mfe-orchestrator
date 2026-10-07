@@ -29,6 +29,12 @@ Angular 21 standalone micro-frontend (remote) for the NGX Workshop admin experie
 6. Run the module-federation dev server helper (from `@angular-architects/module-federation`):
    - `npm run run:all`.
 
+### Test directory layout
+
+Specs live in `testing/app`, mirroring `src/app`, outside the application source tree. For example, `src/app/state/mfe-remotes-store.ts` is covered by `testing/app/state/mfe-remotes-store.spec.ts`.
+
+`tsconfig.spec.json` includes `testing/**/*.ts`. The test target in `angular.json` discovers `../testing/**/*.spec.ts` relative to the `src` source root. Run the suite with `npm test`; add future specs under the matching `testing/app` directory.
+
 ### Architectural overview
 
 - Entry points

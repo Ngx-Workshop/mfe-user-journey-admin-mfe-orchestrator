@@ -1,149 +1,45 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import {
-  BehaviorSubject,
-  catchError,
-  forkJoin,
-  map,
-  of,
-  switchMap,
-  tap,
-} from 'rxjs';
+import type {
+  CreateMfeRemoteDto,
+  MfeRemoteDto,
+  UpdateMfeRemoteDto,
+} from '@tmdjr/ngx-mfe-orchestrator-contracts';
 
-import { LocalStorageBrokerService } from '@tmdjr/ngx-local-storage-client';
-import type { MfeRemoteDto } from '@tmdjr/ngx-mfe-orchestrator-contracts';
-import { MfeRemoteDtoExtraProps } from '../app.types';
-
-@Injectable({
-  providedIn: 'root',
-})
+/** Stateless transport. Callers own orchestration and error handling. */
+@Injectable({ providedIn: 'root' })
 export class ApiMfeRemotes {
-  httpClient = inject(HttpClient);
-  localStorageBrokerService = inject(LocalStorageBrokerService);
-
-  mfeRemotes = new BehaviorSubject<MfeRemoteDto[]>([]);
-  mfeRemotes$ = this.mfeRemotes.asObservable().pipe(
-    switchMap((mfeRemotes) =>
-      forkJoin([
-        of(mfeRemotes),
-        this.localStorageBrokerService.keys(),
-      ])
-    ),
-    map(([mfeRemotes, localStorageKeys]) =>
-      mfeRemotes.map((remote) => ({
-        ...remote,
-        isDevMode: localStorageKeys.includes(remote._id),
-      }))
-    )
-  );
-
-  testAuthEndpoint() {
-    return this.httpClient
-      .get<{ status: string }>('/api/mfe-remotes/auth-test')
-      .pipe(
-        tap((response) => {
-          if (response.status !== 'ok') {
-            throw new Error('Authentication test failed');
-          }
-        }),
-        catchError((error) => {
-          console.warn(
-            'Error testing authentication endpoint:',
-            error
-          );
-          return of({ status: 'error' });
-        })
-      );
-  }
+  private readonly http = inject(HttpClient);
+  private readonly url = '/api/mfe-remotes';
 
   fetchMfeRemotes() {
-    return this.httpClient
-      .get<MfeRemoteDto[]>('/api/mfe-remotes')
-      .pipe(
-        tap((remotes) => this.mfeRemotes.next(remotes)),
-        catchError((error) => {
-          console.warn('Error fetching MFE remotes:', error);
-          return of([]);
-        })
-      );
+    return this.http.get<MfeRemoteDto[]>(this.url);
   }
 
-  createMfeRemote(mfeRemote: MfeRemoteDto) {
-    return this.httpClient
-      .post<MfeRemoteDto>('/api/mfe-remotes', mfeRemote)
-      .pipe(
-        switchMap(() => this.fetchMfeRemotes()),
-        catchError((error) => {
-          console.warn('Error creating MFE remote:', error);
-          return of([]);
-        })
-      );
+  createMfeRemote(remote: CreateMfeRemoteDto) {
+    return this.http.post<MfeRemoteDto>(this.url, remote);
   }
 
-  updateMfeRemote({
-    _id,
-    lastUpdated,
-    version,
-    isDevMode,
-    __v,
-    ...partialMfeRemote
-  }: MfeRemoteDtoExtraProps) {
-    return this.httpClient
-      .patch<MfeRemoteDto>(
-        `/api/mfe-remotes/${_id}`,
-        partialMfeRemote
-      )
-      .pipe(
-        switchMap(() => this.fetchMfeRemotes()),
-        catchError((error) => {
-          console.warn('Error updating MFE remote:', error);
-          return of([]);
-        })
-      );
+  updateMfeRemote(id: string, changes: UpdateMfeRemoteDto) {
+    return this.http.patch<MfeRemoteDto>(
+      `${this.url}/${id}`,
+      changes
+    );
   }
 
-  archiveMfeRemote(mfeRemote: MfeRemoteDto) {
-    return this.httpClient
-      .patch<MfeRemoteDto>(
-        `/api/mfe-remotes/${mfeRemote._id}/${
-          mfeRemote.archived ? 'unarchive' : 'archive'
-        }`,
-        void 0
-      )
-      .pipe(
-        switchMap(() => this.fetchMfeRemotes()),
-        catchError((error) => {
-          console.warn('Error archiving MFE remote:', error);
-          return of([]);
-        })
-      );
+  archiveMfeRemote(remote: MfeRemoteDto) {
+    return this.http.patch<MfeRemoteDto>(
+      `${this.url}/${remote._id}/${remote.archived ? 'unarchive' : 'archive'}`,
+      null
+    );
   }
 
-  deleteMfeRemote(mfeRemote: MfeRemoteDto) {
-    return this.httpClient
-      .delete<MfeRemoteDto>(`/api/mfe-remotes/${mfeRemote._id}`)
-      .pipe(
-        switchMap(() => this.fetchMfeRemotes()),
-        catchError((error) => {
-          console.warn('Error deleting MFE remote:', error);
-          return of([]);
-        })
-      );
+  deleteMfeRemote(id: string) {
+    return this.http.delete<void>(`${this.url}/${id}`);
   }
 
-  verifyMfeUrl(remoteEntryUrl: string) {
-    return this.httpClient
-      .get<{ status: string }>(remoteEntryUrl)
-      .pipe(
-        tap((response) => {
-          if (response.status !== 'ok') {
-            throw new Error('Remote entry URL is not valid');
-          }
-        }),
-        catchError((error) => {
-          console.warn('Error verifying MFE URL:', error);
-          return of({ status: 'error' });
-        })
-      );
+  verifyMfeUrl(url: string) {
+    // A federation entry is JavaScript, not a JSON { status } endpoint.
+    return this.http.get(url, { responseType: 'text' });
   }
 }

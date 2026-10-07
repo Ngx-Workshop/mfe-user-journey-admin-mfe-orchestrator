@@ -1,4 +1,8 @@
-import { Component, input } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  input,
+} from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatIcon } from '@angular/material/icon';
 import { MatSelectModule } from '@angular/material/select';
@@ -11,19 +15,19 @@ type StructuralSubTypes = {
 }[];
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  host: { class: 'mfe-structural-subtypes' },
   selector: 'ngx-structural-subtypes',
-  imports: [
-    ReactiveFormsModule,
-    MatSelectModule,
-    MatIcon,
-  ],
+  imports: [ReactiveFormsModule, MatSelectModule, MatIcon],
   template: `
     <mat-form-field appearance="outline">
       <mat-label>Structural placement</mat-label>
       <mat-icon matPrefix>view_quilt</mat-icon>
       <mat-select [formControl]="structuralSubTypeControl()">
         @for (type of structuralSubTypes; track type) {
-          <mat-option [value]="type.value">{{ type.label }}</mat-option>
+          <mat-option [value]="type.value">{{
+            type.label
+          }}</mat-option>
         }
       </mat-select>
       <mat-hint>

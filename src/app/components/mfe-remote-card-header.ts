@@ -1,4 +1,9 @@
-import { Component, input, output } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  input,
+  output,
+} from '@angular/core';
 import { MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { MatTooltip } from '@angular/material/tooltip';
@@ -7,14 +12,16 @@ import { MfeInfoGroup } from './mfe-info-group';
 import type { MfeRemoteDto } from '@tmdjr/ngx-mfe-orchestrator-contracts';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  host: { class: 'mfe-remote-card-header' },
   selector: 'ngx-mfe-remote-card-header',
   imports: [MatIconButton, MatIcon, MfeInfoGroup, MatTooltip],
   template: `
     <ngx-mfe-remote-info-group
       [mfe]="initialValue()"
     ></ngx-mfe-remote-info-group>
-    <div class="flex-spacer"></div>
-    <div class="quick-actions">
+    <div class="mfe-remote-card-header__flex-spacer"></div>
+    <div class="mfe-remote-card-header__quick-actions">
       <button
         mat-icon-button
         matTooltip="Configure development mode"
@@ -43,11 +50,11 @@ import type { MfeRemoteDto } from '@tmdjr/ngx-mfe-orchestrator-contracts';
         gap: 1rem;
         margin-bottom: 1rem;
 
-        .flex-spacer {
+        .mfe-remote-card-header__flex-spacer {
           flex: 1;
         }
 
-        .quick-actions {
+        .mfe-remote-card-header__quick-actions {
           display: flex;
           gap: 0.25rem;
           padding: 0.2rem;
@@ -59,7 +66,7 @@ import type { MfeRemoteDto } from '@tmdjr/ngx-mfe-orchestrator-contracts';
           align-items: flex-start;
           flex-direction: column;
 
-          .quick-actions {
+          .mfe-remote-card-header__quick-actions {
             align-self: stretch;
             justify-content: flex-end;
           }

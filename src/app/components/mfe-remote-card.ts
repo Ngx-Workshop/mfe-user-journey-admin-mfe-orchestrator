@@ -1,11 +1,19 @@
+import { MfeRemoteSummary } from './mfe-remote-summary';
 import { NgClass } from '@angular/common';
-import { Component, inject, input, output } from '@angular/core';
-import { FormBuilder } from '@angular/forms';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  inject,
+  input,
+  output,
+} from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatButton } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIcon } from '@angular/material/icon';
-import { lastValueFrom, tap } from 'rxjs';
+import { filter } from 'rxjs';
 import { MfeRemoteDtoExtraProps } from '../app.types';
 import { ConfirmDeleteDialog } from './dialog/dialog-confirm-delete';
 import { DevModeOptions } from './dialog/dialog-dev-mode-options';
@@ -14,8 +22,11 @@ import { MfeForm } from './form-mfe/form-mfe';
 import { MfeRemoteCardHeader } from './mfe-remote-card-header';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  host: { class: 'mfe-remote-card' },
   selector: 'ngx-mfe-remote',
   imports: [
+    MfeRemoteSummary,
     MatCardModule,
     MatButton,
     MatIcon,
@@ -25,68 +36,57 @@ import { MfeRemoteCardHeader } from './mfe-remote-card-header';
   ],
   template: `
     @if (initialValue(); as mfe) {
-    <mat-card
-      appearance="filled"
-      [ngClass]="{ 'dev-mode': mfe.isDevMode }"
-    >
-      <div class="card-heading">
-        <div>
-          <div class="title-row">
-            <h3>Configuration</h3>
-            <span class="type-badge">{{ mfe.type }}</span>
-            @if (mfe.isDevMode) {
-            <span class="dev-badge">
-              <mat-icon>code</mat-icon>
-              Dev mode
-            </span>
-            }
-          </div>
-          <p>{{ mfe.description || 'No description provided.' }}</p>
-        </div>
-      </div>
+      <mat-card
+        class="mfe-remote-card__card"
+        appearance="filled"
+        [ngClass]="{
+          'mfe-remote-card__card--dev-mode': mfe.isDevMode,
+        }"
+      >
+        <ngx-mfe-remote-summary [remote]="mfe" />
 
-      <mat-card-header>
-        <ngx-mfe-remote-card-header
-          [initialValue]="initialValue()"
-          (openDevModeOptions)="openDevModeOptions(mfe)"
-          (previewMfeRemote)="previewMfeRemote(mfe)"
-        ></ngx-mfe-remote-card-header>
-      </mat-card-header>
+        <mat-card-header>
+          <ngx-mfe-remote-card-header
+            [initialValue]="initialValue()"
+            (openDevModeOptions)="openDevModeOptions(mfe)"
+            (previewMfeRemote)="previewMfeRemote(mfe)"
+          ></ngx-mfe-remote-card-header>
+        </mat-card-header>
 
-      <mat-card-content>
-        <ngx-mfe-form
-          [initialValue]="initialValue()"
-          (formStatus)="disableUpdateButton = $event !== 'VALID'"
-          (valueChange)="mfeRemote = $event"
-        ></ngx-mfe-form>
-      </mat-card-content>
+        <mat-card-content>
+          <ngx-mfe-form
+            [initialValue]="initialValue()"
+            (formStatus)="disableUpdateButton = $event !== 'VALID'"
+            (valueChange)="mfeRemote = $event"
+          ></ngx-mfe-form>
+        </mat-card-content>
 
-      <mat-card-actions>
-        <button
-          matButton
-          class="delete-action"
-          (click)="deleteRemote()"
-        >
-          <mat-icon>delete</mat-icon>
-          Delete
-        </button>
-        <button matButton (click)="archive.emit(mfe)">
-          <mat-icon>{{
-            mfe.archived ? 'unarchive' : 'archive'
-          }}</mat-icon>
-          {{ mfe.archived ? 'Unarchive' : 'Archive' }}
-        </button>
-        <div class="flex-spacer"></div>
-        <button
-          matButton="filled"
-          (click)="updateRemote()"
-          [disabled]="disableUpdateButton"
-        >
-          <mat-icon>save</mat-icon>
-          Save changes
-        </button>
-      </mat-card-actions>
-    </mat-card>
+        <mat-card-actions>
+          <button
+            matButton
+            class="mfe-remote-card__delete-action"
+            (click)="deleteRemote()"
+          >
+            <mat-icon>delete</mat-icon>
+            Delete
+          </button>
+          <button matButton (click)="archive.emit(mfe)">
+            <mat-icon>{{
+              mfe.archived ? 'unarchive' : 'archive'
+            }}</mat-icon>
+            {{ mfe.archived ? 'Unarchive' : 'Archive' }}
+          </button>
+          <div class="mfe-remote-card__flex-spacer"></div>
+          <button
+            matButton="filled"
+            (click)="updateRemote()"
+            [disabled]="disableUpdateButton"
+          >
+            <mat-icon>save</mat-icon>
+            Save changes
+          </button>
+        </mat-card-actions>
+      </mat-card>
     }
   `,
   styles: [
@@ -101,64 +101,6 @@ import { MfeRemoteCardHeader } from './mfe-remote-card-header';
         border: 1px solid var(--mat-sys-outline-variant);
         border-radius: 16px;
         box-shadow: none;
-      }
-
-      .card-heading {
-        display: flex;
-        justify-content: space-between;
-        gap: 1rem;
-        padding: 1.25rem 1.25rem 1rem;
-        background: var(--mat-sys-surface);
-        border-bottom: 1px solid var(--mat-sys-outline-variant);
-      }
-
-      .title-row {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.55rem;
-        align-items: center;
-      }
-
-      .card-heading h3 {
-        margin: 0;
-        font-size: 1.1rem;
-        font-weight: 600;
-      }
-
-      .card-heading p {
-        max-width: 720px;
-        margin: 0.45rem 0 0;
-        color: var(--mat-sys-on-surface-variant);
-        font-size: 0.85rem;
-        line-height: 1.5;
-      }
-
-      .type-badge,
-      .dev-badge {
-        display: inline-flex;
-        align-items: center;
-        padding: 0.25rem 0.55rem;
-        border-radius: 999px;
-        font-size: 0.68rem;
-        font-weight: 600;
-        text-transform: capitalize;
-      }
-
-      .type-badge {
-        color: var(--mat-sys-on-secondary-container);
-        background: var(--mat-sys-secondary-container);
-      }
-
-      .dev-badge {
-        gap: 0.25rem;
-        color: var(--mat-sys-on-error-container);
-        background: var(--mat-sys-error-container);
-      }
-
-      .dev-badge mat-icon {
-        width: 0.9rem;
-        height: 0.9rem;
-        font-size: 0.9rem;
       }
 
       mat-card-header {
@@ -181,15 +123,15 @@ import { MfeRemoteCardHeader } from './mfe-remote-card-header';
         border-top: 1px solid var(--mat-sys-outline-variant);
       }
 
-      .delete-action {
+      .mfe-remote-card__delete-action {
         color: var(--mat-sys-error);
       }
 
-      .flex-spacer {
+      .mfe-remote-card__flex-spacer {
         flex: 1;
       }
 
-      .dev-mode {
+      .mfe-remote-card__card--dev-mode {
         border-color: color-mix(
           in srgb,
           var(--mat-sys-error) 48%,
@@ -200,7 +142,7 @@ import { MfeRemoteCardHeader } from './mfe-remote-card-header';
       }
 
       @media (max-width: 600px) {
-        mat-card-actions .flex-spacer {
+        mat-card-actions .mfe-remote-card__flex-spacer {
           display: none;
         }
 
@@ -214,7 +156,7 @@ import { MfeRemoteCardHeader } from './mfe-remote-card-header';
 })
 export class MfeRemoteCard {
   dialog = inject(MatDialog);
-  formBuilder = inject(FormBuilder);
+  private readonly destroyRef = inject(DestroyRef);
   initialValue = input.required<MfeRemoteDtoExtraProps>();
 
   mfeRemote: Partial<MfeRemoteDtoExtraProps> = {};
@@ -223,36 +165,42 @@ export class MfeRemoteCard {
   archive = output<MfeRemoteDtoExtraProps>();
   delete = output<MfeRemoteDtoExtraProps>();
 
-  disableUpdateButton = false;
+  disableUpdateButton = true;
 
   updateRemote() {
-    this.mfeRemote.name && this.initialValue() !== this.mfeRemote
-      ? this.update.emit({
-          ...this.initialValue(),
-          ...this.mfeRemote,
-        })
-      : void 0;
+    if (this.disableUpdateButton) return;
+    this.update.emit({ ...this.initialValue(), ...this.mfeRemote });
   }
 
   deleteRemote() {
-    lastValueFrom(
-      this.dialog
-        .open(ConfirmDeleteDialog, {
-          backdropClass: 'blur-backdrop',
-          data: this.initialValue(),
-        })
-        .afterClosed()
-        .pipe(
-          tap((mfeRemote) => mfeRemote && this.delete.emit(mfeRemote))
-        )
-    );
+    this.dialog
+      .open<
+        ConfirmDeleteDialog,
+        MfeRemoteDtoExtraProps,
+        MfeRemoteDtoExtraProps
+      >(ConfirmDeleteDialog, {
+        backdropClass: 'blur-backdrop',
+        data: this.initialValue(),
+      })
+      .afterClosed()
+      .pipe(
+        filter(
+          (remote): remote is MfeRemoteDtoExtraProps => !!remote
+        ),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe((remote) => this.delete.emit(remote));
   }
 
   previewMfeRemote(mfeRemote: MfeRemoteDtoExtraProps) {
     this.dialog.open(MfePreview, {
       backdropClass: 'blur-backdrop',
       data: mfeRemote,
-      panelClass: ['mfe-preview', 'full-width-dialog'],
+      panelClass: [
+        'orchestrator-dialog',
+        'orchestrator-dialog--preview',
+        'orchestrator-dialog--wide',
+      ],
     });
   }
 

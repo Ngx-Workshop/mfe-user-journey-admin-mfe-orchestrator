@@ -1,4 +1,9 @@
-import { Component, input, output } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  input,
+  output,
+} from '@angular/core';
 import { MatButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import type { MfeRemoteDto } from '@tmdjr/ngx-mfe-orchestrator-contracts';
@@ -6,17 +11,23 @@ import { MfeRemoteDtoExtraProps } from '../app.types';
 import { MfeRemoteCard } from './mfe-remote-card';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  host: { class: 'mfe-remote-detail' },
   selector: 'ngx-mfe-remote-detail',
   imports: [MatButton, MatIcon, MfeRemoteCard],
   template: `
     <section aria-live="polite">
       @if (remote(); as selected) {
-        <div class="detail-context">
+        <div class="mfe-remote-detail__detail-context">
           <div>
-            <span class="section-label">Remote configuration</span>
+            <span class="mfe-remote-detail__section-label"
+              >Remote configuration</span
+            >
             <h2>{{ selected.name }}</h2>
           </div>
-          <span class="remote-id">ID {{ selected._id }}</span>
+          <span class="mfe-remote-detail__remote-id"
+            >ID {{ selected._id }}</span
+          >
         </div>
         <ngx-mfe-remote
           [initialValue]="selected"
@@ -25,8 +36,8 @@ import { MfeRemoteCard } from './mfe-remote-card';
           (delete)="delete.emit($event)"
         ></ngx-mfe-remote>
       } @else {
-        <div class="empty-state">
-          <span class="empty-state-icon">
+        <div class="mfe-remote-detail__empty-state">
+          <span class="mfe-remote-detail__empty-state-icon">
             <mat-icon>dns</mat-icon>
           </span>
           <h2>Your remote catalog is ready</h2>
@@ -54,7 +65,7 @@ import { MfeRemoteCard } from './mfe-remote-card';
         box-shadow: 0 16px 45px rgba(20, 24, 40, 0.06);
       }
 
-      .detail-context {
+      .mfe-remote-detail__detail-context {
         display: flex;
         align-items: center;
         justify-content: space-between;
@@ -63,7 +74,7 @@ import { MfeRemoteCard } from './mfe-remote-card';
         padding: 0 0.25rem;
       }
 
-      .section-label {
+      .mfe-remote-detail__section-label {
         color: var(--mat-sys-primary);
         font-size: 0.68rem;
         font-weight: 700;
@@ -78,7 +89,7 @@ import { MfeRemoteCard } from './mfe-remote-card';
         letter-spacing: -0.035em;
       }
 
-      .remote-id {
+      .mfe-remote-detail__remote-id {
         max-width: 45%;
         overflow: hidden;
         padding: 0.4rem 0.65rem;
@@ -91,7 +102,7 @@ import { MfeRemoteCard } from './mfe-remote-card';
         white-space: nowrap;
       }
 
-      .empty-state {
+      .mfe-remote-detail__empty-state {
         display: flex;
         min-height: 440px;
         flex-direction: column;
@@ -101,7 +112,7 @@ import { MfeRemoteCard } from './mfe-remote-card';
         text-align: center;
       }
 
-      .empty-state-icon {
+      .mfe-remote-detail__empty-state-icon {
         display: grid;
         place-items: center;
         width: 72px;
@@ -112,17 +123,17 @@ import { MfeRemoteCard } from './mfe-remote-card';
         transform: rotate(-4deg);
       }
 
-      .empty-state mat-icon {
+      .mfe-remote-detail__empty-state mat-icon {
         width: 2rem;
         height: 2rem;
         font-size: 2rem;
       }
 
-      .empty-state h2 {
+      .mfe-remote-detail__empty-state h2 {
         margin: 1.25rem 0 0.4rem;
       }
 
-      .empty-state p {
+      .mfe-remote-detail__empty-state p {
         max-width: 390px;
         margin: 0 0 1.25rem;
         color: var(--mat-sys-on-surface-variant);
@@ -134,12 +145,12 @@ import { MfeRemoteCard } from './mfe-remote-card';
           padding: 1rem;
         }
 
-        .detail-context {
+        .mfe-remote-detail__detail-context {
           align-items: flex-start;
           flex-direction: column;
         }
 
-        .remote-id {
+        .mfe-remote-detail__remote-id {
           max-width: 100%;
         }
       }

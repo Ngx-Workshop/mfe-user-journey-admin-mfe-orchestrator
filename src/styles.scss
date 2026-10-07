@@ -14,11 +14,11 @@ body {
   box-sizing: border-box;
 }
 
-.full-width-dialog {
+.orchestrator-dialog--wide {
   width: min(92vw, 860px);
 }
 
-.mfe-preview {
+.orchestrator-dialog--preview {
   width: min(94vw, 1200px);
   max-width: 1200px;
 }

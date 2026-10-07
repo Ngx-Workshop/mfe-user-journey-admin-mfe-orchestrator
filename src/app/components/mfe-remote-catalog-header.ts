@@ -1,14 +1,16 @@
-import { Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { MatIcon } from '@angular/material/icon';
 import { NgxParticleHeader } from '@tmdjr/ngx-shared-headers';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  host: { class: 'mfe-remote-catalog-header' },
   selector: 'ngx-mfe-remote-catalog-header',
   imports: [MatIcon, NgxParticleHeader],
   template: `
     <ngx-particle-header>
-      <div class="hero-content">
-        <div class="eyebrow">
+      <div class="mfe-remote-catalog-header__hero-content">
+        <div class="mfe-remote-catalog-header__eyebrow">
           <mat-icon>hub</mat-icon>
           Remote operations
         </div>
@@ -26,19 +28,19 @@ import { NgxParticleHeader } from '@tmdjr/ngx-shared-headers';
         display: block;
       }
 
-      .hero-content {
+      .mfe-remote-catalog-header__hero-content {
         width: min(100% - 3rem, 1440px);
         margin: 0 auto;
         padding: 2.5rem 0 2.25rem;
         color: var(--mat-sys-on-primary);
       }
 
-      .eyebrow {
+      .mfe-remote-catalog-header__eyebrow {
         display: flex;
         align-items: center;
       }
 
-      .eyebrow {
+      .mfe-remote-catalog-header__eyebrow {
         gap: 0.45rem;
         margin-bottom: 0.55rem;
         font-size: 0.72rem;
@@ -48,7 +50,7 @@ import { NgxParticleHeader } from '@tmdjr/ngx-shared-headers';
         opacity: 0.8;
       }
 
-      .eyebrow mat-icon {
+      .mfe-remote-catalog-header__eyebrow mat-icon {
         width: 1rem;
         height: 1rem;
         font-size: 1rem;
@@ -62,14 +64,14 @@ import { NgxParticleHeader } from '@tmdjr/ngx-shared-headers';
         letter-spacing: -0.04em;
       }
 
-      .hero-content p {
+      .mfe-remote-catalog-header__hero-content p {
         margin: 0.75rem 0 0;
         font-size: 1rem;
         opacity: 0.78;
       }
 
       @media (max-width: 700px) {
-        .hero-content {
+        .mfe-remote-catalog-header__hero-content {
           width: min(100% - 2rem, 1440px);
           padding: 2rem 0;
         }

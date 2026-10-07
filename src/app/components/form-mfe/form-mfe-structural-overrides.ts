@@ -1,4 +1,9 @@
-import { Component, input, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  input,
+  signal,
+} from '@angular/core';
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MatExpansionModule } from '@angular/material/expansion';
 import {
@@ -14,6 +19,8 @@ type StructuralOverrideModes = {
 }[];
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  host: { class: 'mfe-structural-overrides' },
   selector: 'ngx-structural-overrides',
   imports: [
     ReactiveFormsModule,
@@ -23,7 +30,7 @@ type StructuralOverrideModes = {
   ],
   template: `
     <div
-      class="structural-overrides-group"
+      class="mfe-structural-overrides__structural-overrides-group"
       [formGroup]="structuralOverridesForm()"
     >
       <mat-accordion>
@@ -37,48 +44,54 @@ type StructuralOverrideModes = {
               Control which host regions remain visible
             </mat-panel-description>
           </mat-expansion-panel-header>
-          <div class="overrides-container">
-            <div class="override-section">
+          <div class="mfe-structural-overrides__overrides-container">
+            <div class="mfe-structural-overrides__override-section">
               <div>
                 <label>Header</label>
                 <small>Global branding and account controls</small>
               </div>
               <mat-radio-group formControlName="header">
-                @for (mode of structuralOverrideModes; track
-                mode.value) {
-                <mat-radio-button [value]="mode.value">{{
-                  mode.label
-                }}</mat-radio-button>
+                @for (
+                  mode of structuralOverrideModes;
+                  track mode.value
+                ) {
+                  <mat-radio-button [value]="mode.value">{{
+                    mode.label
+                  }}</mat-radio-button>
                 }
               </mat-radio-group>
             </div>
 
-            <div class="override-section">
+            <div class="mfe-structural-overrides__override-section">
               <div>
                 <label>Navigation</label>
                 <small>Primary application navigation</small>
               </div>
               <mat-radio-group formControlName="nav">
-                @for (mode of structuralOverrideModes; track
-                mode.value) {
-                <mat-radio-button [value]="mode.value">{{
-                  mode.label
-                }}</mat-radio-button>
+                @for (
+                  mode of structuralOverrideModes;
+                  track mode.value
+                ) {
+                  <mat-radio-button [value]="mode.value">{{
+                    mode.label
+                  }}</mat-radio-button>
                 }
               </mat-radio-group>
             </div>
 
-            <div class="override-section">
+            <div class="mfe-structural-overrides__override-section">
               <div>
                 <label>Footer</label>
                 <small>Global links and legal information</small>
               </div>
               <mat-radio-group formControlName="footer">
-                @for (mode of structuralOverrideModes; track
-                mode.value) {
-                <mat-radio-button [value]="mode.value">{{
-                  mode.label
-                }}</mat-radio-button>
+                @for (
+                  mode of structuralOverrideModes;
+                  track mode.value
+                ) {
+                  <mat-radio-button [value]="mode.value">{{
+                    mode.label
+                  }}</mat-radio-button>
                 }
               </mat-radio-group>
             </div>
@@ -93,13 +106,13 @@ type StructuralOverrideModes = {
         justify-content: flex-end;
       }
 
-      .structural-overrides-group {
-        .overrides-container {
+      .mfe-structural-overrides__structural-overrides-group {
+        .mfe-structural-overrides__overrides-container {
           display: flex;
           flex-direction: column;
           gap: 0.65rem;
 
-          .override-section {
+          .mfe-structural-overrides__override-section {
             display: grid;
             grid-template-columns: minmax(150px, 0.7fr) 1.3fr;
             gap: 1rem;
@@ -139,8 +152,9 @@ type StructuralOverrideModes = {
           display: none;
         }
 
-        .structural-overrides-group .overrides-container {
-          .override-section {
+        .mfe-structural-overrides__structural-overrides-group
+          .mfe-structural-overrides__overrides-container {
+          .mfe-structural-overrides__override-section {
             grid-template-columns: 1fr;
           }
         }

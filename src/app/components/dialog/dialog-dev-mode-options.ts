@@ -1,4 +1,10 @@
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy } from '@angular/core';
+import {
+  ChangeDetectorRef,
+  Component,
+  DestroyRef,
+  inject,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButton } from '@angular/material/button';
 import {
@@ -11,9 +17,14 @@ import {
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInput } from '@angular/material/input';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { LocalStorageBrokerService } from '@tmdjr/ngx-local-storage-client';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import type { MfeRemoteDto } from '@tmdjr/ngx-mfe-orchestrator-contracts';
+import { catchError, of } from 'rxjs';
+import { MfeRemotesStore } from '../../state/mfe-remotes-store';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  host: { class: 'dev-mode-options' },
   selector: 'ngx-dev-mode-options-dialog',
   imports: [
     MatButton,
@@ -32,6 +43,7 @@ import { LocalStorageBrokerService } from '@tmdjr/ngx-local-storage-client';
         Here you can configure development mode options for the MFE.
       </p>
       <mat-slide-toggle
+        [disabled]="loading"
         labelPosition="before"
         [(ngModel)]="devModeEnabled"
         (ngModelChange)="devModeEnabledValueChange()"
@@ -43,7 +55,7 @@ import { LocalStorageBrokerService } from '@tmdjr/ngx-local-storage-client';
         <input
           matInput
           type="text"
-          [disabled]="!devModeEnabled"
+          [disabled]="loading || !devModeEnabled"
           [(ngModel)]="remoteEntryPoint"
           (ngModelChange)="remoteEntryPointValueChange()"
         />
@@ -66,53 +78,46 @@ import { LocalStorageBrokerService } from '@tmdjr/ngx-local-storage-client';
   ],
 })
 export class DevModeOptions {
-  dialogRef = inject(MatDialogRef<DevModeOptions>);
-  mfeRemote = inject(MAT_DIALOG_DATA);
-  localStorageBrokerService = inject(LocalStorageBrokerService);
-
-  remoteEntryPoint!: string;
+  readonly dialogRef = inject(MatDialogRef<DevModeOptions>);
+  readonly mfeRemote = inject<MfeRemoteDto>(MAT_DIALOG_DATA);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly store = inject(MfeRemotesStore);
+  remoteEntryPoint = '';
   devModeEnabled = false;
+  loading = true;
+  private readonly changeDetector = inject(ChangeDetectorRef);
 
   constructor() {
-    this.localStorageBrokerService
-      .getItem(this.mfeRemote._id)
-      .then((value) => {
-        if (value) {
-          this.devModeEnabled = true;
-          this.remoteEntryPoint = value;
-        }
+    this.store
+      .devModeUrl(this.mfeRemote._id)
+      .pipe(
+        catchError(() => of(null)),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe((value) => {
+        this.devModeEnabled = !!value;
+        this.remoteEntryPoint = value ?? '';
+        this.loading = false;
+        this.changeDetector.markForCheck();
       });
   }
 
   devModeEnabledValueChange() {
-    if (this.devModeEnabled) {
-      if (!this.remoteEntryPoint) {
-        this.remoteEntryPoint =
-          'http://localhost:4201/remoteEntry.js';
-        localStorage.setItem(
-          `mfe-remotes:${this.mfeRemote._id}`,
-          this.remoteEntryPoint
-        );
-        this.localStorageBrokerService.setItem(
-          this.mfeRemote._id,
-          this.remoteEntryPoint
-        );
-      }
-    } else {
-      localStorage.removeItem(`mfe-remotes:${this.mfeRemote._id}`);
-      this.localStorageBrokerService.removeItem(this.mfeRemote._id);
-      this.remoteEntryPoint = '';
-    }
+    this.remoteEntryPoint = this.devModeEnabled
+      ? this.remoteEntryPoint ||
+        'http://localhost:4201/remoteEntry.js'
+      : '';
+    this.persist();
   }
 
   remoteEntryPointValueChange() {
-    if (!this.devModeEnabled) return;
+    if (this.devModeEnabled) this.persist();
+  }
 
-    const localStorageKey = `mfe-remotes:${this.mfeRemote._id}`;
-    localStorage.setItem(localStorageKey, this.remoteEntryPoint);
-    this.localStorageBrokerService.setItem(
-      localStorageKey,
-      this.remoteEntryPoint
+  private persist() {
+    this.store.setDevMode(
+      this.mfeRemote._id,
+      this.devModeEnabled ? this.remoteEntryPoint : null
     );
   }
 }

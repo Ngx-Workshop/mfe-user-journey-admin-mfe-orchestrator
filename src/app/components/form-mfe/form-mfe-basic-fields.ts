@@ -1,5 +1,11 @@
-import { Component, input, output } from '@angular/core';
-import { FormGroup, ReactiveFormsModule } from '@angular/forms';
+import type { RemoteForm } from '../../view-models/mfe-form-view-model';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  input,
+  output,
+} from '@angular/core';
+import { ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIcon } from '@angular/material/icon';
@@ -7,12 +13,11 @@ import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
 
 export type UrlVerificationState =
-  | 'idle'
-  | 'verifying'
-  | 'success'
-  | 'error';
+  'idle' | 'verifying' | 'success' | 'error';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  host: { class: 'mfe-basic-fields' },
   selector: 'ngx-mfe-basic-fields',
   imports: [
     ReactiveFormsModule,
@@ -24,7 +29,10 @@ export type UrlVerificationState =
   ],
   template: `
     @if (formGroup(); as mfeRemoteForm) {
-      <div class="fields" [formGroup]="mfeRemoteForm">
+      <div
+        class="mfe-basic-fields__fields"
+        [formGroup]="mfeRemoteForm"
+      >
         <mat-form-field appearance="outline">
           <mat-label>Display name</mat-label>
           <mat-icon matPrefix>label</mat-icon>
@@ -57,7 +65,7 @@ export type UrlVerificationState =
           </mat-hint>
         </mat-form-field>
 
-        <div class="url-field">
+        <div class="mfe-basic-fields__url-field">
           <mat-form-field appearance="outline">
             <mat-label>Remote entry URL</mat-label>
             <mat-icon matPrefix>link</mat-icon>
@@ -71,13 +79,17 @@ export type UrlVerificationState =
             />
             @switch (verificationState()) {
               @case ('success') {
-                <mat-hint class="verification success">
+                <mat-hint
+                  class="mfe-basic-fields__verification mfe-basic-fields__verification--success"
+                >
                   <mat-icon>check_circle</mat-icon>
                   Remote entry responded successfully.
                 </mat-hint>
               }
               @case ('error') {
-                <mat-hint class="verification error">
+                <mat-hint
+                  class="mfe-basic-fields__verification mfe-basic-fields__verification--error"
+                >
                   <mat-icon>error</mat-icon>
                   We could not verify this remote entry.
                 </mat-hint>
@@ -108,7 +120,7 @@ export type UrlVerificationState =
             (click)="verifyUrl()"
           >
             @if (verificationState() === 'verifying') {
-              <span class="button-content">
+              <span class="mfe-basic-fields__button-content">
                 <mat-progress-spinner
                   mode="indeterminate"
                   diameter="18"
@@ -116,7 +128,7 @@ export type UrlVerificationState =
                 Checking
               </span>
             } @else {
-              <span class="button-content">
+              <span class="mfe-basic-fields__button-content">
                 <mat-icon>verified</mat-icon>
                 Verify URL
               </span>
@@ -132,7 +144,7 @@ export type UrlVerificationState =
         display: block;
       }
 
-      .fields {
+      .mfe-basic-fields__fields {
         display: grid;
         gap: 1rem;
       }
@@ -145,51 +157,51 @@ export type UrlVerificationState =
         resize: vertical;
       }
 
-      .url-field {
+      .mfe-basic-fields__url-field {
         display: grid;
         grid-template-columns: minmax(0, 1fr) auto;
         gap: 0.75rem;
         align-items: start;
       }
 
-      .url-field > button {
+      .mfe-basic-fields__url-field > button {
         min-width: 126px;
         height: 56px;
       }
 
-      .button-content,
-      .verification {
+      .mfe-basic-fields__button-content,
+      .mfe-basic-fields__verification {
         display: inline-flex;
         align-items: center;
         gap: 0.4rem;
       }
 
-      .button-content mat-icon {
+      .mfe-basic-fields__button-content mat-icon {
         width: 1.15rem;
         height: 1.15rem;
         font-size: 1.15rem;
       }
 
-      .verification mat-icon {
+      .mfe-basic-fields__verification mat-icon {
         width: 1rem;
         height: 1rem;
         font-size: 1rem;
       }
 
-      .verification.success {
+      .mfe-basic-fields__verification.mfe-basic-fields__verification--success {
         color: #247a52;
       }
 
-      .verification.error {
+      .mfe-basic-fields__verification.mfe-basic-fields__verification--error {
         color: var(--mat-sys-error);
       }
 
       @media (max-width: 620px) {
-        .url-field {
+        .mfe-basic-fields__url-field {
           grid-template-columns: 1fr;
         }
 
-        .url-field > button {
+        .mfe-basic-fields__url-field > button {
           width: 100%;
           margin-top: -0.5rem;
         }
@@ -198,7 +210,7 @@ export type UrlVerificationState =
   ],
 })
 export class MfeBasicFields {
-  formGroup = input.required<FormGroup>({ alias: 'mfeRemoteForm' });
+  formGroup = input.required<RemoteForm>({ alias: 'mfeRemoteForm' });
   errorMessages = input.required<{ [key: string]: string }>();
   verificationState = input<UrlVerificationState>('idle');
 

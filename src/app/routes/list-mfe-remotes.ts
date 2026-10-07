@@ -1,34 +1,26 @@
 import { AsyncPipe } from '@angular/common';
-import { Component, inject } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
-import type { MfeRemoteDto } from '@tmdjr/ngx-mfe-orchestrator-contracts';
 import {
-  BehaviorSubject,
-  combineLatest,
-  iif,
-  lastValueFrom,
-  map,
-  of,
-  switchMap,
-} from 'rxjs';
-import { MfeRemoteDtoExtraProps } from '../app.types';
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+} from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
+import { DestroyRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { filter } from 'rxjs';
+import type { CreateMfeRemoteDto } from '@tmdjr/ngx-mfe-orchestrator-contracts';
 import { CreateMFEDialog } from '../components/dialog/dialog-create-mfe';
 import { MfeRemoteCatalogActions } from '../components/mfe-remote-catalog-actions';
 import { MfeRemoteCatalogHeader } from '../components/mfe-remote-catalog-header';
 import { MfeRemoteDetail } from '../components/mfe-remote-detail';
 import { MfeRemoteRail } from '../components/mfe-remote-rail';
-import { ApiMfeRemotes } from '../services/api-mfe-remotes';
-
-type CatalogViewModel = {
-  filtered: MfeRemoteDtoExtraProps[];
-  selected: MfeRemoteDtoExtraProps | null;
-  activeCount: number;
-  archivedCount: number;
-  devModeCount: number;
-};
+import { CatalogViewModel } from '../view-models/catalog-view-model';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  host: { class: 'list-mfe-remotes' },
   selector: 'ngx-mfe-remotes',
+  providers: [CatalogViewModel],
   imports: [
     AsyncPipe,
     MfeRemoteCatalogActions,
@@ -43,26 +35,41 @@ type CatalogViewModel = {
     ></ngx-mfe-remote-catalog-actions>
 
     @if (viewModel$ | async; as vm) {
-    <main>
-      <ngx-mfe-remote-rail
-        [remotes]="vm.filtered"
-        [selectedRemoteId]="vm.selected?._id ?? null"
-        [searchTerm]="searchTerm"
-        [activeCount]="vm.activeCount"
-        [archivedCount]="vm.archivedCount"
-        [devModeCount]="vm.devModeCount"
-        (remoteSelected)="selectRemote($event)"
-        (searchChanged)="setSearchTerm($event)"
-      ></ngx-mfe-remote-rail>
+      @if (vm.error) {
+        <div class="catalog__error" role="alert">
+          {{ vm.error }}
+          <button
+            type="button"
+            (click)="model.store.refresh()"
+            [disabled]="vm.busy"
+          >
+            Retry
+          </button>
+        </div>
+      }
+      @if (vm.busy) {
+        <p class="catalog__status" role="status">Updating catalog…</p>
+      }
+      <main class="catalog__layout" [attr.aria-busy]="vm.busy">
+        <ngx-mfe-remote-rail
+          [remotes]="vm.filtered"
+          [selectedRemoteId]="vm.selected?._id ?? null"
+          [searchTerm]="vm.searchTerm"
+          [activeCount]="vm.activeCount"
+          [archivedCount]="vm.archivedCount"
+          [devModeCount]="vm.devModeCount"
+          (remoteSelected)="model.select($event)"
+          (searchChanged)="model.searchFor($event)"
+        ></ngx-mfe-remote-rail>
 
-      <ngx-mfe-remote-detail
-        [remote]="vm.selected"
-        (createRemote)="openDialog()"
-        (update)="updateMfeRemote($event)"
-        (archive)="archiveMfeRemote($event)"
-        (delete)="deleteMfeRemote($event)"
-      ></ngx-mfe-remote-detail>
-    </main>
+        <ngx-mfe-remote-detail
+          [remote]="vm.selected"
+          (createRemote)="openDialog()"
+          (update)="model.store.update($event)"
+          (archive)="model.store.archive($event)"
+          (delete)="model.store.delete($event)"
+        ></ngx-mfe-remote-detail>
+      </main>
     }
   `,
   styles: [
@@ -70,7 +77,8 @@ type CatalogViewModel = {
       :host {
         display: block;
         min-height: 100vh;
-        background: radial-gradient(
+        background:
+          radial-gradient(
             circle at 85% 15%,
             color-mix(
               in srgb,
@@ -82,7 +90,7 @@ type CatalogViewModel = {
           var(--mat-sys-surface-container-lowest);
       }
 
-      main {
+      .catalog__layout {
         display: grid;
         grid-template-columns: minmax(280px, 340px) minmax(0, 1fr);
         gap: 1.5rem;
@@ -92,8 +100,17 @@ type CatalogViewModel = {
         align-items: start;
       }
 
+      .catalog__error,
+      .catalog__status {
+        margin: 1rem auto;
+        width: min(100% - 3rem, 1440px);
+      }
+      .catalog__error {
+        color: var(--mat-sys-error);
+      }
+
       @media (max-width: 900px) {
-        main {
+        .catalog__layout {
           grid-template-columns: 280px minmax(440px, 1fr);
           width: 100%;
           padding: 1rem;
@@ -102,7 +119,7 @@ type CatalogViewModel = {
       }
 
       @media (max-width: 700px) {
-        main {
+        .catalog__layout {
           display: flex;
           flex-direction: column;
           gap: 1rem;
@@ -114,93 +131,28 @@ type CatalogViewModel = {
   ],
 })
 export class ListMfeRemotes {
-  private dialog = inject(MatDialog);
-  private apiMfeRemotes = inject(ApiMfeRemotes);
-  private searchSubject = new BehaviorSubject('');
-  private selectedRemoteId = new BehaviorSubject<string | null>(null);
-
-  searchTerm = '';
-
-  viewModel$ = combineLatest([
-    this.apiMfeRemotes.mfeRemotes$,
-    this.searchSubject,
-    this.selectedRemoteId,
-  ]).pipe(
-    map(
-      ([remotes, searchTerm, selectedRemoteId]): CatalogViewModel => {
-        const normalizedSearchTerm = searchTerm.toLowerCase().trim();
-        const filtered = normalizedSearchTerm
-          ? remotes.filter((remote) =>
-              [
-                remote._id,
-                remote.name,
-                remote.remoteEntryUrl,
-                remote.type,
-                remote.status,
-              ].some((value) =>
-                value?.toLowerCase().includes(normalizedSearchTerm)
-              )
-            )
-          : remotes;
-        const selected =
-          filtered.find(
-            (remote) => remote._id === selectedRemoteId
-          ) ??
-          filtered[0] ??
-          null;
-
-        return {
-          filtered,
-          selected,
-          activeCount: remotes.filter((remote) => !remote.archived)
-            .length,
-          archivedCount: remotes.filter((remote) => remote.archived)
-            .length,
-          devModeCount: remotes.filter((remote) => remote.isDevMode)
-            .length,
-        };
-      }
-    )
-  );
+  private readonly dialog = inject(MatDialog);
+  private readonly destroyRef = inject(DestroyRef);
+  readonly model = inject(CatalogViewModel);
+  readonly viewModel$ = this.model.viewModel$;
 
   openDialog(): void {
-    lastValueFrom(
-      this.dialog
-        .open(CreateMFEDialog, {
-          panelClass: 'full-width-dialog',
+    this.dialog
+      .open<CreateMFEDialog, void, CreateMfeRemoteDto>(
+        CreateMFEDialog,
+        {
+          panelClass: [
+            'orchestrator-dialog',
+            'orchestrator-dialog--wide',
+          ],
           backdropClass: 'blur-backdrop',
-        })
-        .afterClosed()
-        .pipe(
-          switchMap((remote) =>
-            iif(
-              () => !!remote,
-              this.apiMfeRemotes.createMfeRemote(remote),
-              of(void 0)
-            )
-          )
-        )
-    );
-  }
-
-  selectRemote(remoteId: string) {
-    this.selectedRemoteId.next(remoteId);
-  }
-
-  setSearchTerm(searchTerm: string) {
-    this.searchTerm = searchTerm;
-    this.searchSubject.next(searchTerm);
-  }
-
-  updateMfeRemote(remote: MfeRemoteDtoExtraProps) {
-    lastValueFrom(this.apiMfeRemotes.updateMfeRemote(remote));
-  }
-
-  archiveMfeRemote(remote: MfeRemoteDto) {
-    lastValueFrom(this.apiMfeRemotes.archiveMfeRemote(remote));
-  }
-
-  deleteMfeRemote(remote: MfeRemoteDto) {
-    lastValueFrom(this.apiMfeRemotes.deleteMfeRemote(remote));
+        }
+      )
+      .afterClosed()
+      .pipe(
+        filter((remote): remote is CreateMfeRemoteDto => !!remote),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe((remote) => this.model.store.create(remote));
   }
 }

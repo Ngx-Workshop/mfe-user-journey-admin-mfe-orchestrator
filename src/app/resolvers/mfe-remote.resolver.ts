@@ -1,7 +1,8 @@
 import { inject } from '@angular/core';
-import { MfeRemoteResolver } from '../app.types';
-import { ApiMfeRemotes } from '../services/api-mfe-remotes';
+import { ResolveFn } from '@angular/router';
+import { MfeRemoteDtoExtraProps } from '../app.types';
+import { MfeRemotesStore } from '../state/mfe-remotes-store';
 
-export const mfeRemoteResolver: MfeRemoteResolver = () => {
-  return inject(ApiMfeRemotes).fetchMfeRemotes().pipe();
-};
+export const mfeRemoteResolver: ResolveFn<
+  MfeRemoteDtoExtraProps[]
+> = () => inject(MfeRemotesStore).load();
