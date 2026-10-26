@@ -8,6 +8,29 @@ The Angular administrator remote lists, searches, creates, edits, archives/unarc
 
 The host provides shell composition and authentication context. `App` is a minimal router outlet with a default export. `Routes` is the named route export. `webpack.config.js` preserves the legacy `ngx-seed-mfe` name and `remoteEntry.js`, exposing `./Component` and `./Routes`; production config reuses it. The repository retains strict shared dependencies and their existing versions.
 
+## Design system integration
+
+The remote and admin shell install and share `@tmdjr/ngx-workshop-design-system`
+21.0.1 as a strict singleton. The catalog route host has `ngx-design-system`.
+The shell supplies semantic Ngx tokens, shared button/code styles and a scoped
+Material adapter. Its legacy body palettes continue to style older remotes.
+Standalone global styles include the public `theme()` mixin and matching adapter scopes.
+
+Catalog header, rail, form sections and configuration workspace use `NgxPanel`;
+normal Material buttons use `NgxButton`; summary states use `NgxStatus`.
+Icon buttons, forms, selects, switches, validation and dialog focus stay with Material.
+Owned surfaces use public semantic tokens and responsive layouts stack at 900px.
+Multi-line field hints use public `subscriptSizing="dynamic"` to reserve enough space.
+
+Dialogs use `ngx-design-system-overlay` on their pane and
+`ngx-design-system-backdrop` for the public CDK backdrop hook. Select panels and
+tooltips also use `ngx-design-system-overlay` because they attach outside the
+route host. The shell must provide these global classes; the remote's stylesheet
+is a standalone fallback and is not automatically loaded by federation.
+Dialog dimensions are supplied through MatDialog config so hosted mode does not
+depend on remote-only global sizing classes. The routed App/Routes exports,
+providers, API and persistence adapters retain their contracts.
+
 ## Source map
 
 Paths below are relative to `src/app/features/mfe-remotes/` unless stated otherwise.

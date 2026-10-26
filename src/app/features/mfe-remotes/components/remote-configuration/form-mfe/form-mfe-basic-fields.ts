@@ -1,3 +1,4 @@
+import { NgxButton } from '@tmdjr/ngx-workshop-design-system';
 import type { UrlVerificationState } from '../../../models/app.types';
 import type { RemoteForm } from '../../../forms/mfe-remote-form';
 import {
@@ -18,6 +19,7 @@ import { MatProgressSpinner } from '@angular/material/progress-spinner';
   host: { class: 'mfe-basic-fields' },
   selector: 'ngx-mfe-basic-fields',
   imports: [
+    NgxButton,
     ReactiveFormsModule,
     MatButtonModule,
     MatFormFieldModule,
@@ -31,7 +33,10 @@ import { MatProgressSpinner } from '@angular/material/progress-spinner';
         class="mfe-basic-fields__fields"
         [formGroup]="mfeRemoteForm"
       >
-        <mat-form-field appearance="outline">
+        <mat-form-field
+          subscriptSizing="dynamic"
+          appearance="outline"
+        >
           <mat-label>Display name</mat-label>
           <mat-icon matPrefix>label</mat-icon>
           <input
@@ -49,7 +54,10 @@ import { MatProgressSpinner } from '@angular/material/progress-spinner';
           }
         </mat-form-field>
 
-        <mat-form-field appearance="outline">
+        <mat-form-field
+          subscriptSizing="dynamic"
+          appearance="outline"
+        >
           <mat-label>Description</mat-label>
           <mat-icon matPrefix>notes</mat-icon>
           <textarea
@@ -64,7 +72,10 @@ import { MatProgressSpinner } from '@angular/material/progress-spinner';
         </mat-form-field>
 
         <div class="mfe-basic-fields__url-field">
-          <mat-form-field appearance="outline">
+          <mat-form-field
+            subscriptSizing="dynamic"
+            appearance="outline"
+          >
             <mat-label>Remote entry URL</mat-label>
             <mat-icon matPrefix>link</mat-icon>
             <input
@@ -109,7 +120,10 @@ import { MatProgressSpinner } from '@angular/material/progress-spinner';
           </mat-form-field>
 
           <button
-            matButton="tonal"
+            mat-flat-button
+            ngxButton
+            surface="outline"
+            tone="secondary"
             type="button"
             [disabled]="
               !mfeRemoteForm.get('remoteEntryUrl')?.value ||
@@ -187,11 +201,11 @@ import { MatProgressSpinner } from '@angular/material/progress-spinner';
       }
 
       .mfe-basic-fields__verification.mfe-basic-fields__verification--success {
-        color: #247a52;
+        color: var(--ngx-color-success);
       }
 
       .mfe-basic-fields__verification.mfe-basic-fields__verification--error {
-        color: var(--mat-sys-error);
+        color: var(--ngx-color-error);
       }
 
       @media (max-width: 620px) {

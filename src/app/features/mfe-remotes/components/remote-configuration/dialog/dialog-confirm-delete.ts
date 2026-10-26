@@ -1,3 +1,4 @@
+import { NgxButton } from '@tmdjr/ngx-workshop-design-system';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -19,24 +20,45 @@ import type { MfeRemoteDto } from '@tmdjr/ngx-mfe-orchestrator-contracts';
   host: { class: 'confirm-delete' },
   selector: 'ngx-confirm-delete-dialog',
   imports: [
+    NgxButton,
     MatButton,
     MatDialogTitle,
     MatDialogContent,
     MatDialogActions,
   ],
   template: `
-    <h3 mat-dialog-title>Confirm Delete</h3>
+    <h2 mat-dialog-title>Delete remote?</h2>
     <mat-dialog-content>
-      <p>Are you sure you want to delete this MFE Remote?</p>
+      <p>
+        Remove <strong>{{ mfeRemote.name }}</strong> from the remote
+        catalog?
+      </p>
     </mat-dialog-content>
     <mat-dialog-actions>
-      <button matButton (click)="dialogRef.close()">Cancel</button>
-      <button matButton (click)="confirmDelete()">Delete</button>
+      <button
+        mat-flat-button
+        ngxButton
+        surface="outline"
+        (click)="dialogRef.close()"
+      >
+        Cancel
+      </button>
+      <button
+        mat-flat-button
+        ngxButton
+        tone="danger"
+        (click)="confirmDelete()"
+      >
+        Delete
+      </button>
     </mat-dialog-actions>
   `,
   styles: [
     `
       :host {
+        mat-dialog-actions {
+          gap: var(--ngx-space-2);
+        }
         mat-dialog-content {
           display: flex;
           flex-direction: column;

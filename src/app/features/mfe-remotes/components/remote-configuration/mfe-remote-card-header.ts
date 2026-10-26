@@ -24,6 +24,7 @@ import type { MfeRemoteDto } from '@tmdjr/ngx-mfe-orchestrator-contracts';
     <div class="mfe-remote-card-header__quick-actions">
       <button
         mat-icon-button
+        matTooltipClass="ngx-design-system-overlay"
         matTooltip="Configure development mode"
         aria-label="Configure development mode"
         (click)="openDevModeOptions()"
@@ -32,6 +33,7 @@ import type { MfeRemoteDto } from '@tmdjr/ngx-mfe-orchestrator-contracts';
       </button>
       <button
         mat-icon-button
+        matTooltipClass="ngx-design-system-overlay"
         matTooltip="Preview this MFE"
         aria-label="Preview this MFE"
         (click)="previewMfeRemote()"
@@ -58,8 +60,8 @@ import type { MfeRemoteDto } from '@tmdjr/ngx-mfe-orchestrator-contracts';
           display: flex;
           gap: 0.25rem;
           padding: 0.2rem;
-          background: var(--mat-sys-surface-container);
-          border-radius: 12px;
+          background: var(--ngx-color-surface);
+          border-radius: var(--ngx-radius);
         }
 
         @media (max-width: 520px) {

@@ -5,6 +5,8 @@ import {
   inject,
 } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
+import { MatButton } from '@angular/material/button';
+import { NgxButton } from '@tmdjr/ngx-workshop-design-system';
 import { DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { filter } from 'rxjs';
@@ -18,11 +20,13 @@ import { CatalogViewModel } from './catalog-view-model';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: { class: 'list-mfe-remotes' },
+  host: { class: 'list-mfe-remotes ngx-design-system' },
   selector: 'ngx-mfe-remotes',
   providers: [CatalogViewModel],
   imports: [
     AsyncPipe,
+    MatButton,
+    NgxButton,
     MfeRemoteCatalogActions,
     MfeRemoteCatalogHeader,
     MfeRemoteDetail,
@@ -39,6 +43,10 @@ import { CatalogViewModel } from './catalog-view-model';
         <div class="catalog__error" role="alert">
           {{ vm.error }}
           <button
+            mat-flat-button
+            ngxButton
+            surface="outline"
+            tone="danger"
             type="button"
             (click)="model.store.refresh()"
             [disabled]="vm.busy"
@@ -64,6 +72,8 @@ import { CatalogViewModel } from './catalog-view-model';
 
         <ngx-mfe-remote-detail
           [remote]="vm.selected"
+          [searchActive]="!!vm.searchTerm.trim()"
+          (clearSearch)="model.searchFor('')"
           (createRemote)="openDialog()"
           (update)="model.store.update($event)"
           (archive)="model.store.archive($event)"
@@ -82,18 +92,19 @@ import { CatalogViewModel } from './catalog-view-model';
             circle at 85% 15%,
             color-mix(
               in srgb,
-              var(--mat-sys-primary) 8%,
+              var(--ngx-color-primary) 8%,
               transparent
             ),
             transparent 28rem
           ),
-          var(--mat-sys-surface-container-lowest);
+          var(--ngx-color-canvas);
+        color: var(--ngx-color-text);
       }
 
       .catalog__layout {
         display: grid;
         grid-template-columns: minmax(280px, 340px) minmax(0, 1fr);
-        gap: 1.5rem;
+        gap: var(--ngx-space-6);
         width: min(100% - 3rem, 1440px);
         margin: 0 auto;
         padding: 1.5rem 0 3rem;
@@ -106,25 +117,23 @@ import { CatalogViewModel } from './catalog-view-model';
         width: min(100% - 3rem, 1440px);
       }
       .catalog__error {
-        color: var(--mat-sys-error);
+        color: var(--ngx-color-error);
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: var(--ngx-space-4);
       }
 
       @media (max-width: 900px) {
         .catalog__layout {
-          grid-template-columns: 280px minmax(440px, 1fr);
-          width: 100%;
-          padding: 1rem;
-          overflow-x: auto;
+          grid-template-columns: minmax(0, 1fr);
+          width: calc(100% - 2rem);
         }
       }
 
       @media (max-width: 700px) {
         .catalog__layout {
-          display: flex;
-          flex-direction: column;
           gap: 1rem;
-          padding: 1rem;
-          overflow: visible;
         }
       }
     `,
@@ -141,11 +150,14 @@ export class ListMfeRemotes {
       .open<CreateMFEDialog, void, CreateMfeRemoteDto>(
         CreateMFEDialog,
         {
+          width: '860px',
+          maxWidth: 'calc(100vw - 2rem)',
           panelClass: [
+            'ngx-design-system-overlay',
             'orchestrator-dialog',
             'orchestrator-dialog--wide',
           ],
-          backdropClass: 'blur-backdrop',
+          backdropClass: 'ngx-design-system-backdrop',
         }
       )
       .afterClosed()

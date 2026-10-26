@@ -1,3 +1,4 @@
+import { NgxButton } from '@tmdjr/ngx-workshop-design-system';
 import { ChangeDetectionStrategy } from '@angular/core';
 import {
   ChangeDetectorRef,
@@ -27,6 +28,7 @@ import { MfeRemotesStore } from '../../../state/mfe-remotes-store';
   host: { class: 'dev-mode-options' },
   selector: 'ngx-dev-mode-options-dialog',
   imports: [
+    NgxButton,
     MatButton,
     MatInput,
     MatDialogTitle,
@@ -37,10 +39,11 @@ import { MfeRemotesStore } from '../../../state/mfe-remotes-store';
     FormsModule,
   ],
   template: `
-    <h1 mat-dialog-title>Dev Mode Options</h1>
+    <h2 mat-dialog-title>Development override</h2>
     <mat-dialog-content>
       <p>
-        Here you can configure development mode options for the MFE.
+        Use a local entry point for {{ mfeRemote.name }} in this
+        browser. The deployed catalog entry stays unchanged.
       </p>
       <mat-slide-toggle
         [disabled]="loading"
@@ -50,7 +53,7 @@ import { MfeRemotesStore } from '../../../state/mfe-remotes-store';
         >Turn {{ devModeEnabled ? 'Off' : 'On' }} Dev
         Mode</mat-slide-toggle
       >
-      <mat-form-field>
+      <mat-form-field subscriptSizing="dynamic" appearance="outline">
         <mat-label>Remote Entry Point</mat-label>
         <input
           matInput
@@ -62,7 +65,14 @@ import { MfeRemotesStore } from '../../../state/mfe-remotes-store';
       </mat-form-field>
     </mat-dialog-content>
     <mat-dialog-actions>
-      <button mat-button (click)="dialogRef.close()">Close</button>
+      <button
+        mat-flat-button
+        ngxButton
+        surface="outline"
+        (click)="dialogRef.close()"
+      >
+        Close
+      </button>
     </mat-dialog-actions>
   `,
   styles: [

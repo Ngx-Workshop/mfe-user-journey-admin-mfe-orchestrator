@@ -20,10 +20,13 @@ type StructuralSubTypes = {
   selector: 'ngx-structural-subtypes',
   imports: [ReactiveFormsModule, MatSelectModule, MatIcon],
   template: `
-    <mat-form-field appearance="outline">
+    <mat-form-field subscriptSizing="dynamic" appearance="outline">
       <mat-label>Structural placement</mat-label>
       <mat-icon matPrefix>view_quilt</mat-icon>
-      <mat-select [formControl]="structuralSubTypeControl()">
+      <mat-select
+        panelClass="ngx-design-system-overlay"
+        [formControl]="structuralSubTypeControl()"
+      >
         @for (type of structuralSubTypes; track type) {
           <mat-option [value]="type.value">{{
             type.label

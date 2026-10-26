@@ -1,3 +1,4 @@
+import { NgxButton } from '@tmdjr/ngx-workshop-design-system';
 import { loadRemoteModule } from '@angular-architects/module-federation';
 import {
   ChangeDetectionStrategy,
@@ -23,6 +24,7 @@ import { MfeRemoteDto } from '@tmdjr/ngx-mfe-orchestrator-contracts';
   host: { class: 'mfe-preview' },
   selector: 'ngx-mfe-preview',
   imports: [
+    NgxButton,
     MatButton,
     MatDialogTitle,
     MatDialogContent,
@@ -37,14 +39,21 @@ import { MfeRemoteDto } from '@tmdjr/ngx-mfe-orchestrator-contracts';
       <ng-container #mfeHost></ng-container>
     </mat-dialog-content>
     <mat-dialog-actions>
-      <button matButton (click)="dialogRef.close()">Close</button>
+      <button
+        mat-flat-button
+        ngxButton
+        surface="outline"
+        (click)="dialogRef.close()"
+      >
+        Close
+      </button>
     </mat-dialog-actions>
   `,
   styles: [
     `
       h2,
       mat-dialog-actions {
-        background: var(--mat-sys-secondary-container);
+        background: var(--ngx-color-surface);
       }
     `,
   ],

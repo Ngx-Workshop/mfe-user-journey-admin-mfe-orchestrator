@@ -118,8 +118,8 @@ type StructuralOverrideModes = {
             gap: 1rem;
             align-items: center;
             padding: 0.75rem;
-            background: var(--mat-sys-surface-container-low);
-            border-radius: 12px;
+            background: var(--ngx-color-surface);
+            border-radius: var(--ngx-radius);
 
             label {
               display: block;
@@ -130,7 +130,7 @@ type StructuralOverrideModes = {
             small {
               display: block;
               margin-top: 0.15rem;
-              color: var(--mat-sys-on-surface-variant);
+              color: var(--ngx-color-muted);
               font-size: 0.68rem;
             }
 

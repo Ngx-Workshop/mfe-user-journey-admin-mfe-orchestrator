@@ -26,7 +26,12 @@ import type { RemoteForm } from '../../../forms/mfe-remote-form';
     </div>
 
     <div class="mfe-capabilities__capability-grid">
-      <label class="mfe-capabilities__capability-card">
+      <label
+        class="mfe-capabilities__capability-card"
+        [class.mfe-capabilities__capability-card--enabled]="
+          form().controls.useRoutes.value
+        "
+      >
         <span class="mfe-capabilities__capability-icon">
           <mat-icon>route</mat-icon>
         </span>
@@ -40,7 +45,12 @@ import type { RemoteForm } from '../../../forms/mfe-remote-form';
         ></mat-slide-toggle>
       </label>
 
-      <label class="mfe-capabilities__capability-card">
+      <label
+        class="mfe-capabilities__capability-card"
+        [class.mfe-capabilities__capability-card--enabled]="
+          form().controls.requiresAuth.value
+        "
+      >
         <span class="mfe-capabilities__capability-icon">
           <mat-icon>lock</mat-icon>
         </span>
@@ -54,7 +64,12 @@ import type { RemoteForm } from '../../../forms/mfe-remote-form';
         ></mat-slide-toggle>
       </label>
 
-      <label class="mfe-capabilities__capability-card">
+      <label
+        class="mfe-capabilities__capability-card"
+        [class.mfe-capabilities__capability-card--enabled]="
+          form().controls.isAdmin.value
+        "
+      >
         <span class="mfe-capabilities__capability-icon">
           <mat-icon>admin_panel_settings</mat-icon>
         </span>
@@ -94,16 +109,16 @@ import type { RemoteForm } from '../../../forms/mfe-remote-form';
 
       p {
         margin-top: 0.2rem;
-        color: var(--mat-sys-on-surface-variant);
+        color: var(--ngx-color-muted);
         font-size: 0.78rem;
       }
 
       .mfe-capabilities__capability-heading > span {
         flex: 0 0 auto;
         padding: 0.3rem 0.55rem;
-        color: var(--mat-sys-on-secondary-container);
-        background: var(--mat-sys-secondary-container);
-        border-radius: 999px;
+        color: var(--ngx-color-secondary);
+        background: var(--ngx-color-surface);
+        border-radius: var(--ngx-radius);
         font-size: 0.68rem;
         font-weight: 600;
       }
@@ -120,20 +135,18 @@ import type { RemoteForm } from '../../../forms/mfe-remote-form';
         gap: 0.65rem;
         align-items: center;
         padding: 0.85rem;
-        background: var(--mat-sys-surface);
-        border: 1px solid var(--mat-sys-outline-variant);
-        border-radius: 14px;
+        background: var(--ngx-color-surface);
+        border: 1px solid var(--ngx-color-border);
+        border-radius: var(--ngx-radius);
         cursor: pointer;
       }
 
-      .mfe-capabilities__capability-card:has(
-        .mat-mdc-slide-toggle-checked
-      ) {
-        background: var(--mat-sys-primary-container);
+      .mfe-capabilities__capability-card--enabled {
+        background: var(--ngx-color-surface);
         border-color: color-mix(
           in srgb,
-          var(--mat-sys-primary) 35%,
-          var(--mat-sys-outline-variant)
+          var(--ngx-color-primary) 35%,
+          var(--ngx-color-border)
         );
       }
 
@@ -142,9 +155,9 @@ import type { RemoteForm } from '../../../forms/mfe-remote-form';
         place-items: center;
         width: 34px;
         height: 34px;
-        color: var(--mat-sys-primary);
-        background: var(--mat-sys-surface-container);
-        border-radius: 10px;
+        color: var(--ngx-color-primary);
+        background: var(--ngx-color-surface);
+        border-radius: var(--ngx-radius);
       }
 
       .mfe-capabilities__capability-icon mat-icon {
@@ -168,7 +181,7 @@ import type { RemoteForm } from '../../../forms/mfe-remote-form';
 
       .mfe-capabilities__capability-copy small {
         margin-top: 0.15rem;
-        color: var(--mat-sys-on-surface-variant);
+        color: var(--ngx-color-muted);
         font-size: 0.67rem;
         line-height: 1.35;
       }

@@ -76,10 +76,10 @@ import { MfeRemoteDtoExtraProps } from '../../models/app.types';
         align-items: center;
         width: 100%;
         padding: 0.75rem;
-        color: var(--mat-sys-on-surface);
+        color: var(--ngx-color-text);
         background: transparent;
         border: 1px solid transparent;
-        border-radius: 14px;
+        border-radius: var(--ngx-radius);
         font: inherit;
         text-align: left;
         cursor: pointer;
@@ -90,28 +90,31 @@ import { MfeRemoteDtoExtraProps } from '../../models/app.types';
       }
 
       .mfe-remote-list-item__remote-list-item:hover {
-        background: var(--mat-sys-surface-container-low);
+        background: var(--ngx-color-surface);
         transform: translateX(2px);
       }
 
       .mfe-remote-list-item__remote-list-item:focus-visible {
-        outline: 3px solid
-          color-mix(in srgb, var(--mat-sys-primary) 28%, transparent);
+        outline: 2px solid var(--ngx-color-primary);
         outline-offset: 1px;
       }
 
       .mfe-remote-list-item__remote-list-item.mfe-remote-list-item__remote-list-item--selected {
-        background: var(--mat-sys-primary-container);
+        background: color-mix(
+          in srgb,
+          var(--ngx-color-primary) 8%,
+          var(--ngx-color-surface)
+        );
         border-color: color-mix(
           in srgb,
-          var(--mat-sys-primary) 24%,
+          var(--ngx-color-primary) 60%,
           transparent
         );
       }
 
       .mfe-remote-list-item__remote-list-item.mfe-remote-list-item__remote-list-item--selected
         .mfe-remote-list-item__chevron {
-        color: var(--mat-sys-primary);
+        color: var(--ngx-color-primary);
       }
 
       .mfe-remote-list-item__remote-icon {
@@ -119,14 +122,14 @@ import { MfeRemoteDtoExtraProps } from '../../models/app.types';
         place-items: center;
         width: 40px;
         height: 40px;
-        color: var(--mat-sys-primary);
-        background: var(--mat-sys-primary-container);
-        border-radius: 12px;
+        color: var(--ngx-color-primary);
+        background: var(--ngx-color-surface);
+        border-radius: var(--ngx-radius);
       }
 
       .mfe-remote-list-item__remote-icon.mfe-remote-list-item__remote-icon--structural {
-        color: var(--mat-sys-tertiary);
-        background: var(--mat-sys-tertiary-container);
+        color: var(--ngx-color-secondary);
+        background: var(--ngx-color-surface);
       }
 
       .mfe-remote-list-item__remote-copy {
@@ -148,7 +151,7 @@ import { MfeRemoteDtoExtraProps } from '../../models/app.types';
 
       .mfe-remote-list-item__remote-meta {
         margin-top: 0.25rem;
-        color: var(--mat-sys-on-surface-variant);
+        color: var(--ngx-color-muted);
         font-size: 0.69rem;
       }
 
@@ -167,22 +170,31 @@ import { MfeRemoteDtoExtraProps } from '../../models/app.types';
       }
 
       .mfe-remote-list-item__status.mfe-remote-list-item__status--active {
-        color: #247a52;
+        color: var(--ngx-color-success);
       }
 
       .mfe-remote-list-item__status.mfe-remote-list-item__status--archived {
-        color: var(--mat-sys-on-surface-variant);
+        color: var(--ngx-color-muted);
       }
 
       .mfe-remote-list-item__dev-indicator {
         width: 1.1rem;
         height: 1.1rem;
-        color: var(--mat-sys-error);
+        color: var(--ngx-color-error);
         font-size: 1.1rem;
       }
 
       .mfe-remote-list-item__chevron {
-        color: var(--mat-sys-outline);
+        color: var(--ngx-color-border);
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .mfe-remote-list-item__remote-list-item {
+          transition: none;
+        }
+        .mfe-remote-list-item__remote-list-item:hover {
+          transform: none;
+        }
       }
     `,
   ],

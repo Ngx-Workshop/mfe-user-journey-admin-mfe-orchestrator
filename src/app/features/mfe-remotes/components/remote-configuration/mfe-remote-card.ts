@@ -1,5 +1,4 @@
 import { MfeRemoteSummary } from './mfe-remote-summary';
-import { NgClass } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -10,7 +9,10 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatButton } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
+import {
+  NgxPanel,
+  NgxButton,
+} from '@tmdjr/ngx-workshop-design-system';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIcon } from '@angular/material/icon';
 import { filter } from 'rxjs';
@@ -27,50 +29,59 @@ import { MfeRemoteCardHeader } from './mfe-remote-card-header';
   selector: 'ngx-mfe-remote',
   imports: [
     MfeRemoteSummary,
-    MatCardModule,
+    NgxPanel,
+    NgxButton,
     MatButton,
     MatIcon,
     MfeForm,
     MfeRemoteCardHeader,
-    NgClass,
   ],
   template: `
     @if (initialValue(); as mfe) {
-      <mat-card
-        class="mfe-remote-card__card"
-        appearance="filled"
-        [ngClass]="{
-          'mfe-remote-card__card--dev-mode': mfe.isDevMode,
-        }"
+      <ngx-panel
+        heading="Configuration"
+        eyebrow="REMOTE WORKSPACE"
+        shape="stepped"
+        background="solid"
+        [tone]="mfe.isDevMode ? 'secondary' : 'primary'"
       >
         <ngx-mfe-remote-summary [remote]="mfe" />
 
-        <mat-card-header>
+        <div class="mfe-remote-card__metadata">
           <ngx-mfe-remote-card-header
             [initialValue]="initialValue()"
             (openDevModeOptions)="openDevModeOptions(mfe)"
             (previewMfeRemote)="previewMfeRemote(mfe)"
           ></ngx-mfe-remote-card-header>
-        </mat-card-header>
+        </div>
 
-        <mat-card-content>
+        <div class="mfe-remote-card__form">
           <ngx-mfe-form
             [initialValue]="initialValue()"
             (formStatus)="disableUpdateButton = $event !== 'VALID'"
             (valueChange)="mfeRemote = $event"
           ></ngx-mfe-form>
-        </mat-card-content>
+        </div>
 
-        <mat-card-actions>
+        <div ngxPanelActions class="mfe-remote-card__actions">
           <button
-            matButton
+            mat-flat-button
+            ngxButton
+            surface="outline"
+            tone="danger"
             class="mfe-remote-card__delete-action"
             (click)="deleteRemote()"
           >
             <mat-icon>delete</mat-icon>
             Delete
           </button>
-          <button matButton (click)="archive.emit(mfe)">
+          <button
+            mat-flat-button
+            ngxButton
+            surface="outline"
+            tone="secondary"
+            (click)="archive.emit(mfe)"
+          >
             <mat-icon>{{
               mfe.archived ? 'unarchive' : 'archive'
             }}</mat-icon>
@@ -78,77 +89,49 @@ import { MfeRemoteCardHeader } from './mfe-remote-card-header';
           </button>
           <div class="mfe-remote-card__flex-spacer"></div>
           <button
-            matButton="filled"
+            mat-flat-button
+            ngxButton
+            shape="stepped"
             (click)="updateRemote()"
             [disabled]="disableUpdateButton"
           >
             <mat-icon>save</mat-icon>
             Save changes
           </button>
-        </mat-card-actions>
-      </mat-card>
+        </div>
+      </ngx-panel>
     }
   `,
   styles: [
     `
       :host {
         display: block;
+        min-width: 0;
       }
-
-      mat-card {
-        overflow: hidden;
-        background: var(--mat-sys-surface-container-low);
-        border: 1px solid var(--mat-sys-outline-variant);
-        border-radius: 16px;
-        box-shadow: none;
+      .mfe-remote-card__form {
+        min-width: 0;
       }
-
-      mat-card-header {
-        padding: 1rem 1.25rem 0;
-      }
-
-      mat-card-content {
+      .mfe-remote-card__actions {
         display: flex;
-        flex-direction: column;
-        padding: 0 1.25rem 1.25rem;
-      }
-
-      mat-card-actions {
-        display: flex;
+        width: 100%;
         flex-wrap: wrap;
-        flex-direction: row;
-        gap: 0.35rem;
-        padding: 1rem 1.25rem;
-        background: var(--mat-sys-surface);
-        border-top: 1px solid var(--mat-sys-outline-variant);
+        align-items: center;
+        gap: var(--ngx-space-2);
+        padding-top: var(--ngx-space-4);
+        border-top: 1px solid var(--ngx-color-border);
       }
-
-      .mfe-remote-card__delete-action {
-        color: var(--mat-sys-error);
-      }
-
       .mfe-remote-card__flex-spacer {
         flex: 1;
       }
-
-      .mfe-remote-card__card--dev-mode {
-        border-color: color-mix(
-          in srgb,
-          var(--mat-sys-error) 48%,
-          var(--mat-sys-outline-variant)
-        );
-        box-shadow: 0 0 0 3px
-          color-mix(in srgb, var(--mat-sys-error) 8%, transparent);
-      }
-
       @media (max-width: 600px) {
-        mat-card-actions .mfe-remote-card__flex-spacer {
+        .mfe-remote-card__flex-spacer {
           display: none;
         }
-
-        mat-card-actions button:last-child {
-          width: 100%;
-          margin-top: 0.35rem;
+        .mfe-remote-card__actions button {
+          flex: 1 1 auto;
+        }
+        .mfe-remote-card__actions button:last-child {
+          flex-basis: 100%;
         }
       }
     `,
@@ -179,7 +162,8 @@ export class MfeRemoteCard {
         MfeRemoteDtoExtraProps,
         MfeRemoteDtoExtraProps
       >(ConfirmDeleteDialog, {
-        backdropClass: 'blur-backdrop',
+        backdropClass: 'ngx-design-system-backdrop',
+        panelClass: 'ngx-design-system-overlay',
         data: this.initialValue(),
       })
       .afterClosed()
@@ -194,9 +178,12 @@ export class MfeRemoteCard {
 
   previewMfeRemote(mfeRemote: MfeRemoteDtoExtraProps) {
     this.dialog.open(MfePreview, {
-      backdropClass: 'blur-backdrop',
+      width: '1200px',
+      maxWidth: 'calc(100vw - 2rem)',
+      backdropClass: 'ngx-design-system-backdrop',
       data: mfeRemote,
       panelClass: [
+        'ngx-design-system-overlay',
         'orchestrator-dialog',
         'orchestrator-dialog--preview',
         'orchestrator-dialog--wide',
@@ -206,9 +193,10 @@ export class MfeRemoteCard {
 
   openDevModeOptions(mfe: MfeRemoteDtoExtraProps) {
     this.dialog.open(DevModeOptions, {
-      backdropClass: 'blur-backdrop',
+      backdropClass: 'ngx-design-system-backdrop',
       data: mfe,
       width: '600px',
+      panelClass: 'ngx-design-system-overlay',
     });
   }
 }

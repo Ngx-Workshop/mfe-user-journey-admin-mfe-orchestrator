@@ -1,3 +1,4 @@
+import { NgxPanel } from '@tmdjr/ngx-workshop-design-system';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -9,15 +10,19 @@ import { MatIcon } from '@angular/material/icon';
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'form-section' },
   selector: 'ngx-form-section',
-  imports: [MatIcon],
+  imports: [MatIcon, NgxPanel],
   template: `
-    <section class="form-section">
+    <ngx-panel
+      [heading]="heading()"
+      eyebrow="CONFIGURATION"
+      shape="chamfered"
+      background="solid"
+    >
       <div class="form-section__heading">
         <span class="form-section__icon"
           ><mat-icon>{{ icon() }}</mat-icon></span
         >
         <div>
-          <h3>{{ heading() }}</h3>
           <p>{{ description() }}</p>
         </div>
         @if (requiredNote()) {
@@ -27,82 +32,38 @@ import { MatIcon } from '@angular/material/icon';
         }
       </div>
       <ng-content />
-    </section>
+    </ngx-panel>
   `,
   styles: [
     `
       :host {
         display: block;
+        min-width: 0;
       }
-      .form-section {
-        padding: 1.15rem;
-        background: var(--mat-sys-surface-container-lowest);
-        border: 1px solid var(--mat-sys-outline-variant);
-        border-radius: 16px;
-      }
-
       .form-section__heading {
         display: flex;
+        flex-wrap: wrap;
         align-items: center;
-        gap: 0.75rem;
-        margin-bottom: 1.25rem;
-        padding-bottom: 1rem;
-        border-bottom: 1px solid var(--mat-sys-outline-variant);
+        gap: var(--ngx-space-2);
+        margin-bottom: var(--ngx-space-6);
+        padding-bottom: var(--ngx-space-4);
+        border-bottom: 1px solid var(--ngx-color-border);
       }
-
       .form-section__icon {
-        display: grid;
-        flex: 0 0 auto;
-        place-items: center;
-        width: 40px;
-        height: 40px;
-        color: var(--mat-sys-primary);
-        background: var(--mat-sys-primary-container);
-        border-radius: 12px;
+        color: var(--ngx-color-primary);
       }
-
-      .form-section__icon mat-icon {
-        width: 1.25rem;
-        height: 1.25rem;
-        font-size: 1.25rem;
+      .form-section__heading > div {
+        flex: 1 1 180px;
       }
-
-      h3,
       p {
         margin: 0;
+        color: var(--ngx-color-muted);
+        font-size: 0.8rem;
+        line-height: 1.5;
       }
-
-      h3 {
-        font-size: 1rem;
-        font-weight: 600;
-      }
-
-      p {
-        margin-top: 0.2rem;
-        color: var(--mat-sys-on-surface-variant);
-        font-size: 0.76rem;
-        line-height: 1.4;
-      }
-
       .form-section__required {
-        margin-left: auto;
-        color: var(--mat-sys-on-surface-variant);
-        font-size: 0.65rem;
-        white-space: nowrap;
-      }
-
-      @media (max-width: 620px) {
-        .form-section {
-          padding: 0.85rem;
-        }
-
-        .form-section__heading {
-          align-items: flex-start;
-        }
-
-        .form-section__required {
-          display: none;
-        }
+        color: var(--ngx-color-muted);
+        font: var(--ngx-font-label);
       }
     `,
   ],

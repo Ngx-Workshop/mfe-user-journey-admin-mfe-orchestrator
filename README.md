@@ -6,6 +6,12 @@ Angular micro-frontend (remote) for the **Admin MFE Orchestrator** user journey 
 
 Angular 21 standalone micro-frontend (remote) for the NGX Workshop admin experience. It lists, creates, updates, previews, archives, and deletes MFE remotes that are consumed by a host shell via module federation.
 
+The catalog and configuration workspace use `@tmdjr/ngx-workshop-design-system`
+**21.0.1**: angular panels, shared action buttons and status chips with semantic
+theme tokens. The admin shell must share the same version and supply the
+`ngx-design-system` / `ngx-design-system-overlay` Material adapter scopes.
+Standalone mode includes the public theme itself. See the [migration handoff](specs/003-design-system-migration/handoff.md).
+
 ### What you get
 
 - Standalone Angular + zoneless change detection, Material UI, and async animations.

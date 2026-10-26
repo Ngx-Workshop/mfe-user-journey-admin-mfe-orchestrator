@@ -18,6 +18,11 @@ module.exports = withModuleFederationPlugin({
       strictVersion: true,
       requiredVersion: '21.1.0',
     },
+    '@angular/core/rxjs-interop': {
+      singleton: true,
+      strictVersion: true,
+      requiredVersion: '21.1.0',
+    },
     '@angular/common': {
       singleton: true,
       strictVersion: true,
@@ -116,6 +121,12 @@ module.exports = withModuleFederationPlugin({
       singleton: true,
       strictVersion: true,
       requiredVersion: '21.1.0',
+    },
+
+    '@tmdjr/ngx-workshop-design-system': {
+      singleton: true,
+      strictVersion: true,
+      requiredVersion: '21.0.2',
     },
   },
 });

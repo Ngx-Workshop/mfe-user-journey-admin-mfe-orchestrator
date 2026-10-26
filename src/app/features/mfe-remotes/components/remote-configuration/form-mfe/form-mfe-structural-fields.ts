@@ -32,10 +32,16 @@ import { StructuralSubTypeOptions } from './form-mfe-structural-subtypes';
         class="mfe-structural-fields__configuration"
         [formGroup]="mfeRemoteForm"
       >
-        <mat-form-field appearance="outline">
+        <mat-form-field
+          subscriptSizing="dynamic"
+          appearance="outline"
+        >
           <mat-label>Remote type</mat-label>
           <mat-icon matPrefix>category</mat-icon>
-          <mat-select formControlName="type">
+          <mat-select
+            panelClass="ngx-design-system-overlay"
+            formControlName="type"
+          >
             @for (type of mfeTypes; track type) {
               <mat-option [value]="type">
                 {{

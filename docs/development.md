@@ -30,12 +30,22 @@ The hosted shell can load `http://localhost:4201/remoteEntry.js` through its con
 
 ## Verification scope
 
-The inherited suite has 15 tests covering store/VM behavior, storage key conventions, text URL reads and root outlet rendering. Mutations and storage are mocked; those tests do not prove live backend authorization, database persistence or cross-origin broker behavior. Earlier live checks in this chat covered catalog search/selection, an unsaved create draft, both type transitions and entry URL readability. Current migration evidence belongs in [002 handoff](../specs/002-source-organization/handoff.md).
+The suite has 19 tests: the original 15 cover store/VM behavior, storage keys,
+text URL reads and the root outlet; four catalog UI regressions cover search/empty
+recovery, disabled/valid save, themed create dialog/type projection and confirmed
+deletion with archived status. These use real component templates with mocked
+store commands. They do not prove backend authorization, database persistence,
+deployed federation or cross-origin broker behavior. Design-system migration
+evidence belongs in [003 handoff](../specs/003-design-system-migration/handoff.md).
 
 Run layout, unit tests and a production build after moving files. If a local static bundle server is already running, restore a development build after production verification. Do not run deployment workflows or change live records merely to verify docs/layout.
 
 ## Existing limits
 
-Federation configuration still names the remote `ngx-seed-mfe`. Its Material/CDK shared root entries require 20.1.0 although installed packages are 21.1.0; secondary entry-point sharing and duplicate component warnings need a separately scoped compatibility review. This migration preserves those settings.
+Federation still names the remote `ngx-seed-mfe`. Material/CDK root and secondary
+entries share strict 21.1.0, matching the shell. The new design-system singleton
+requires 21.0.1 in both applications; upgrade and rebuild them together when
+changing that requirement. Hosted visual integration requires the shell's global
+theme scopes described in [architecture](architecture.md).
 
 The deployment workflow currently builds the development configuration. Verification of a production build here does not change that workflow or establish a deployment. The README links to local context; optional Spec Kit helper scripts may create branches or overwrite plans/agent files, so read their source before use. Ordinary Markdown editing is the default.

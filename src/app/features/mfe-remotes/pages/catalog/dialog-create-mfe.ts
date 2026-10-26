@@ -1,3 +1,4 @@
+import { NgxButton } from '@tmdjr/ngx-workshop-design-system';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -21,6 +22,7 @@ import type { CreateMfeRemoteDto } from '@tmdjr/ngx-mfe-orchestrator-contracts';
   host: { class: 'create-mfe' },
   selector: 'ngx-create-mfe-dialog',
   imports: [
+    NgxButton,
     MatFormFieldModule,
     MatInputModule,
     MatButtonModule,
@@ -31,7 +33,7 @@ import type { CreateMfeRemoteDto } from '@tmdjr/ngx-mfe-orchestrator-contracts';
   ],
   template: `
     <div>
-      <h2 mat-dialog-title>Create MFE Remote catalog entry?</h2>
+      <h2 mat-dialog-title>Create remote</h2>
       <mat-dialog-content>
         <ngx-mfe-form
           (formStatus)="disableCreateButton = $event !== 'VALID'"
@@ -39,9 +41,18 @@ import type { CreateMfeRemoteDto } from '@tmdjr/ngx-mfe-orchestrator-contracts';
         ></ngx-mfe-form>
       </mat-dialog-content>
       <mat-dialog-actions>
-        <button matButton (click)="dialogRef.close()">Cancel</button>
         <button
-          matButton
+          mat-flat-button
+          ngxButton
+          surface="outline"
+          (click)="dialogRef.close()"
+        >
+          Cancel
+        </button>
+        <button
+          mat-flat-button
+          ngxButton
+          shape="stepped"
           (click)="dialogRef.close(this.mfeRemote)"
           [disabled]="disableCreateButton"
         >
@@ -53,6 +64,9 @@ import type { CreateMfeRemoteDto } from '@tmdjr/ngx-mfe-orchestrator-contracts';
   styles: [
     `
       :host {
+        mat-dialog-actions {
+          gap: var(--ngx-space-2);
+        }
         mat-dialog-content {
           display: flex;
           flex-direction: column;

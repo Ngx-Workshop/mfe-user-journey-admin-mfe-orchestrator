@@ -39,7 +39,7 @@ import type { MfeRemoteDto } from '@tmdjr/ngx-mfe-orchestrator-contracts';
           gap: 0.15rem;
 
           .mfe-info-group__label {
-            color: var(--mat-sys-on-surface-variant);
+            color: var(--ngx-color-muted);
             font-size: 0.66rem;
             font-weight: 600;
             letter-spacing: 0.06em;
