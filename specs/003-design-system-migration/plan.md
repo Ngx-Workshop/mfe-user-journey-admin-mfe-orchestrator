@@ -32,3 +32,13 @@ Run `check:layout`, existing/new ChromeHeadless tests, clean npm 10 install and 
 with license extraction. Inspect a temporary fixture-backed UI at desktop/mobile sizes, including
 search, type transitions, disabled actions and dialog/select styling. Fixture checks cannot certify
 live authentication, persistence or deployed host/remote compatibility. No live records changed.
+
+## Mission Control refinement
+
+FR-006/007: Remove the catalog hero component and place the h1 in the existing sticky
+action bar. Remove the 1440px width cap from the action bar and workspace; use
+border-box sizing and 1rem gutters. Reduce workspace/detail spacing and empty-state
+height, align the catalog rail below the compact bar, and use a form-container query
+for two columns at 960px without squeezing dialogs or narrow screens.
+Constitution Check: presentation only; MVVM, integration and keyboard controls retained.
+Verify layout, the existing interaction suite, production build and resulting CSS.

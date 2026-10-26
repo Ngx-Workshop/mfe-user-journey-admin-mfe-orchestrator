@@ -36,3 +36,14 @@ the subsequent remote migration is prepared locally for review.
 MVVM and integration boundaries preserved. Principle 3's established Material theme is extended
 with the user-requested public Ngx design system. Accessibility and inline source organization
 remain mandatory. Meaningful UI regressions supplement existing domain tests and production builds.
+
+## Mission Control layout refinement — 2026-10-26
+
+- FR-006 / AC-006: Open directly on a compact action bar spanning the remote's
+  available width, with a semantic page heading and New remote action; remove the hero.
+- FR-007 / AC-007: Prioritize useful content above the fold with full available workspace
+  width, compact spacing and side-by-side form sections when the form container is at
+  least 960px wide. Keep normal scrolling for longer content and stacked narrow layouts.
+
+The shell still owns the viewport and its navigation; full width means the remote's
+allocated content area. Preserve readable controls, validation and all existing actions.

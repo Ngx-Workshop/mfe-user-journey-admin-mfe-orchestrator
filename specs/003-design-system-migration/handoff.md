@@ -54,3 +54,19 @@ review/publish the remote changes and verify the existing `list-mfe-remotes` rou
 X001 is a deployment acceptance check, not a claim of a local failure. No backend rollout required.
 
 README, architecture, development and the feature index now describe the new integration.
+
+## Mission Control refinement — 2026-10-26
+
+Removed the hero component. A compact page heading now shares the full-width sticky
+action bar with New remote. Removed the workspace's 1440px cap, kept 1rem side gutters,
+reduced detail spacing and empty-state height, and aligned the rail's sticky offset
+with the compact bar. Form sections use two columns at a container width of 960px
+and remain stacked below that width, including create dialogs. Long content retains
+normal scrolling rather than clipping controls to force everything above the fold.
+
+Verification: source layout check, all 19 ChromeHeadless interaction/domain tests,
+production build and whitespace checks passed. Production emitted remoteEntry.js
+and nonempty third-party licenses. The existing local static bundle server is
+running, so the development bundle was rebuilt after production verification.
+No new hosted visual check was performed for this refinement; X001 remains pending.
+All changes remain local; no live data writes, commit, push or deployment.

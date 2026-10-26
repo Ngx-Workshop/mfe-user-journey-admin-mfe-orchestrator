@@ -95,7 +95,7 @@ import { MfeRemoteCard } from '../../components/remote-configuration/mfe-remote-
         align-items: center;
         justify-content: space-between;
         gap: 1rem;
-        margin-bottom: 1.25rem;
+        margin-bottom: 0.5rem;
         padding: 0 0.25rem;
       }
 
@@ -109,7 +109,7 @@ import { MfeRemoteCard } from '../../components/remote-configuration/mfe-remote-
 
       h2 {
         margin: 0.2rem 0 0;
-        font-size: clamp(1.5rem, 3vw, 2rem);
+        font-size: clamp(1.1rem, 2vw, 1.4rem);
         font-weight: 600;
         letter-spacing: -0.035em;
         font-family: var(--ngx-font-mono);
@@ -131,11 +131,11 @@ import { MfeRemoteCard } from '../../components/remote-configuration/mfe-remote-
 
       .mfe-remote-detail__empty-state {
         display: flex;
-        min-height: 440px;
+        min-height: 240px;
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        padding: 2rem;
+        padding: 1rem;
         text-align: center;
       }
 

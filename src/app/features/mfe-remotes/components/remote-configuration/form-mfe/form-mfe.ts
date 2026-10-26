@@ -70,10 +70,17 @@ import { FormSection } from './form-section';
     `
       :host {
         display: block;
+        container-type: inline-size;
       }
       .form-mfe__mfe-form {
         display: grid;
         gap: 1rem;
+      }
+      @container (min-width: 960px) {
+        .form-mfe__mfe-form {
+          grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+          align-items: start;
+        }
       }
     `,
   ],

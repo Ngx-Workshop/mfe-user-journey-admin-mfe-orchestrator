@@ -13,7 +13,6 @@ import { filter } from 'rxjs';
 import type { CreateMfeRemoteDto } from '@tmdjr/ngx-mfe-orchestrator-contracts';
 import { CreateMFEDialog } from './dialog-create-mfe';
 import { MfeRemoteCatalogActions } from './mfe-remote-catalog-actions';
-import { MfeRemoteCatalogHeader } from './mfe-remote-catalog-header';
 import { MfeRemoteDetail } from './mfe-remote-detail';
 import { MfeRemoteRail } from './mfe-remote-rail';
 import { CatalogViewModel } from './catalog-view-model';
@@ -28,12 +27,10 @@ import { CatalogViewModel } from './catalog-view-model';
     MatButton,
     NgxButton,
     MfeRemoteCatalogActions,
-    MfeRemoteCatalogHeader,
     MfeRemoteDetail,
     MfeRemoteRail,
   ],
   template: `
-    <ngx-mfe-remote-catalog-header></ngx-mfe-remote-catalog-header>
     <ngx-mfe-remote-catalog-actions
       (createRemote)="openDialog()"
     ></ngx-mfe-remote-catalog-actions>
@@ -86,7 +83,7 @@ import { CatalogViewModel } from './catalog-view-model';
     `
       :host {
         display: block;
-        min-height: 100vh;
+        min-width: 0;
         background:
           radial-gradient(
             circle at 85% 15%,
@@ -104,17 +101,17 @@ import { CatalogViewModel } from './catalog-view-model';
       .catalog__layout {
         display: grid;
         grid-template-columns: minmax(280px, 340px) minmax(0, 1fr);
-        gap: var(--ngx-space-6);
-        width: min(100% - 3rem, 1440px);
+        gap: var(--ngx-space-4);
+        width: calc(100% - 2rem);
         margin: 0 auto;
-        padding: 1.5rem 0 3rem;
+        padding: 1rem 0;
         align-items: start;
       }
 
       .catalog__error,
       .catalog__status {
         margin: 1rem auto;
-        width: min(100% - 3rem, 1440px);
+        width: calc(100% - 2rem);
       }
       .catalog__error {
         color: var(--ngx-color-error);

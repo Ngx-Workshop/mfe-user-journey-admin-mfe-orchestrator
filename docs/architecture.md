@@ -16,10 +16,14 @@ The shell supplies semantic Ngx tokens, shared button/code styles and a scoped
 Material adapter. Its legacy body palettes continue to style older remotes.
 Standalone global styles include the public `theme()` mixin and matching adapter scopes.
 
-Catalog header, rail, form sections and configuration workspace use `NgxPanel`;
+The catalog opens with a compact full-width action bar containing its page heading and create
+action, without a hero header. The workspace uses the available width with 1rem gutters.
+Rail, form sections and configuration workspace use `NgxPanel`;
 normal Material buttons use `NgxButton`; summary states use `NgxStatus`.
 Icon buttons, forms, selects, switches, validation and dialog focus stay with Material.
 Owned surfaces use public semantic tokens and responsive layouts stack at 900px.
+Form sections sit side by side when their own container is at least 960px wide;
+narrower workspaces and dialogs keep the sections stacked.
 Multi-line field hints use public `subscriptSizing="dynamic"` to reserve enough space.
 
 Dialogs use `ngx-design-system-overlay` on their pane and
@@ -45,7 +49,7 @@ Paths below are relative to `src/app/features/mfe-remotes/` unless stated otherw
 | Form factory   | `forms/mfe-remote-form.ts`                                                           | Typed controls, validation and type-specific request values                             |
 | Resolution     | `resolvers/mfe-remote.resolver.ts`                                                   | Populate the store before route activation                                              |
 | Catalog        | `pages/catalog/list-mfe-remotes.ts`, `catalog-view-model.ts`                         | Create dialog orchestration; scoped search/selection and derived counts                 |
-| Catalog views  | `pages/catalog/mfe-remote-{catalog-header,catalog-actions,rail,list-item,detail}.ts` | Page-only input/event views                                                             |
+| Catalog views  | `pages/catalog/mfe-remote-{catalog-actions,rail,list-item,detail}.ts` | Page-only input/event views                                                             |
 | Create dialog  | `pages/catalog/dialog-create-mfe.ts`                                                 | Catalog-only dialog returning a typed draft                                             |
 | Configuration  | `components/remote-configuration/`                                                   | Card orchestrator, summary/header/info views, confirmation/dev/preview dialogs          |
 | Form workspace | `components/remote-configuration/form-mfe/`                                          | Form orchestrator/local VM, basic fields, capabilities, structural fields and overrides |

@@ -125,15 +125,15 @@ import { MfeRemoteDtoExtraProps } from '../../models/app.types';
     `
       :host {
         position: sticky;
-        top: 126px;
+        top: 128px;
         display: block;
-        max-height: calc(100vh - 134px);
+        max-height: calc(100dvh - 144px);
         min-width: 0;
       }
 
       aside {
         display: flex;
-        max-height: calc(100vh - 280px);
+        max-height: calc(100dvh - 240px);
         flex-direction: column;
       }
 
