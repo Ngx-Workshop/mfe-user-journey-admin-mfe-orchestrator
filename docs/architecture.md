@@ -70,3 +70,10 @@ The API adapter returns cold HTTP observables without state, refreshes or swallo
 See [HTTP contracts](api-contracts.md). The service owns persistence and authorization; the client guard checks authentication. API calls use same-origin `/api/mfe-remotes` and require the host/gateway or a separately configured local proxy. Development settings use the broker's bare remote ID and a prefixed shell mirror. Preview executes a federation module exposing `./Component` and renders its default component; HTTP URL verification only checks readability as text.
 
 See [source organization](source-organization.md) for folder rules and [readiness](orchestrator-readiness.md) for evidence gaps. Layout migration changes imports and responsibility folders only; route URLs, providers, payload behavior and federation exports remain compatible.
+
+The catalog rail measures its remaining viewport space and panel chrome, updating
+on resize, scroll and size changes. Long catalogs scroll internally; the mobile
+rail is additionally capped at 480px. The configuration panel heading displays
+the selected remote's name. The ID and metadata/quick actions project into the shared `ngxPanelHeader` slot,
+removing the separate detail context. This slot is implemented locally in the
+shared library; a matching published host/remote upgrade remains pending (X002).

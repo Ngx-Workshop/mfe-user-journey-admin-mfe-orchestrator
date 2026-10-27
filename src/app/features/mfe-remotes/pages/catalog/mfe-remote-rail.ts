@@ -1,24 +1,30 @@
 import {
-  NgxPanel,
-  NgxButton,
-} from '@tmdjr/ngx-workshop-design-system';
-import { MfeRemoteListItem } from './mfe-remote-list-item';
-import {
+  afterNextRender,
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
+  ElementRef,
+  inject,
   input,
   output,
+  signal,
+  viewChild,
 } from '@angular/core';
 import { MatButton, MatIconButton } from '@angular/material/button';
 import {
-  MatPrefix,
   MatFormField,
   MatLabel,
+  MatPrefix,
   MatSuffix,
 } from '@angular/material/form-field';
 import { MatIcon } from '@angular/material/icon';
 import { MatInput } from '@angular/material/input';
+import {
+  NgxButton,
+  NgxPanel,
+} from '@tmdjr/ngx-workshop-design-system';
 import { MfeRemoteDtoExtraProps } from '../../models/app.types';
+import { MfeRemoteListItem } from './mfe-remote-list-item';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -44,7 +50,11 @@ import { MfeRemoteDtoExtraProps } from '../../models/app.types';
       shape="chamfered"
       background="solid"
     >
-      <aside aria-label="MFE remote catalog">
+      <aside
+        #catalogBody
+        aria-label="MFE remote catalog"
+        [style.max-height.px]="bodyHeight()"
+      >
         <mat-form-field
           subscriptSizing="dynamic"
           appearance="outline"
@@ -60,15 +70,15 @@ import { MfeRemoteDtoExtraProps } from '../../models/app.types';
           />
           <mat-icon matPrefix>search</mat-icon>
           @if (searchTerm()) {
-            <button
-              matSuffix
-              mat-icon-button
-              type="button"
-              aria-label="Clear search"
-              (click)="searchChanged.emit('')"
-            >
-              <mat-icon>close</mat-icon>
-            </button>
+          <button
+            matSuffix
+            mat-icon-button
+            type="button"
+            aria-label="Clear search"
+            (click)="searchChanged.emit('')"
+          >
+            <mat-icon>close</mat-icon>
+          </button>
           }
         </mat-form-field>
 
@@ -95,27 +105,27 @@ import { MfeRemoteDtoExtraProps } from '../../models/app.types';
           aria-label="Available MFE remotes"
         >
           @for (remote of remotes(); track remote._id) {
-            <ngx-mfe-remote-list-item
-              [remote]="remote"
-              [selected]="selectedRemoteId() === remote._id"
-              (remoteSelected)="remoteSelected.emit($event)"
-            />
+          <ngx-mfe-remote-list-item
+            [remote]="remote"
+            [selected]="selectedRemoteId() === remote._id"
+            (remoteSelected)="remoteSelected.emit($event)"
+          />
           } @empty {
-            <div class="mfe-remote-rail__empty-state">
-              <mat-icon>search_off</mat-icon>
-              <strong>No remotes found</strong>
-              <span>Try a different name, URL, type, or status.</span>
-              @if (searchTerm()) {
-                <button
-                  mat-flat-button
-                  ngxButton
-                  surface="outline"
-                  (click)="searchChanged.emit('')"
-                >
-                  Clear search
-                </button>
-              }
-            </div>
+          <div class="mfe-remote-rail__empty-state">
+            <mat-icon>search_off</mat-icon>
+            <strong>No remotes found</strong>
+            <span>Try a different name, URL, type, or status.</span>
+            @if (searchTerm()) {
+            <button
+              mat-flat-button
+              ngxButton
+              surface="outline"
+              (click)="searchChanged.emit('')"
+            >
+              Clear search
+            </button>
+            }
+          </div>
           }
         </nav>
       </aside>
@@ -125,16 +135,22 @@ import { MfeRemoteDtoExtraProps } from '../../models/app.types';
     `
       :host {
         position: sticky;
-        top: 128px;
+        top: 182px;
         display: block;
-        max-height: calc(100dvh - 144px);
         min-width: 0;
       }
 
       aside {
         display: flex;
-        max-height: calc(100dvh - 240px);
+        min-height: 0;
+        overflow-y: auto;
+        scrollbar-width: thin;
         flex-direction: column;
+      }
+
+      .mfe-remote-rail__search-field,
+      .mfe-remote-rail__catalog-summary {
+        flex-shrink: 0;
       }
 
       .mfe-remote-rail__search-field {
@@ -170,8 +186,13 @@ import { MfeRemoteDtoExtraProps } from '../../models/app.types';
         flex-direction: column;
         gap: 0.35rem;
         padding: 0.25rem 0.25rem 0.75rem;
+        min-height: 0;
         overflow-y: auto;
         scrollbar-width: thin;
+      }
+
+      .mfe-remote-rail__remote-list > * {
+        flex-shrink: 0;
       }
 
       .mfe-remote-rail__empty-state {
@@ -200,14 +221,49 @@ import { MfeRemoteDtoExtraProps } from '../../models/app.types';
           width: 100%;
           max-height: none;
         }
-        aside {
-          max-height: 480px;
-        }
       }
     `,
   ],
 })
 export class MfeRemoteRail {
+  private readonly element = inject<ElementRef<HTMLElement>>(ElementRef);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly catalogBody = viewChild.required<ElementRef<HTMLElement>>('catalogBody');
+  readonly bodyHeight = signal<number | null>(null);
+
+  constructor() {
+    afterNextRender(() => {
+      const host = this.element.nativeElement;
+      const body = this.catalogBody().nativeElement;
+      const viewport = host.ownerDocument.defaultView!;
+      let frame = 0;
+      const measure = () => {
+        const bounds = host.getBoundingClientRect();
+        // Measure panel chrome rather than assuming a fixed theme/header height.
+        const chrome = bounds.height - body.getBoundingClientRect().height;
+        const available = viewport.innerHeight - bounds.top - chrome - 16;
+        const height = Math.max(0, Math.floor(available));
+        this.bodyHeight.set(viewport.innerWidth <= 900 ? Math.min(480, height) : height);
+      };
+      const schedule = () => {
+        viewport.cancelAnimationFrame(frame);
+        frame = viewport.requestAnimationFrame(measure);
+      };
+      const observer = new ResizeObserver(schedule);
+      observer.observe(host);
+      observer.observe(body);
+      viewport.addEventListener('resize', schedule);
+      viewport.addEventListener('scroll', schedule, { capture: true, passive: true });
+      measure();
+      this.destroyRef.onDestroy(() => {
+        observer.disconnect();
+        viewport.cancelAnimationFrame(frame);
+        viewport.removeEventListener('resize', schedule);
+        viewport.removeEventListener('scroll', schedule, true);
+      });
+    });
+  }
+
   remotes = input.required<MfeRemoteDtoExtraProps[]>();
   selectedRemoteId = input<string | null>(null);
   searchTerm = input('');

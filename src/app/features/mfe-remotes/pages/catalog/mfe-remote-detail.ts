@@ -22,17 +22,6 @@ import { MfeRemoteCard } from '../../components/remote-configuration/mfe-remote-
   template: `
     <section aria-live="polite">
       @if (remote(); as selected) {
-        <div class="mfe-remote-detail__detail-context">
-          <div>
-            <span class="mfe-remote-detail__section-label"
-              >Remote configuration</span
-            >
-            <h2>{{ selected.name }}</h2>
-          </div>
-          <span class="mfe-remote-detail__remote-id"
-            >ID {{ selected._id }}</span
-          >
-        </div>
         <ngx-mfe-remote
           [initialValue]="selected"
           (update)="update.emit($event)"
@@ -90,23 +79,6 @@ import { MfeRemoteCard } from '../../components/remote-configuration/mfe-remote-
         min-width: 0;
       }
 
-      .mfe-remote-detail__detail-context {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 1rem;
-        margin-bottom: 0.5rem;
-        padding: 0 0.25rem;
-      }
-
-      .mfe-remote-detail__section-label {
-        color: var(--ngx-color-primary);
-        font-size: 0.68rem;
-        font-weight: 700;
-        letter-spacing: 0.12em;
-        text-transform: uppercase;
-      }
-
       h2 {
         margin: 0.2rem 0 0;
         font-size: clamp(1.1rem, 2vw, 1.4rem);
@@ -114,19 +86,6 @@ import { MfeRemoteCard } from '../../components/remote-configuration/mfe-remote-
         letter-spacing: -0.035em;
         font-family: var(--ngx-font-mono);
         overflow-wrap: anywhere;
-      }
-
-      .mfe-remote-detail__remote-id {
-        max-width: 45%;
-        overflow: hidden;
-        padding: 0.4rem 0.65rem;
-        color: var(--ngx-color-muted);
-        background: var(--ngx-color-surface);
-        border-radius: var(--ngx-radius);
-        font-family: var(--ngx-font-mono);
-        font-size: 0.68rem;
-        text-overflow: ellipsis;
-        white-space: nowrap;
       }
 
       .mfe-remote-detail__empty-state {
@@ -171,14 +130,7 @@ import { MfeRemoteCard } from '../../components/remote-configuration/mfe-remote-
           width: 100%;
         }
 
-        .mfe-remote-detail__detail-context {
-          align-items: flex-start;
-          flex-direction: column;
-        }
 
-        .mfe-remote-detail__remote-id {
-          max-width: 100%;
-        }
       }
     `,
   ],

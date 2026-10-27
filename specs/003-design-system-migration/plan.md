@@ -42,3 +42,16 @@ height, align the catalog rail below the compact bar, and use a form-container q
 for two columns at 960px without squeezing dialogs or narrow screens.
 Constitution Check: presentation only; MVVM, integration and keyboard controls retained.
 Verify layout, the existing interaction suite, production build and resulting CSS.
+
+## Rail containment and selected remote heading
+
+FR-008: Measure the owned rail/body elements after rendering and subtract actual
+panel chrome from remaining viewport height. ResizeObserver plus resize/scroll
+listeners update the bound height; destroy cleanup removes observers/listeners.
+Keep search/counts from shrinking and scroll long lists. Preserve the user's
+182px sticky offset. Avoid assumptions about internal Material structure.
+FR-009: Bind the panel heading to the persisted selected remote name. Heading-row
+projection uses the authorized additive ngxPanelHeader slot. Project ID and
+MfeRemoteCardHeader there and remove the separate detail context. Use wrapping
+flex layouts for long IDs and metadata on narrow widths.
+Constitution Check: no adapter, persistence, route, provider or private DOM changes.

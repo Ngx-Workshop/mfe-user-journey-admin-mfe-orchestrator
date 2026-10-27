@@ -20,7 +20,6 @@ import type { MfeRemoteDto } from '@tmdjr/ngx-mfe-orchestrator-contracts';
     <ngx-mfe-remote-info-group
       [mfe]="initialValue()"
     ></ngx-mfe-remote-info-group>
-    <div class="mfe-remote-card-header__flex-spacer"></div>
     <div class="mfe-remote-card-header__quick-actions">
       <button
         mat-icon-button
@@ -45,16 +44,13 @@ import type { MfeRemoteDto } from '@tmdjr/ngx-mfe-orchestrator-contracts';
   styles: [
     `
       :host {
-        width: 100%;
+        min-width: 0;
+        max-width: 100%;
+        flex-wrap: wrap;
         display: flex;
         flex-direction: row;
         align-items: center;
         gap: 1rem;
-        margin-bottom: 1rem;
-
-        .mfe-remote-card-header__flex-spacer {
-          flex: 1;
-        }
 
         .mfe-remote-card-header__quick-actions {
           display: flex;
@@ -64,15 +60,7 @@ import type { MfeRemoteDto } from '@tmdjr/ngx-mfe-orchestrator-contracts';
           border-radius: var(--ngx-radius);
         }
 
-        @media (max-width: 520px) {
-          align-items: flex-start;
-          flex-direction: column;
 
-          .mfe-remote-card-header__quick-actions {
-            align-self: stretch;
-            justify-content: flex-end;
-          }
-        }
       }
     `,
   ],

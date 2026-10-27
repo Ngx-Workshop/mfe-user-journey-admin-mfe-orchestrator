@@ -1,4 +1,3 @@
-import { MfeRemoteSummary } from './mfe-remote-summary';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -9,12 +8,12 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatButton } from '@angular/material/button';
-import {
-  NgxPanel,
-  NgxButton,
-} from '@tmdjr/ngx-workshop-design-system';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIcon } from '@angular/material/icon';
+import {
+  NgxButton,
+  NgxPanel,
+} from '@tmdjr/ngx-workshop-design-system';
 import { filter } from 'rxjs';
 import { MfeRemoteDtoExtraProps } from '../../models/app.types';
 import { ConfirmDeleteDialog } from './dialog/dialog-confirm-delete';
@@ -22,6 +21,7 @@ import { DevModeOptions } from './dialog/dialog-dev-mode-options';
 import { MfePreview } from './dialog/dialog-mfe-preview';
 import { MfeForm } from './form-mfe/form-mfe';
 import { MfeRemoteCardHeader } from './mfe-remote-card-header';
+import { MfeRemoteSummary } from './mfe-remote-summary';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -38,68 +38,73 @@ import { MfeRemoteCardHeader } from './mfe-remote-card-header';
   ],
   template: `
     @if (initialValue(); as mfe) {
-      <ngx-panel
-        heading="Configuration"
-        eyebrow="REMOTE WORKSPACE"
-        shape="stepped"
-        background="solid"
-        [tone]="mfe.isDevMode ? 'secondary' : 'primary'"
-      >
-        <ngx-mfe-remote-summary [remote]="mfe" />
+    <ngx-panel
+      [heading]="mfe.name"
+      eyebrow="REMOTE CONFIGURATION"
+      shape="stepped"
+      background="solid"
+      [tone]="mfe.isDevMode ? 'secondary' : 'primary'"
+    >
+      <div ngxPanelHeader class="mfe-remote-card__header-content">
+        <span
+          class="mfe-remote-card__remote-id"
+          [title]="'ID ' + mfe._id"
+        >
+          ID {{ mfe._id }}
+        </span>
+        <ngx-mfe-remote-card-header
+          [initialValue]="mfe"
+          (openDevModeOptions)="openDevModeOptions(mfe)"
+          (previewMfeRemote)="previewMfeRemote(mfe)"
+        ></ngx-mfe-remote-card-header>
+      </div>
+      <!-- <ngx-mfe-remote-summary [remote]="mfe" /> -->
 
-        <div class="mfe-remote-card__metadata">
-          <ngx-mfe-remote-card-header
-            [initialValue]="initialValue()"
-            (openDevModeOptions)="openDevModeOptions(mfe)"
-            (previewMfeRemote)="previewMfeRemote(mfe)"
-          ></ngx-mfe-remote-card-header>
-        </div>
+      <div class="mfe-remote-card__form">
+        <ngx-mfe-form
+          [initialValue]="initialValue()"
+          (formStatus)="disableUpdateButton = $event !== 'VALID'"
+          (valueChange)="mfeRemote = $event"
+        ></ngx-mfe-form>
+      </div>
 
-        <div class="mfe-remote-card__form">
-          <ngx-mfe-form
-            [initialValue]="initialValue()"
-            (formStatus)="disableUpdateButton = $event !== 'VALID'"
-            (valueChange)="mfeRemote = $event"
-          ></ngx-mfe-form>
-        </div>
-
-        <div ngxPanelActions class="mfe-remote-card__actions">
-          <button
-            mat-flat-button
-            ngxButton
-            surface="outline"
-            tone="danger"
-            class="mfe-remote-card__delete-action"
-            (click)="deleteRemote()"
-          >
-            <mat-icon>delete</mat-icon>
-            Delete
-          </button>
-          <button
-            mat-flat-button
-            ngxButton
-            surface="outline"
-            tone="secondary"
-            (click)="archive.emit(mfe)"
-          >
-            <mat-icon>{{
-              mfe.archived ? 'unarchive' : 'archive'
-            }}</mat-icon>
-            {{ mfe.archived ? 'Unarchive' : 'Archive' }}
-          </button>
-          <div class="mfe-remote-card__flex-spacer"></div>
-          <button
-            mat-flat-button
-            ngxButton
-            shape="stepped"
-            (click)="updateRemote()"
-            [disabled]="disableUpdateButton"
-          >
-            <mat-icon>save</mat-icon>
-            Save changes
-          </button>
-        </div>
-      </ngx-panel>
+      <div ngxPanelActions class="mfe-remote-card__actions">
+        <button
+          mat-flat-button
+          ngxButton
+          surface="outline"
+          tone="danger"
+          class="mfe-remote-card__delete-action"
+          (click)="deleteRemote()"
+        >
+          <mat-icon>delete</mat-icon>
+          Delete
+        </button>
+        <button
+          mat-flat-button
+          ngxButton
+          surface="outline"
+          tone="secondary"
+          (click)="archive.emit(mfe)"
+        >
+          <mat-icon>{{
+            mfe.archived ? 'unarchive' : 'archive'
+          }}</mat-icon>
+          {{ mfe.archived ? 'Unarchive' : 'Archive' }}
+        </button>
+        <div class="mfe-remote-card__flex-spacer"></div>
+        <button
+          mat-flat-button
+          ngxButton
+          shape="stepped"
+          (click)="updateRemote()"
+          [disabled]="disableUpdateButton"
+        >
+          <mat-icon>save</mat-icon>
+          Save changes
+        </button>
+      </div>
+    </ngx-panel>
     }
   `,
   styles: [
@@ -107,6 +112,22 @@ import { MfeRemoteCardHeader } from './mfe-remote-card-header';
       :host {
         display: block;
         min-width: 0;
+      }
+      .mfe-remote-card__header-content {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: flex-end;
+        gap: var(--ngx-space-4);
+        min-width: 0;
+      }
+      .mfe-remote-card__remote-id {
+        min-width: 0;
+        max-width: 100%;
+        overflow-wrap: anywhere;
+        color: var(--ngx-color-muted);
+        font-family: var(--ngx-font-mono);
+        font-size: 0.68rem;
       }
       .mfe-remote-card__form {
         min-width: 0;

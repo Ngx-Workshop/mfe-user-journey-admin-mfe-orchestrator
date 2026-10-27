@@ -70,3 +70,48 @@ and nonempty third-party licenses. The existing local static bundle server is
 running, so the development bundle was rebuilt after production verification.
 No new hosted visual check was performed for this refinement; X001 remains pending.
 All changes remain local; no live data writes, commit, push or deployment.
+
+## Bounded catalog rail and selected heading — 2026-10-26
+
+The rail now measures its actual position and panel chrome to constrain its body
+to the remaining viewport. Search and counters retain their size while long
+lists scroll internally. Resize/scroll listeners and ResizeObserver are cleaned
+up on destruction. Preserved the user's 182px sticky offset and existing edits.
+The configuration panel heading now binds to the selected remote's name.
+
+All 20 ChromeHeadless tests pass, including a new 60-remote viewport-containment
+regression. Source layout, production build and whitespace checks pass. Restored
+the development bundle for the existing local static server. Hosted visuals remain
+unverified. No release, deployment, commit or live data write performed.
+
+Remaining: the installed NgxPanel 21.0.2 exposes only body and footer slots. Asked
+the user whether to add a shared header slot before moving MfeRemoteCardHeader
+and remote ID into its heading row; awaiting their scope decision. That row and
+removal of the duplicate context heading have not yet been implemented.
+
+## Shared header slot implemented — 2026-10-26
+
+The user authorized the shared design-system addition. NgxPanel now has an optional
+`ngxPanelHeader` slot. The card projects the selected ID and MfeRemoteCardHeader
+(metadata and quick actions) beside the selected name heading. The detail view's
+duplicate context heading is removed. Header content and long IDs wrap on narrow
+screens. ID styling is owned by the card as `mfe-remote-card__remote-id`.
+
+All 21 remote ChromeHeadless tests, layout and production build pass, including
+a new regression asserting selected-name updates and ID/actions in the panel
+header. Shared library/demo/Storybook/typecheck/packed-consumer checks pass;
+all seven panel browser tests pass, including 320px containment and focus.
+Shared desktop/mobile story screenshots inspected. Hosted integration not run.
+
+Local verification uses built library code copied into the remote's installed
+`fesm2022/` and `types/`; package manifests, registry lockfiles and strict share
+versions remain at 21.0.2. A clean npm install removes this preview. Original
+installed files are backed up at
+`/var/folders/82/rylsmb_n1p591809975j19t80000gn/T/ngx-panel-header-original-d2jryuw7`.
+Rebuild the library and copy those same two directories again for local preview.
+
+X002: Release the additive library via ngx-workshop-design-system's existing
+workflow, then update actual published versions/locks and strict share versions
+in both mfe-shell-admin and this remote. Build host before remote and verify the
+header row in the host. An older host singleton cannot supply the new slot.
+No publication, shell mutation, commit, push, deployment or live data write.

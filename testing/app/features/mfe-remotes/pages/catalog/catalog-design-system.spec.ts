@@ -120,6 +120,39 @@ describe('Design system catalog interactions', () => {
     );
   });
 
+  it('keeps a long catalog inside the viewport and scrolls its list', async () => {
+    state.next({
+      remotes: Array.from({ length: 60 }, (_, index) => ({
+        ...remote, _id: `remote-${index}`, name: `Remote ${index}`,
+      })),
+      pending: 0,
+      error: null,
+    });
+    await settle();
+    window.dispatchEvent(new Event('resize'));
+    await new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
+    await settle();
+    const rail = fixture.nativeElement.querySelector('ngx-mfe-remote-rail') as HTMLElement;
+    const list = rail.querySelector('nav') as HTMLElement;
+    expect(rail.getBoundingClientRect().bottom).toBeLessThanOrEqual(window.innerHeight);
+    expect(list.scrollHeight).toBeGreaterThan(list.clientHeight);
+    expect(rail.querySelector('input[type=search]')).not.toBeNull();
+  });
+
+  it('puts the selected name, ID and quick actions in one panel header', async () => {
+    const detail = fixture.nativeElement.querySelector('ngx-mfe-remote-detail') as HTMLElement;
+    const header = detail.querySelector('ngx-mfe-remote > ngx-panel mat-card-header') as HTMLElement;
+    expect(header.querySelector('mat-card-title')?.textContent).toContain('Dashboard');
+    expect(header.textContent).toContain('ID remote-1');
+    expect(header.querySelector('ngx-mfe-remote-card-header')).not.toBeNull();
+    expect(header.querySelector('[aria-label="Preview this MFE"]')).not.toBeNull();
+    expect(header.querySelector('[aria-label="Configure development mode"]')).not.toBeNull();
+    expect(detail.querySelector('.mfe-remote-detail__detail-context')).toBeNull();
+    state.next({ remotes: [{ ...remote, name: 'Selected header' }], pending: 0, error: null });
+    await settle();
+    expect(header.querySelector('mat-card-title')?.textContent).toContain('Selected header');
+  });
+
   it('keeps save disabled for an invalid draft and emits edits with the persisted ID', async () => {
     const name = fixture.nativeElement.querySelector(
       'input[formControlName=name]'

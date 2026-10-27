@@ -47,3 +47,17 @@ remain mandatory. Meaningful UI regressions supplement existing domain tests and
 
 The shell still owns the viewport and its navigation; full width means the remote's
 allocated content area. Preserve readable controls, validation and all existing actions.
+
+## Selected remote heading and bounded rail — 2026-10-26
+
+- FR-008 / AC-008: The entire rail fits in the remaining viewport with a long
+  catalog scrolling internally. Recalculate on viewport, content-size and scroll
+  changes; retain search, counters and keyboard access.
+- FR-009 / AC-009: Use the selected remote's name as the configuration panel heading.
+  Place metadata/quick actions and remote ID in that same heading row, allowing
+  wrapping at narrow widths. Remove the separate duplicate context heading.
+
+The user authorized adding the shared header slot. Its implementation lives in
+ngx-workshop-design-system; local tests use that built package. Published 21.0.2
+still lacks the slot, so a matching library release and host/remote upgrade are
+required before clean-install/deployed acceptance.
