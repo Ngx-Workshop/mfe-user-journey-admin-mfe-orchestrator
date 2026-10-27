@@ -8,6 +8,7 @@ import {
   BehaviorSubject,
   catchError,
   concatMap,
+  timer,
   defer,
   EMPTY,
   finalize,
@@ -19,6 +20,7 @@ import {
   switchMap,
   tap,
 } from 'rxjs';
+import { SaveNotification } from '../models/save-notification';
 import { MfeRemoteDtoExtraProps } from '../models/app.types';
 import { ApiMfeRemotes } from '../api/api-mfe-remotes';
 import { DevModeStorage } from '../api/dev-mode-storage';
@@ -44,8 +46,23 @@ export class MfeRemotesStore {
     () => Observable<unknown>
   >();
   readonly state$ = this.state.asObservable();
+  private readonly saveState = new BehaviorSubject<SaveNotification>(
+    null
+  );
+  private saveRevision = 0;
+  private failedUpdate: MfeRemoteDtoExtraProps | null = null;
+  readonly saveNotification$ = this.saveState.asObservable();
 
   constructor() {
+    this.saveState
+      .pipe(
+        switchMap((state) =>
+          state?.status === 'saved' ? timer(3000) : EMPTY
+        ),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe(() => this.saveState.next(null));
+
     this.commands
       .pipe(
         concatMap((command) =>
@@ -120,14 +137,19 @@ export class MfeRemotesStore {
     this.mutate(() => this.api.createMfeRemote(remote));
   }
 
-  update({
-    _id,
-    lastUpdated,
-    version,
-    isDevMode,
-    __v,
-    ...changes
-  }: MfeRemoteDtoExtraProps) {
+  update(remote: MfeRemoteDtoExtraProps) {
+    const revision = ++this.saveRevision;
+    this.failedUpdate = null;
+    this.saveState.next({ status: 'saving', name: remote.name });
+    const {
+      _id,
+      lastUpdated,
+      archived,
+      version,
+      isDevMode,
+      __v,
+      ...changes
+    } = remote;
     const { structuralSubType, structuralOverrides, ...common } =
       changes;
     const payload =
@@ -140,7 +162,32 @@ export class MfeRemotesStore {
             isAdmin: false,
           }
         : { ...common, structuralOverrides };
-    this.mutate(() => this.api.updateMfeRemote(_id, payload));
+    this.mutate(() =>
+      this.api.updateMfeRemote(_id, payload).pipe(
+        tap({
+          next: () => {
+            if (revision === this.saveRevision)
+              this.saveState.next({
+                status: 'saved',
+                name: remote.name,
+              });
+          },
+          error: () => {
+            if (revision === this.saveRevision) {
+              this.failedUpdate = remote;
+              this.saveState.next({
+                status: 'error',
+                name: remote.name,
+              });
+            }
+          },
+        })
+      )
+    );
+  }
+
+  retryUpdate() {
+    if (this.failedUpdate) this.update(this.failedUpdate);
   }
 
   archive(remote: MfeRemoteDto) {

@@ -4,6 +4,7 @@ import {
   input,
 } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
+import { MatExpansionModule } from '@angular/material/expansion';
 import { MatIcon } from '@angular/material/icon';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import type { RemoteForm } from '../../../forms/mfe-remote-form';
@@ -12,115 +13,121 @@ import type { RemoteForm } from '../../../forms/mfe-remote-form';
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'mfe-capabilities' },
   selector: 'ngx-mfe-capabilities',
-  imports: [ReactiveFormsModule, MatIcon, MatSlideToggleModule],
-  template: `<div
-    class="mfe-capabilities__layout"
-    [formGroup]="form()"
-  >
-    <div class="mfe-capabilities__capability-heading">
-      <div>
-        <h4>Route capabilities</h4>
+  imports: [
+    ReactiveFormsModule,
+    MatIcon,
+    MatSlideToggleModule,
+    MatExpansionModule,
+  ],
+  template: ` <mat-accordion>
+    <mat-expansion-panel class="mfe-capabilities__panel">
+      <mat-expansion-panel-header class="mfe-capabilities__header">
+        <mat-panel-title>Route capabilities</mat-panel-title>
+        <mat-panel-description class="mfe-capabilities__count">
+          {{ enabledCapabilityCount(form()) }}/3 enabled
+        </mat-panel-description>
+      </mat-expansion-panel-header>
+      <div class="mfe-capabilities__layout" [formGroup]="form()">
         <p>Choose how the host should integrate this journey.</p>
+        <div class="mfe-capabilities__capability-grid">
+          <label
+            class="mfe-capabilities__capability-card"
+            [class.mfe-capabilities__capability-card--enabled]="
+              form().controls.useRoutes.value
+            "
+          >
+            <span class="mfe-capabilities__capability-icon">
+              <mat-icon>route</mat-icon>
+            </span>
+            <span class="mfe-capabilities__capability-copy">
+              <strong>Uses routes</strong>
+              <small>Registers its own route configuration.</small>
+            </span>
+            <mat-slide-toggle
+              formControlName="useRoutes"
+              aria-label="Uses routes"
+            ></mat-slide-toggle>
+          </label>
+
+          <label
+            class="mfe-capabilities__capability-card"
+            [class.mfe-capabilities__capability-card--enabled]="
+              form().controls.requiresAuth.value
+            "
+          >
+            <span class="mfe-capabilities__capability-icon">
+              <mat-icon>lock</mat-icon>
+            </span>
+            <span class="mfe-capabilities__capability-copy">
+              <strong>Authentication</strong>
+              <small>Requires an authenticated user session.</small>
+            </span>
+            <mat-slide-toggle
+              formControlName="requiresAuth"
+              aria-label="Requires authentication"
+            ></mat-slide-toggle>
+          </label>
+
+          <label
+            class="mfe-capabilities__capability-card"
+            [class.mfe-capabilities__capability-card--enabled]="
+              form().controls.isAdmin.value
+            "
+          >
+            <span class="mfe-capabilities__capability-icon">
+              <mat-icon>admin_panel_settings</mat-icon>
+            </span>
+            <span class="mfe-capabilities__capability-copy">
+              <strong>Admin only</strong>
+              <small>Restricts access to administrators.</small>
+            </span>
+            <mat-slide-toggle
+              formControlName="isAdmin"
+              aria-label="Admin only"
+            ></mat-slide-toggle>
+          </label>
+        </div>
       </div>
-      <span> {{ enabledCapabilityCount(form()) }}/3 enabled </span>
-    </div>
-
-    <div class="mfe-capabilities__capability-grid">
-      <label
-        class="mfe-capabilities__capability-card"
-        [class.mfe-capabilities__capability-card--enabled]="
-          form().controls.useRoutes.value
-        "
-      >
-        <span class="mfe-capabilities__capability-icon">
-          <mat-icon>route</mat-icon>
-        </span>
-        <span class="mfe-capabilities__capability-copy">
-          <strong>Uses routes</strong>
-          <small>Registers its own route configuration.</small>
-        </span>
-        <mat-slide-toggle
-          formControlName="useRoutes"
-          aria-label="Uses routes"
-        ></mat-slide-toggle>
-      </label>
-
-      <label
-        class="mfe-capabilities__capability-card"
-        [class.mfe-capabilities__capability-card--enabled]="
-          form().controls.requiresAuth.value
-        "
-      >
-        <span class="mfe-capabilities__capability-icon">
-          <mat-icon>lock</mat-icon>
-        </span>
-        <span class="mfe-capabilities__capability-copy">
-          <strong>Authentication</strong>
-          <small>Requires an authenticated user session.</small>
-        </span>
-        <mat-slide-toggle
-          formControlName="requiresAuth"
-          aria-label="Requires authentication"
-        ></mat-slide-toggle>
-      </label>
-
-      <label
-        class="mfe-capabilities__capability-card"
-        [class.mfe-capabilities__capability-card--enabled]="
-          form().controls.isAdmin.value
-        "
-      >
-        <span class="mfe-capabilities__capability-icon">
-          <mat-icon>admin_panel_settings</mat-icon>
-        </span>
-        <span class="mfe-capabilities__capability-copy">
-          <strong>Admin only</strong>
-          <small>Restricts access to administrators.</small>
-        </span>
-        <mat-slide-toggle
-          formControlName="isAdmin"
-          aria-label="Admin only"
-        ></mat-slide-toggle>
-      </label>
-    </div>
-  </div>`,
+    </mat-expansion-panel>
+  </mat-accordion>`,
   styles: [
     `
       .mfe-capabilities__layout {
         display: grid;
         gap: 1.25rem;
       }
-      .mfe-capabilities__capability-heading {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 1rem;
+      :host {
+        display: block;
+        min-width: 0;
+        container-type: inline-size;
       }
 
-      h4,
+      .mfe-capabilities__header {
+        height: auto;
+        min-height: 56px;
+        padding-block: 0.5rem;
+        box-sizing: border-box;
+      }
+      mat-panel-title {
+        min-width: 0;
+        overflow-wrap: anywhere;
+      }
+      .mfe-capabilities__panel {
+        border: 1px solid var(--ngx-color-border);
+      }
+
+      .mfe-capabilities__count {
+        flex: 0 0 auto;
+        justify-content: flex-end;
+        color: var(--ngx-color-secondary);
+        font: var(--ngx-font-label);
+        font-size: 0.68rem;
+      }
+
       p {
         margin: 0;
-      }
-
-      h4 {
-        font-size: 0.95rem;
-        font-weight: 600;
-      }
-
-      p {
-        margin-top: 0.2rem;
         color: var(--ngx-color-muted);
         font-size: 0.78rem;
-      }
-
-      .mfe-capabilities__capability-heading > span {
-        flex: 0 0 auto;
-        padding: 0.3rem 0.55rem;
-        color: var(--ngx-color-secondary);
-        background: var(--ngx-color-surface);
-        border-radius: var(--ngx-radius);
-        font-size: 0.68rem;
-        font-weight: 600;
       }
 
       .mfe-capabilities__capability-grid {
@@ -191,7 +198,7 @@ import type { RemoteForm } from '../../../forms/mfe-remote-form';
         justify-self: end;
       }
 
-      @media (max-width: 900px) {
+      @container (max-width: 600px) {
         .mfe-capabilities__capability-grid {
           grid-template-columns: 1fr;
         }

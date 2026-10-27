@@ -55,3 +55,45 @@ projection uses the authorized additive ngxPanelHeader slot. Project ID and
 MfeRemoteCardHeader there and remove the separate detail context. Use wrapping
 flex layouts for long IDs and metadata on narrow widths.
 Constitution Check: no adapter, persistence, route, provider or private DOM changes.
+
+## Collapsible integration controls
+
+FR-010: Import MatExpansionModule for capabilities; put the count in the header
+and existing reactive controls in the body. Apply public Material expansion-overrides
+on StructuralFields' host so both child accordions inherit the same theme in
+standalone, dialogs and federated mode. Owned panel borders and flexible header
+heights keep controls readable without targeting private Material DOM. Container
+queries respond to actual form width. Constitution Check: form/store/contracts
+and user edits preserved. Verify expansion, retained values, count, save and styles.
+
+## Lifecycle actions and shell selects
+
+Project card-owned lifecycle buttons via `[ngxMfeLifecycleActions]` into MfeForm's
+Integration behavior section. An explicit false-default showLifecycleActions input
+keeps lifecycle controls absent in create forms. Keep handlers, confirmation and
+selected persisted DTO in the card; projected buttons have type=button. Move shared
+public expansion overrides from StructuralFields to MfeForm to style all three
+accordions. Render labelled shell-region selects over the existing form controls.
+Constitution Check: no API, storage, provider or payload contract changes; preserve
+user edits and native Material keyboard/focus handling. Verify payloads through
+Material select harnesses and lifecycle interactions in real templates.
+
+## Debounced autosave
+
+FR-013: The form VM owns shared form creation and a valueChanges-only autosave
+stream with a 500ms debounce, validity guard and projected-value deduplication.
+MfeForm emits autosave for existing IDs; the card merges values with the selected
+persisted record and retains the existing update output/store boundary. Remove
+the manual save footer. Preserve edited same-ID form instances across catalog
+refreshes, while replacing/cancelling streams on a different selected ID.
+FR-014: The store exposes save notifications tied to update request responses and
+a revision counter suppresses stale queued completions. Store-owned switchMap timer
+clears successful notifications at 3000ms and cancels on later saves/destruction.
+Keep failed payloads for retry through the serialized queue. The action bar reads
+notifications with a persistent polite live region and a retry event.
+Constitution Check: stateless adapters, scoped draft/debounce, root persistence
+orchestration and ordered writes retained. No endpoint/storage/federation changes.
+Omit archived from update projection; archive/unarchive remains lifecycle-owned.
+Verify exact timing with Jasmine clocks, real component form events and HTTP doubles.
+
+FR-015: Add opt-in headingMotion=stagger and headingMotionKey APIs to shared NgxPanel (which owns the title). Render grapheme spans with bounded delays and reduced-motion fallback. The card binds the persisted ID as its heading animation key. No per-letter pipe or private Material DOM styling required. Local verification uses a built shared package; release and align shell/remote published versions before deployment.

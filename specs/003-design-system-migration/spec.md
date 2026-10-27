@@ -61,3 +61,40 @@ The user authorized adding the shared header slot. Its implementation lives in
 ngx-workshop-design-system; local tests use that built package. Published 21.0.2
 still lacks the slot, so a matching library release and host/remote upgrade are
 required before clean-install/deployed acceptance.
+
+## Collapsible integration controls — 2026-10-26
+
+FR-010 / AC-010: Route capabilities uses a collapsed-by-default Material accordion,
+with its enabled count in the header. Closing/reopening preserves edits and save
+payloads. Route capabilities and Shell overrides share semantic surface, text,
+border, mono heading, indicator and hover/focus treatment. Native expansion and
+keyboard behavior remain Material-owned; narrow form containers wrap content.
+
+## Lifecycle actions and shell selects — 2026-10-26
+
+FR-011 / AC-011: Delete and Archive/Unarchive appear in an initially collapsed
+Remote lifecycle accordion within Integration behavior for existing records only.
+Save remains in the footer. Delete retains confirmation; lifecycle commands use
+the persisted remote independently of unsaved form edits and do not submit the form.
+FR-012 / AC-012: Header, Navigation and Footer overrides use labelled Material selects
+with Full, Compact and Disabled choices; preserve existing field keys and values.
+Select overlays use the design-system theme scope.
+
+## Debounced autosave — 2026-10-26
+
+FR-013 / AC-013: Remove the manual Save changes button. Existing remote edits
+autosave after 500ms without another edit, only while valid. Initial population,
+unchanged projected values and new-remote drafts must not trigger updates. Cancel
+pending debounce on selection replacement/destruction; retain newer local edits
+when older successful writes refresh the catalog.
+FR-014 / AC-014: The action bar reports Saving during updates and Changes saved
+only after a successful server response. Hide success after three seconds,
+resetting/cancelling its timer for a subsequent save. Failed saves retain an
+explicit error and Retry save action; never announce them as saved.
+Serialized writes preserve IDs/type projection. Archive state belongs to the
+lifecycle endpoint and is omitted from update payloads so delayed autosaves cannot
+undo archive/unarchive actions. Existing create submission remains explicit.
+
+## Selected heading intro — 2026-10-27
+
+FR-015 / AC-015: Selected remote headings reveal characters with a brief staggered neon fade. Replay on selection/name changes, preserve unchanged refreshes and form state, keep the complete accessible heading, and disable motion for reduced-motion users.

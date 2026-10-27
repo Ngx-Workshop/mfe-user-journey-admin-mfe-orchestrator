@@ -2,6 +2,8 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { MatDialog } from '@angular/material/dialog';
+import { TestbedHarnessEnvironment } from '@angular/cdk/testing/testbed';
+import { MatSelectHarness } from '@angular/material/select/testing';
 import { OverlayContainer } from '@angular/cdk/overlay';
 import { BehaviorSubject, of } from 'rxjs';
 import { ListMfeRemotes } from '../../../../../../src/app/features/mfe-remotes/pages/catalog/list-mfe-remotes';
@@ -33,6 +35,7 @@ describe('Design system catalog interactions', () => {
     error: string | null;
   }>;
   let store: jasmine.SpyObj<MfeRemotesStore>;
+  let notifications: BehaviorSubject<import('../../../../../../src/app/features/mfe-remotes/models/save-notification').SaveNotification>;
 
   beforeEach(async () => {
     state = new BehaviorSubject({
@@ -44,6 +47,7 @@ describe('Design system catalog interactions', () => {
       pending: number;
       error: string | null;
     });
+    notifications = new BehaviorSubject<import('../../../../../../src/app/features/mfe-remotes/models/save-notification').SaveNotification>(null);
     store = jasmine.createSpyObj(
       'MfeRemotesStore',
       [
@@ -55,8 +59,9 @@ describe('Design system catalog interactions', () => {
         'verifyUrl',
         'devModeUrl',
         'setDevMode',
+        'retryUpdate',
       ],
-      { state$: state.asObservable() }
+      { state$: state.asObservable(), saveNotification$: notifications.asObservable() }
     );
     store.verifyUrl.and.returnValue(of(true));
     store.devModeUrl.and.returnValue(of(null));
@@ -78,6 +83,7 @@ describe('Design system catalog interactions', () => {
     TestBed.inject(MatDialog).closeAll();
     fixture.destroy();
     state.complete();
+    notifications.complete();
   });
 
   function button(
@@ -150,31 +156,110 @@ describe('Design system catalog interactions', () => {
     expect(detail.querySelector('.mfe-remote-detail__detail-context')).toBeNull();
     state.next({ remotes: [{ ...remote, name: 'Selected header' }], pending: 0, error: null });
     await settle();
-    expect(header.querySelector('mat-card-title')?.textContent).toContain('Selected header');
+    expect(header.querySelector('mat-card-title')?.getAttribute('aria-label')).toBe('Selected header');
   });
 
-  it('keeps save disabled for an invalid draft and emits edits with the persisted ID', async () => {
-    const name = fixture.nativeElement.querySelector(
-      'input[formControlName=name]'
-    ) as HTMLInputElement;
+  it('collapses route capabilities without losing edits and themes both accordions', async () => {
+    const root = fixture.nativeElement as HTMLElement;
+    const capabilities = root.querySelector('ngx-mfe-capabilities') as HTMLElement;
+    const header = capabilities.querySelector('mat-expansion-panel-header') as HTMLElement;
+    expect(header.getAttribute('aria-expanded')).toBe('false');
+    expect(header.textContent).toContain('3/3 enabled');
+    header.click();
+    await settle();
+    expect(header.getAttribute('aria-expanded')).toBe('true');
+    const toggle = capabilities.querySelector('[role=switch][aria-label="Uses routes"]') as HTMLElement;
+    toggle.click();
+    await settle();
+    expect(header.textContent).toContain('2/3 enabled');
+    header.click();
+    await settle();
+    header.click();
+    await settle();
+    expect(toggle.getAttribute('aria-checked')).toBe('false');
+    const overridesHeader = root.querySelector('ngx-structural-overrides mat-expansion-panel-header') as HTMLElement;
+    overridesHeader.click();
+    await settle();
+    expect(overridesHeader.getAttribute('aria-expanded')).toBe('true');
+    const panels = root.querySelectorAll('ngx-structural-fields mat-expansion-panel');
+    expect(panels.length).toBe(2);
+    for (const panel of panels) {
+      expect(getComputedStyle(panel).borderTopStyle).toBe('solid');
+      expect(getComputedStyle(panel).borderRadius).toBe('2px');
+    }
+    await new Promise<void>(resolve => setTimeout(resolve, 550));
+    await settle();
+    expect(store.update).toHaveBeenCalledWith(jasmine.objectContaining({ _id: 'remote-1', useRoutes: false }));
+  });
+
+  it('saves shell select values and keeps lifecycle archive separate from draft saving', async () => {
+    const root = fixture.nativeElement as HTMLElement;
+    const overrides = root.querySelector('ngx-structural-overrides') as HTMLElement;
+    (overrides.querySelector('mat-expansion-panel-header') as HTMLElement).click();
+    await settle();
+    expect(overrides.querySelector('mat-radio-group')).toBeNull();
+    expect(overrides.querySelectorAll('mat-select').length).toBe(3);
+    const selects = await TestbedHarnessEnvironment.loader(fixture).getAllHarnesses(
+      MatSelectHarness.with({ ancestor: 'ngx-structural-overrides' })
+    );
+    for (const [index, choice] of ['Compact', 'Disabled', 'Full'].entries()) {
+      await selects[index].open();
+      const panelId = await (await selects[index].host()).getAttribute('aria-controls');
+      expect(document.getElementById(panelId!)?.classList.contains('ngx-design-system-overlay')).toBeTrue();
+      await selects[index].clickOptions({ text: choice });
+      await settle();
+    }
+    await new Promise<void>(resolve => setTimeout(resolve, 550));
+    await settle();
+    expect(store.update).toHaveBeenCalledWith(jasmine.objectContaining({
+      _id: 'remote-1', structuralOverrides: { header: 'compact', nav: 'disabled', footer: 'full' },
+    }));
+    store.update.calls.reset();
+    const lifecycle = root.querySelector('.form-mfe__lifecycle') as HTMLElement;
+    (lifecycle.querySelector('mat-expansion-panel-header') as HTMLElement).click();
+    await settle();
+    button(lifecycle, 'Archive').click();
+    expect(store.archive).toHaveBeenCalledWith(jasmine.objectContaining({ _id: 'remote-1' }));
+    expect(store.update).not.toHaveBeenCalled();
+    state.next({ remotes: [{ ...remote, archived: true }], pending: 0, error: null });
+    await settle();
+    button(lifecycle, 'Unarchive').click();
+    expect(store.archive).toHaveBeenCalledWith(jasmine.objectContaining({ _id: 'remote-1', archived: true }));
+  });
+
+  it('autosaves valid edits with the persisted ID and has no manual save button', async () => {
+    expect(fixture.nativeElement.textContent).not.toContain('Save changes');
+    await new Promise<void>(resolve => setTimeout(resolve, 550));
+    expect(store.update).not.toHaveBeenCalled();
+    const name = fixture.nativeElement.querySelector('input[formControlName=name]') as HTMLInputElement;
     name.value = '';
     name.dispatchEvent(new Event('input'));
     await settle();
-    const save = button(fixture.nativeElement, 'Save changes');
-    expect(save.disabled).toBeTrue();
-    save.click();
+    await new Promise<void>(resolve => setTimeout(resolve, 550));
     expect(store.update).not.toHaveBeenCalled();
     name.value = 'Updated dashboard';
     name.dispatchEvent(new Event('input'));
     await settle();
-    expect(save.disabled).toBeFalse();
-    save.click();
-    expect(store.update).toHaveBeenCalledWith(
-      jasmine.objectContaining({
-        _id: 'remote-1',
-        name: 'Updated dashboard',
-      })
-    );
+    await new Promise<void>(resolve => setTimeout(resolve, 550));
+    expect(store.update).toHaveBeenCalledOnceWith(jasmine.objectContaining({ _id: 'remote-1', name: 'Updated dashboard' }));
+  });
+
+  it('shows save results in the action bar and offers retry after an error', async () => {
+    const bar = fixture.nativeElement.querySelector('ngx-mfe-remote-catalog-actions') as HTMLElement;
+    notifications.next({ status: 'saving', name: remote.name });
+    await settle();
+    expect(bar.textContent).toContain('Saving Dashboard');
+    notifications.next({ status: 'saved', name: remote.name });
+    await settle();
+    expect(bar.querySelector('.mfe-remote-catalog-actions__save')?.textContent).toContain('Changes saved');
+    notifications.next(null);
+    await settle();
+    expect(bar.textContent).not.toContain('Changes saved');
+    notifications.next({ status: 'error', name: remote.name });
+    await settle();
+    expect(bar.textContent).toContain('Could not save Dashboard');
+    button(bar, 'Retry save').click();
+    expect(store.retryUpdate).toHaveBeenCalled();
   });
 
   it('opens a themed create dialog, validates required fields and preserves type projection', async () => {
@@ -186,6 +271,7 @@ describe('Design system catalog interactions', () => {
     expect(
       overlay.querySelector('.ngx-design-system-backdrop')
     ).not.toBeNull();
+    expect(overlay.querySelector('.form-mfe__lifecycle')).toBeNull();
     const create = button(overlay, 'Create');
     expect(create.disabled).toBeTrue();
     const form =
@@ -217,6 +303,7 @@ describe('Design system catalog interactions', () => {
     structural!.click();
     await settle();
     expect(form.disableCreateButton).toBeFalse();
+    expect(store.update).not.toHaveBeenCalled();
     create.click();
     await settle();
     expect(store.create).toHaveBeenCalledWith(
@@ -236,7 +323,15 @@ describe('Design system catalog interactions', () => {
     );
   });
 
-  it('requires confirmation before deletion and labels archived status in text', async () => {
+  it('requires confirmation before deletion from lifecycle and offers unarchive for archived remotes', async () => {
+    const lifecycle = fixture.nativeElement.querySelector('.form-mfe__lifecycle') as HTMLElement;
+    const header = lifecycle.querySelector('mat-expansion-panel-header') as HTMLElement;
+    expect(header.getAttribute('aria-expanded')).toBe('false');
+    header.click();
+    await settle();
+    expect(header.getAttribute('aria-expanded')).toBe('true');
+    expect(lifecycle.querySelector('button')?.type).toBe('button');
+    expect(fixture.nativeElement.querySelector('.mfe-remote-card__actions')).toBeNull();
     button(fixture.nativeElement, 'Delete').click();
     await settle();
     expect(store.delete).not.toHaveBeenCalled();
@@ -251,10 +346,6 @@ describe('Design system catalog interactions', () => {
       error: null,
     });
     await settle();
-    const summary = fixture.nativeElement.querySelector(
-      'ngx-mfe-remote-summary'
-    ) as HTMLElement;
-    expect(summary.textContent).toContain('Archived');
     expect(button(fixture.nativeElement, 'Unarchive')).toBeDefined();
   });
 });

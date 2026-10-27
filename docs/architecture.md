@@ -77,3 +77,33 @@ rail is additionally capped at 480px. The configuration panel heading displays
 the selected remote's name. The ID and metadata/quick actions project into the shared `ngxPanelHeader` slot,
 removing the separate detail context. This slot is implemented locally in the
 shared library; a matching published host/remote upgrade remains pending (X002).
+
+Route capabilities and Shell overrides are initially collapsed Material accordions.
+MfeForm applies shared public expansion overrides with semantic Ngx tokens,
+so both retain the same styling in embedded forms and dialogs. Capability edits
+remain in the reactive form while collapsed; the header shows the enabled count.
+
+Existing remote forms project card-owned Delete and Archive/Unarchive actions into
+a collapsed Remote lifecycle accordion in Integration behavior; the create form
+omits it. Existing remote edits autosave after 500ms of inactivity; there is no save footer. MfeForm's inherited expansion tokens
+cover all integration accordions. Shell overrides use labelled Material selects
+for Header/Navigation/Footer with the existing full/compact/disabled values and
+themed overlay scope. Lifecycle handlers still belong to the card.
+
+The form VM shares form instances between rendered values and a valid-only
+valueChanges autosave stream. It skips initial/unchanged values, cancels on input
+replacement/destruction, and preserves edited same-ID forms across refreshes to
+protect newer drafts. Creation remains explicit. The card emits existing update
+intent with the selected ID. Store update projection now omits archived; lifecycle
+endpoints alone change archive state.
+
+The root store publishes saving/saved/error notifications for update requests.
+Only successful PATCH responses produce saved; revisions suppress stale queued
+completions. A store-owned timer clears success after three seconds. Errors remain
+visible with Retry save, using the failed payload through the existing write queue.
+The action bar renders these states through a persistent polite live region.
+
+The selected remote panel opts into headingMotion=stagger and binds headingMotionKey
+to its persisted ID. This shared API animates only title characters, preserves
+panel/form state, and respects reduced motion. Release integration for the new
+shared API remains pending; local builds use the built package preview.

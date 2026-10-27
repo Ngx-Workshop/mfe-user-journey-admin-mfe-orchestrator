@@ -1,6 +1,3 @@
-import { NgxButton } from '@tmdjr/ngx-workshop-design-system';
-import type { UrlVerificationState } from '../../../models/app.types';
-import type { RemoteForm } from '../../../forms/mfe-remote-form';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -13,6 +10,9 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIcon } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
+import { NgxButton } from '@tmdjr/ngx-workshop-design-system';
+import type { RemoteForm } from '../../../forms/mfe-remote-form';
+import type { UrlVerificationState } from '../../../models/app.types';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -29,125 +29,109 @@ import { MatProgressSpinner } from '@angular/material/progress-spinner';
   ],
   template: `
     @if (formGroup(); as mfeRemoteForm) {
-      <div
-        class="mfe-basic-fields__fields"
-        [formGroup]="mfeRemoteForm"
-      >
+    <div class="mfe-basic-fields__fields" [formGroup]="mfeRemoteForm">
+      <mat-form-field subscriptSizing="dynamic" appearance="outline">
+        <mat-label>Display name</mat-label>
+        <mat-icon matPrefix>label</mat-icon>
+        <input
+          formControlName="name"
+          matInput
+          autocomplete="off"
+          placeholder="Customer dashboard"
+        />
+        <mat-hint>The name shown throughout the catalog.</mat-hint>
+        @if ( mfeRemoteForm.get('name')?.touched &&
+        mfeRemoteForm.get('name')?.errors ) {
+        <mat-error>{{ errorMessages()['name'] }}</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field subscriptSizing="dynamic" appearance="outline">
+        <mat-label>Description</mat-label>
+        <mat-icon matPrefix>notes</mat-icon>
+        <textarea
+          formControlName="description"
+          matInput
+          rows="3"
+          placeholder="What does this remote provide?"
+        ></textarea>
+        <mat-hint>
+          Help administrators understand when this remote is used.
+        </mat-hint>
+      </mat-form-field>
+
+      <div class="mfe-basic-fields__url-field">
         <mat-form-field
           subscriptSizing="dynamic"
           appearance="outline"
         >
-          <mat-label>Display name</mat-label>
-          <mat-icon matPrefix>label</mat-icon>
+          <mat-label>Remote entry URL</mat-label>
+          <mat-icon matPrefix>link</mat-icon>
           <input
-            formControlName="name"
+            formControlName="remoteEntryUrl"
             matInput
-            autocomplete="off"
-            placeholder="Customer dashboard"
+            type="url"
+            autocomplete="url"
+            placeholder="https://example.com/remoteEntry.js"
+            (input)="urlChanged.emit()"
           />
-          <mat-hint>The name shown throughout the catalog.</mat-hint>
-          @if (
-            mfeRemoteForm.get('name')?.touched &&
-            mfeRemoteForm.get('name')?.errors
-          ) {
-            <mat-error>{{ errorMessages()['name'] }}</mat-error>
+          @switch (verificationState()) { @case ('success') {
+          <mat-hint
+            class="mfe-basic-fields__verification mfe-basic-fields__verification--success"
+          >
+            <mat-icon>check_circle</mat-icon>
+            Remote entry responded successfully.
+          </mat-hint>
+          } @case ('error') {
+          <mat-hint
+            class="mfe-basic-fields__verification mfe-basic-fields__verification--error"
+          >
+            <mat-icon>error</mat-icon>
+            We could not verify this remote entry.
+          </mat-hint>
+          } @default {
+          <mat-hint>
+            The deployed module federation entry point.
+          </mat-hint>
+          } } @if ( mfeRemoteForm.get('remoteEntryUrl')?.touched &&
+          mfeRemoteForm.get('remoteEntryUrl')?.errors ) {
+          <mat-error>
+            {{ errorMessages()['remoteEntryUrl'] }}
+          </mat-error>
           }
         </mat-form-field>
 
-        <mat-form-field
-          subscriptSizing="dynamic"
-          appearance="outline"
+        <button
+          mat-flat-button
+          ngxButton
+          surface="outline"
+          tone="secondary"
+          motion="pulse"
+          shape="beveled"
+          type="button"
+          [disabled]="
+            !mfeRemoteForm.get('remoteEntryUrl')?.value ||
+            verificationState() === 'verifying'
+          "
+          (click)="verifyUrl()"
         >
-          <mat-label>Description</mat-label>
-          <mat-icon matPrefix>notes</mat-icon>
-          <textarea
-            formControlName="description"
-            matInput
-            rows="3"
-            placeholder="What does this remote provide?"
-          ></textarea>
-          <mat-hint>
-            Help administrators understand when this remote is used.
-          </mat-hint>
-        </mat-form-field>
-
-        <div class="mfe-basic-fields__url-field">
-          <mat-form-field
-            subscriptSizing="dynamic"
-            appearance="outline"
-          >
-            <mat-label>Remote entry URL</mat-label>
-            <mat-icon matPrefix>link</mat-icon>
-            <input
-              formControlName="remoteEntryUrl"
-              matInput
-              type="url"
-              autocomplete="url"
-              placeholder="https://example.com/remoteEntry.js"
-              (input)="urlChanged.emit()"
-            />
-            @switch (verificationState()) {
-              @case ('success') {
-                <mat-hint
-                  class="mfe-basic-fields__verification mfe-basic-fields__verification--success"
-                >
-                  <mat-icon>check_circle</mat-icon>
-                  Remote entry responded successfully.
-                </mat-hint>
-              }
-              @case ('error') {
-                <mat-hint
-                  class="mfe-basic-fields__verification mfe-basic-fields__verification--error"
-                >
-                  <mat-icon>error</mat-icon>
-                  We could not verify this remote entry.
-                </mat-hint>
-              }
-              @default {
-                <mat-hint>
-                  The deployed module federation entry point.
-                </mat-hint>
-              }
-            }
-            @if (
-              mfeRemoteForm.get('remoteEntryUrl')?.touched &&
-              mfeRemoteForm.get('remoteEntryUrl')?.errors
-            ) {
-              <mat-error>
-                {{ errorMessages()['remoteEntryUrl'] }}
-              </mat-error>
-            }
-          </mat-form-field>
-
-          <button
-            mat-flat-button
-            ngxButton
-            surface="outline"
-            tone="secondary"
-            type="button"
-            [disabled]="
-              !mfeRemoteForm.get('remoteEntryUrl')?.value ||
-              verificationState() === 'verifying'
-            "
-            (click)="verifyUrl()"
-          >
-            @if (verificationState() === 'verifying') {
-              <span class="mfe-basic-fields__button-content">
-                <mat-progress-spinner
-                  mode="indeterminate"
-                  diameter="18"
-                ></mat-progress-spinner>
-                Checking
-              </span>
-            } @else {
-              <span class="mfe-basic-fields__button-content">
-                <mat-icon>verified</mat-icon>
-                Verify URL
-              </span>
-            }
-          </button>
-        </div>
+          @if (verificationState() === 'verifying') {
+          <span class="mfe-basic-fields__button-content">
+            <mat-progress-spinner
+              mode="indeterminate"
+              diameter="18"
+            ></mat-progress-spinner>
+            Checking
+          </span>
+          } @else {
+          <span class="mfe-basic-fields__button-content">
+            <!-- <mat-icon>verified</mat-icon> -->
+            Verify
+          </span>
+          }
+        </button>
       </div>
+    </div>
     }
   `,
   styles: [

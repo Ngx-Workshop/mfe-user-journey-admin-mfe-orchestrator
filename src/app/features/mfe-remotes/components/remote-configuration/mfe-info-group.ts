@@ -13,6 +13,9 @@ import type { MfeRemoteDto } from '@tmdjr/ngx-mfe-orchestrator-contracts';
   selector: 'ngx-mfe-remote-info-group',
   imports: [DatePipe],
   template: `
+    <span class="mfe-info-group__remote-id" [title]="'ID ' + mfe()._id">
+      ID {{ mfe()._id }}
+    </span>
     <div class="mfe-info-group__mfe-remote-info-group">
       <span class="mfe-info-group__info-item">
         <span class="mfe-info-group__label">Last updated</span>
@@ -27,6 +30,19 @@ import type { MfeRemoteDto } from '@tmdjr/ngx-mfe-orchestrator-contracts';
   styles: [
     `
       :host {
+        display: block;
+        min-width: 0;
+        max-width: 100%;
+
+        .mfe-info-group__remote-id {
+          display: block;
+          margin-bottom: var(--ngx-space-2);
+          overflow-wrap: anywhere;
+          color: var(--ngx-color-muted);
+          font-family: var(--ngx-font-mono);
+          font-size: 0.68rem;
+        }
+
         .mfe-info-group__mfe-remote-info-group {
           display: flex;
           flex-wrap: wrap;

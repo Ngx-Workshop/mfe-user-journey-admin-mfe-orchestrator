@@ -23,3 +23,23 @@ transitions and widths down to 320px. See [handoff](handoff.md) for boundaries a
   context heading using the shared ngxPanelHeader slot (AC-009).
 - [ ] X002: Publish the shared header-slot library and align shell/remote dependency
   and strict singleton versions; verify after clean installs (AC-009).
+
+- [x] T010: Collapse Route capabilities and apply shared expansion tokens to both
+  integration accordions; verify retained edits/count/save and styles (AC-010).
+
+- [x] T011: Move Delete/Archive into the Integration behavior lifecycle accordion;
+  keep save footer and omit lifecycle controls during creation (AC-011).
+- [x] T012: Replace shell radios with themed labelled selects using existing values (AC-012).
+- [x] T013: Verify lifecycle confirmation/archive, create omission and select payloads;
+  run layout/tests/builds and record evidence (AC-011/012).
+
+- [x] T014: Add valid-only debounced existing-record autosave, remove save footer,
+  retain newer drafts across refreshes and cancel replaced forms (AC-013).
+- [x] T015: Add response-backed save notifications, three-second success timeout
+  and failed-save retry in the action bar (AC-014).
+- [x] T016: Verify debounce/invalid/initial/duplicate/selection behavior, refresh
+  preservation, actual write completion, timeout, failure/retry, serialized status
+  and existing lifecycle/select/create regressions (AC-013/014).
+
+- [x] T017: Enable shared staggered heading intro keyed to selected ID (AC-015).
+- [x] T018: Verify shared library/demo/Storybook/package, replay/reduced-motion/mobile and remote regressions/build (AC-015).

@@ -49,3 +49,9 @@ changing that requirement. Hosted visual integration requires the shell's global
 theme scopes described in [architecture](architecture.md).
 
 The deployment workflow currently builds the development configuration. Verification of a production build here does not change that workflow or establish a deployment. The README links to local context; optional Spec Kit helper scripts may create branches or overwrite plans/agent files, so read their source before use. Ordinary Markdown editing is the default.
+
+Autosave verification now includes 29 tests. Jasmine clock tests validate the
+500ms debounce and 3000ms success notification lifetime without wall-clock waits;
+real-template interaction tests verify ID-bearing autosave, no initial/create
+updates, lifecycle controls, shell selects and action-bar save/error/retry messages.
+These remain local doubles, not backend persistence or hosted integration evidence.

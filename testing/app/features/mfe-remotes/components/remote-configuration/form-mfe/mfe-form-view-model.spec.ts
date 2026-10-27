@@ -91,4 +91,59 @@ describe('MfeFormViewModel', () => {
     expect(state).toBe('idle');
     sub.unsubscribe();
   });
+  it('debounces valid changes by 500ms, skips initial/unchanged values and cancels stale forms', () => {
+    jasmine.clock().install();
+    jasmine.clock().mockDate();
+    const saves: import('@tmdjr/ngx-mfe-orchestrator-contracts').CreateMfeRemoteDto[] = [];
+    model.initialize({ _id: 'one', name: 'First', remoteEntryUrl: 'https://example.com/remoteEntry.js' });
+    const sub = model.autosave$.subscribe(value => saves.push(value));
+    let form!: import('../../../../../../../src/app/features/mfe-remotes/forms/mfe-remote-form').RemoteForm;
+    const values = model.viewModel$.subscribe(vm => { form = vm.form; });
+    try {
+      jasmine.clock().tick(1000);
+      expect(saves.length).toBe(0);
+      form.controls.name.setValue('A');
+      jasmine.clock().tick(400);
+      form.controls.name.setValue('AB');
+      jasmine.clock().tick(499);
+      expect(saves.length).toBe(0);
+      jasmine.clock().tick(1);
+      expect(saves.map(value => value.name)).toEqual(['AB']);
+      form.controls.name.setValue('AB');
+      jasmine.clock().tick(500);
+      expect(saves.length).toBe(1);
+      form.controls.description.setValue('Pending');
+      jasmine.clock().tick(300);
+      form.controls.name.setValue('');
+      jasmine.clock().tick(500);
+      expect(saves.length).toBe(1);
+      form.controls.name.setValue('Valid');
+      model.initialize({ _id: 'two', name: 'Second', remoteEntryUrl: 'https://example.com/other.js' });
+      jasmine.clock().tick(500);
+      expect(saves.length).toBe(1);
+      form.controls.name.setValue('Second edit');
+      jasmine.clock().tick(500);
+      expect(saves.at(-1)?.name).toBe('Second edit');
+    } finally {
+      sub.unsubscribe(); values.unsubscribe(); jasmine.clock().uninstall();
+    }
+  });
+
+  it('preserves newer local edits when the catalog refreshes the selected remote', () => {
+    model.initialize({ _id: 'one', name: 'First' });
+    let form!: import('../../../../../../../src/app/features/mfe-remotes/forms/mfe-remote-form').RemoteForm;
+    const sub = model.viewModel$.subscribe(vm => { form = vm.form; });
+    form.controls.name.setValue('Newer typing');
+    const draft = form;
+    model.initialize({ _id: 'one', name: 'Older response', isAdmin: true });
+    expect(form).toBe(draft);
+    expect(form.controls.name.value).toBe('Newer typing');
+    form.controls.name.setValue('First');
+    model.initialize({ _id: 'one', name: 'Older response' });
+    expect(form.controls.name.value).toBe('First');
+    model.initialize({ _id: 'two', name: 'Other' });
+    expect(form.controls.name.value).toBe('Other');
+    sub.unsubscribe();
+  });
+
 });

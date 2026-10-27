@@ -115,3 +115,120 @@ workflow, then update actual published versions/locks and strict share versions
 in both mfe-shell-admin and this remote. Build host before remote and verify the
 header row in the host. An older host singleton cannot supply the new slot.
 No publication, shell mutation, commit, push, deployment or live data write.
+
+## ID placement refinement — 2026-10-26
+
+Moved the ID from the card header's horizontal row into MfeInfoGroup, immediately
+above the Last updated/Version metadata row, aligned with Last updated. Retained
+the selected name and quick actions. Presentation-only adjustment; production
+build verified.
+
+## Integration accordions — 2026-10-26
+
+Wrapped Route capabilities in a Material accordion, collapsed initially like Shell
+overrides. Its enabled count remains visible while collapsed. The existing controls
+and reactive form are retained. Both accordions inherit public expansion-overrides
+from StructuralFields: semantic surface/text/border, mono headings, primary indicator
+and focus/hover colors, small corners and no elevation. Headers can grow to wrap
+text; container queries adapt content to form width. No shared-library or shell
+changes required.
+
+Source layout and production build pass. Full suite: 21 passed, 1 existing failure.
+The new regression passes for expand/collapse, retained toggle edits, enabled count,
+shared border/radius and saved payload. The existing deletion/archived-summary test
+fails because MfeRemoteSummary is commented out in the user's current card template;
+that unrelated edit is preserved. Production reports its unused import warning.
+Development bundle restored for the existing local server. Hosted visual checks
+were not run. No commits, release, deployment or live writes.
+
+## Remote lifecycle and shell selects — 2026-10-26
+
+Delete and Archive/Unarchive now project from the card into a collapsed Remote
+lifecycle accordion in MfeForm's Integration behavior section. The card retains
+confirmation/dialog handling and persisted selection; type=button prevents form
+submission. Create forms omit this accordion; the footer keeps Save changes.
+Shared expansion overrides now live on MfeForm so lifecycle, capabilities and
+shell accordions inherit the same theme. Header/Navigation/Footer use labelled
+Material selects with dynamic hints, full/compact/disabled values and the themed
+select panel scope. No persistence contract changes.
+
+Verification: all 23 ChromeHeadless tests, source layout, production build and
+whitespace checks pass. Tests cover lifecycle collapse/delete confirmation,
+archive/unarchive independently of saving, create omission, all three select values
+in save payloads and themed select panels. Material select harnesses locate panels
+through their aria-controls ID; the captured overlay-container reference was stale
+for these selects, so the assertion now inspects the actual controlled panel.
+Updated the lifecycle regression to assert Unarchive for archived records rather
+than expecting the summary component the user deliberately commented out. Its
+existing unused-import build warning remains. Development bundle restored for
+the existing static server. Hosted visual integration remains unverified.
+No commit, push, release, deployment or live-data write performed.
+
+## Debounced autosave and action-bar notification — 2026-10-26
+
+Removed the manual Save changes footer. Existing-record form changes emit through
+the scoped VM after 500ms of inactivity, only for valid, changed projected values.
+Initial data and create drafts do not trigger updates. Create remains explicit.
+Input replacement/destruction cancels pending debounce subscriptions. Once edited,
+the selected form retains its draft across same-ID refreshes, including reverting
+to the original value while an older save is in flight. A different selection
+initializes a fresh form; edits still within the debounce window are cancelled
+when leaving that record. No cross-record save emissions occur.
+
+The card retains ID-bearing update intent; the store retains the serialized queue.
+Update projection omits archived so delayed saves cannot undo lifecycle operations.
+The action bar displays Saving during requests, Changes saved only on successful
+PATCH response, then hides success at 3000ms. New saves cancel old notification
+timers, and revisions suppress older queued save completions. Errors remain with
+Retry save; the failed payload re-enters the existing write queue. A polite live
+region announces status. Timers/subscriptions are cleaned up on destruction.
+
+Verification: all 29 ChromeHeadless tests pass. Exact clock checks cover 500ms
+debounce, rapid changes, invalid/unchanged/initial suppression, selection cancellation,
+and the three-second success timeout. UI checks cover no manual save, emitted IDs,
+create omission, controls/select payloads, lifecycle behavior and action-bar retry.
+HTTP-double tests prove response-backed success, failure/retry and latest queued
+status; form-VM checks preserve newer/reverted drafts through stale refreshes.
+Source layout, production/development builds and whitespace checks pass. Existing
+unused-summary compilation warning remains because its display is commented out.
+Restored the development bundle for the existing local static server. Hosted visual
+integration and real API writes were not exercised; no commit/push/deploy performed.
+
+## Action-bar development indicator — 2026-10-26
+
+Added a static light and live dev-mode MFE count beside the action-bar controls.
+The light glows with the semantic warning color when any remotes use development
+overrides and is dim at zero. Text uses singular/plural labels and a polite live
+region; the decorative dot is hidden from assistive technology. The count uses
+CatalogViewModel's full-catalog devModeCount, independent of search filtering.
+No store or persistence changes.
+
+Verification: existing 29 tests, layout check, production build and whitespace
+check pass. Development bundle restored for the existing local server. Hosted
+visual verification not performed. No commit/push/deployment or live data writes.
+
+## Selected heading intro — 2026-10-27
+
+Enabled the shared NgxPanel staggered heading API on the selected remote card,
+keyed to its persisted ID. Characters fade in with a short neon glow (400ms each,
+25ms stagger with 600ms delay cap). Unicode graphemes and spaces remain intact.
+Selection/name changes replay the intro, while unchanged metadata leaves the
+existing character nodes intact. Form contents remain mounted. Reduced-motion
+preferences show the heading immediately; its full accessible label avoids
+letter-by-letter screen-reader output.
+
+All 29 remote tests, layout, production build and whitespace checks pass. Shared
+library/demo/Storybook/story typecheck/packed consumer and nine panel browser tests
+pass. Shared mid-intro/finished/mobile reduced-motion screenshots inspected under
+`/tmp/ngx-heading-intro-*.png`. Updated the heading assertion to use its accessible
+full label because visual spaces are now NBSP, and scoped the save-status assertion
+to its own live region after the user's action-bar reordering. Development bundle
+restored for the existing static server. No real API writes or hosted visuals run.
+
+Local preview uses built shared fesm2022/types copied into the installed 21.0.3
+package. Original code is backed up at
+`/var/folders/82/rylsmb_n1p591809975j19t80000gn/T/ngx-stagger-heading-original-whp7yape`.
+A clean install restores the published version, which lacks headingMotion and
+headingMotionKey. Release the shared additive API, then align actual package/lock
+and strict federation versions in shell and remote before hosted acceptance.
+No publication, commit, push or deployment performed.

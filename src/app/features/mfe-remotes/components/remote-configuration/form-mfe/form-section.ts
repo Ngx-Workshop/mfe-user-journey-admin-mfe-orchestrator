@@ -1,10 +1,10 @@
-import { NgxPanel } from '@tmdjr/ngx-workshop-design-system';
 import {
   ChangeDetectionStrategy,
   Component,
   input,
 } from '@angular/core';
 import { MatIcon } from '@angular/material/icon';
+import { NgxPanel } from '@tmdjr/ngx-workshop-design-system';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -25,11 +25,11 @@ import { MatIcon } from '@angular/material/icon';
         <div>
           <p>{{ description() }}</p>
         </div>
-        @if (requiredNote()) {
+        <!-- @if (requiredNote()) {
           <span class="form-section__required"
             >Required fields marked *</span
           >
-        }
+        } -->
       </div>
       <ng-content />
     </ngx-panel>

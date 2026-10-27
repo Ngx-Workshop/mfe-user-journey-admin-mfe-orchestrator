@@ -144,6 +144,56 @@ describe('MfeRemotesStore and catalog view model', () => {
     http.expectOne('/api/mfe-remotes').flush([remote]);
   });
 
+  it('shows saved only after the PATCH succeeds and clears the notification after three seconds', () => {
+    jasmine.clock().install(); jasmine.clock().mockDate();
+    let notification!: import('../../../../../src/app/features/mfe-remotes/models/save-notification').SaveNotification;
+    const sub = store.saveNotification$.subscribe(value => { notification = value; });
+    try {
+      store.update({ ...remote, isDevMode: false });
+      expect(notification).toEqual({ status: 'saving', name: remote.name });
+      jasmine.clock().tick(4000);
+      expect(notification).toEqual({ status: 'saving', name: remote.name });
+      const patch = http.expectOne('/api/mfe-remotes/remote-1');
+      expect(patch.request.body.archived).toBeUndefined();
+      patch.flush(remote);
+      http.expectOne('/api/mfe-remotes').flush([remote]);
+      expect(notification).toEqual({ status: 'saved', name: remote.name });
+      jasmine.clock().tick(2999);
+      expect(notification).not.toBeNull();
+      jasmine.clock().tick(1);
+      expect(notification).toBeNull();
+    } finally { sub.unsubscribe(); jasmine.clock().uninstall(); }
+  });
+
+  it('retains failed saves for retry and never announces a failed PATCH as saved', () => {
+    const notifications: unknown[] = [];
+    const sub = store.saveNotification$.subscribe(value => notifications.push(value));
+    store.update({ ...remote, isDevMode: false, name: 'Edited' });
+    http.expectOne('/api/mfe-remotes/remote-1').flush('Failed', { status: 500, statusText: 'Failed' });
+    expect(notifications.at(-1)).toEqual({ status: 'error', name: 'Edited' });
+    store.retryUpdate();
+    const retry = http.expectOne('/api/mfe-remotes/remote-1');
+    expect(retry.request.body.name).toBe('Edited');
+    retry.flush({ ...remote, name: 'Edited' });
+    http.expectOne('/api/mfe-remotes').flush([{ ...remote, name: 'Edited' }]);
+    expect(notifications.at(-1)).toEqual({ status: 'saved', name: 'Edited' });
+    sub.unsubscribe();
+  });
+
+  it('keeps the latest save status while older serialized writes finish', () => {
+    const notifications: unknown[] = [];
+    const sub = store.saveNotification$.subscribe(value => notifications.push(value));
+    store.update({ ...remote, isDevMode: false, name: 'Older' });
+    store.update({ ...remote, isDevMode: false, name: 'Newer' });
+    http.expectOne('/api/mfe-remotes/remote-1').flush(remote);
+    http.expectOne('/api/mfe-remotes').flush([remote]);
+    expect(notifications.at(-1)).toEqual({ status: 'saving', name: 'Newer' });
+    http.expectOne('/api/mfe-remotes/remote-1').flush({ ...remote, name: 'Newer' });
+    http.expectOne('/api/mfe-remotes').flush([{ ...remote, name: 'Newer' }]);
+    expect(notifications.at(-1)).toEqual({ status: 'saved', name: 'Newer' });
+    sub.unsubscribe();
+  });
+
   it('verifies JavaScript entry responses as text and reports HTTP failures', () => {
     let verified: boolean | undefined;
     store
