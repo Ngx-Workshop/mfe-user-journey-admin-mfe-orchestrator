@@ -11,7 +11,7 @@ The host provides shell composition and authentication context. `App` is a minim
 ## Design system integration
 
 The remote and admin shell install and share `@tmdjr/ngx-workshop-design-system`
-21.0.1 as a strict singleton. The catalog route host has `ngx-design-system`.
+21.0.4 as a strict singleton. The catalog route host has `ngx-design-system`.
 The shell supplies semantic Ngx tokens, shared button/code styles and a scoped
 Material adapter. Its legacy body palettes continue to style older remotes.
 Standalone global styles include the public `theme()` mixin and matching adapter scopes.
@@ -75,8 +75,8 @@ The catalog rail measures its remaining viewport space and panel chrome, updatin
 on resize, scroll and size changes. Long catalogs scroll internally; the mobile
 rail is additionally capped at 480px. The configuration panel heading displays
 the selected remote's name. The ID and metadata/quick actions project into the shared `ngxPanelHeader` slot,
-removing the separate detail context. This slot is implemented locally in the
-shared library; a matching published host/remote upgrade remains pending (X002).
+removing the separate detail context. The header slot and staggered-heading inputs are supplied by published 21.0.4,
+pinned in both shell and remote with matching strict share requirements.
 
 Route capabilities and Shell overrides are initially collapsed Material accordions.
 MfeForm applies shared public expansion overrides with semantic Ngx tokens,
@@ -105,5 +105,5 @@ The action bar renders these states through a persistent polite live region.
 
 The selected remote panel opts into headingMotion=stagger and binds headingMotionKey
 to its persisted ID. This shared API animates only title characters, preserves
-panel/form state, and respects reduced motion. Release integration for the new
-shared API remains pending; local builds use the built package preview.
+panel/form state, and respects reduced motion. The shared API is provided by published 21.0.4; clean installs no longer require
+a local package preview. Hosted deployment acceptance remains pending.

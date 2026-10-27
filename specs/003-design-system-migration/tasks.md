@@ -21,7 +21,7 @@ transitions and widths down to 320px. See [handoff](handoff.md) for boundaries a
 - [x] T008: Bind the configuration panel heading to the selected remote name (AC-009).
 - [x] T009: Compose metadata/actions and ID in the heading row, removing duplicate
   context heading using the shared ngxPanelHeader slot (AC-009).
-- [ ] X002: Publish the shared header-slot library and align shell/remote dependency
+- [x] X002: Confirm the published shared header-slot library and align shell/remote dependency
   and strict singleton versions; verify after clean installs (AC-009).
 
 - [x] T010: Collapse Route capabilities and apply shared expansion tokens to both

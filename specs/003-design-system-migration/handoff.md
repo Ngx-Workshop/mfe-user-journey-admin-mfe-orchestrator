@@ -232,3 +232,42 @@ A clean install restores the published version, which lacks headingMotion and
 headingMotionKey. Release the shared additive API, then align actual package/lock
 and strict federation versions in shell and remote before hosted acceptance.
 No publication, commit, push or deployment performed.
+
+## Deployment dependency repair — 2026-10-27
+
+Investigated Actions run 40453494492, job 122021368409, commit 7c3128464f6af20a4b09dcc56d996d5464135b3e.
+The settings validation passed. Installation failed before build/upload because
+npm 10.9.9 rejected missing optional peer lock entries: @emnapi/core 1.11.3,
+@emnapi/runtime 1.11.3 and @emnapi/wasi-threads 1.2.3. Regenerated the remote lockfile
+without node_modules using the runner's Node 22.23.4/npm 10.9.9 toolchain, adding
+those entries without broad dependency churn.
+
+Also confirmed the public 21.0.4 design-system tarball exposes headingMotion and
+headingMotionKey; pinned that published version in both remote and mfe-shell-admin
+package/lockfiles and strict federation settings. The previous 21.0.3 pin could
+not supply the animation inputs. Clean installs now use the real registry package
+rather than manually copied local-preview code. X002 is resolved by the observed
+published release and aligned local dependency changes.
+
+Verification with Node 22.23.4/npm 10.9.9: normal npm ci, production build and all
+29 remote/3 shell tests pass. Development builds used by deployment also pass.
+Layout/whitespace checks pass. Existing dependency deprecation and build warnings
+remain. No CI steps, credentials, deployment targets or application behavior changed.
+
+Changes remain local, uncommitted/unpushed in both repositories. Deploy the matching
+shell first, then the remote. Re-running the original job without committing the
+lockfile repair reuses the failing commit and cannot include this fix. No workflow
+was rerun, no package published and no remote upload performed during verification.
+X001 (actual hosted integration) remains pending.
+
+## Ordered deployment — 2026-10-27
+
+Committed/pushed mfe-shell-admin as 52fe3a409a09801d33f95dc91379f145d026e4ff.
+Its push deployment run 40454385746 completed successfully, including dependency
+installation/build and static asset upload. After completion, the public admin
+index and main.js both returned HTTP 200 with the expected content types. This
+verifies workflow delivery and public asset reachability, not authenticated journeys.
+
+Only after that successful shell deployment, prepared this orchestrator dependency
+repair for commit/push as requested. The orchestrator workflow will perform its
+own clean install and rebuild from the corrected lockfile and published 21.0.4.

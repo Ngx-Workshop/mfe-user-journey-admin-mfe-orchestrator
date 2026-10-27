@@ -44,7 +44,7 @@ Run layout, unit tests and a production build after moving files. If a local sta
 
 Federation still names the remote `ngx-seed-mfe`. Material/CDK root and secondary
 entries share strict 21.1.0, matching the shell. The new design-system singleton
-requires 21.0.1 in both applications; upgrade and rebuild them together when
+requires 21.0.4 in both applications; upgrade and rebuild them together when
 changing that requirement. Hosted visual integration requires the shell's global
 theme scopes described in [architecture](architecture.md).
 
@@ -55,3 +55,30 @@ Autosave verification now includes 29 tests. Jasmine clock tests validate the
 real-template interaction tests verify ID-bearing autosave, no initial/create
 updates, lifecycle controls, shell selects and action-bar save/error/retry messages.
 These remain local doubles, not backend persistence or hosted integration evidence.
+
+## Deployment lockfile repair — 2026-10-27
+
+Actions run 40453494492 failed before compilation: npm 10.9.9 rejected the lockfile
+for missing optional peer entries @emnapi/core 1.11.3, @emnapi/runtime 1.11.3 and
+@emnapi/wasi-threads 1.2.3. Regenerated the lockfile in an isolated directory
+without node_modules using Node 22.23.4/npm 10.9.9, preserving existing dependency
+versions except the intended design-system upgrade to published 21.0.4.
+The shell uses the same package and strict federation version.
+
+Use CI's toolchain when changing dependencies, for example:
+
+```sh
+npm exec --yes --package=node@22.23.4 --package=npm@10.9.9 --call 'npm install --package-lock-only'
+npm exec --yes --package=node@22.23.4 --package=npm@10.9.9 --call 'npm ci'
+```
+
+If a lockfile regeneration still omits platform/optional entries, copy the manifests
+to an empty directory, regenerate there and inspect the diff before replacing the
+repository lockfile. Preserve the normal npm ci deployment gate. Deploy the matching
+shell before the remote to satisfy strict singleton requirements.
+
+Verified the repair with clean npm ci, production and deployment-development builds
+in both repositories using Node 22.23.4/npm 10.9.9. All 29 remote tests and three
+shell tests pass against published 21.0.4. Local preview package copies are no longer
+needed. The original Actions attempt has not been rerun; commit/push the changes
+and deploy the matching shell before the remote.
