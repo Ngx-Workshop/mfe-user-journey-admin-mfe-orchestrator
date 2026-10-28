@@ -40,47 +40,55 @@ import { MfeFormViewModel } from './mfe-form-view-model';
   ],
   template: `
     @if (viewModel$ | async; as vm) {
-    <form class="form-mfe__mfe-form" [formGroup]="vm.form" novalidate>
-      <ngx-form-section
-        heading="Remote details"
-        icon="description"
-        [requiredNote]="true"
-        description="Identify the remote and connect it to its deployed entry point."
+      <form
+        class="form-mfe__mfe-form"
+        [formGroup]="vm.form"
+        novalidate
       >
-        <ngx-mfe-basic-fields
-          [mfeRemoteForm]="vm.form"
-          [errorMessages]="vm.errors"
-          [verificationState]="
-            (model.verification$ | async) ?? 'idle'
-          "
-          (verifyUrlClick)="model.verify($event)"
-          (urlChanged)="model.verify(null)"
-        />
-      </ngx-form-section>
-      <ngx-form-section
-        heading="Integration behavior"
-        icon="tune"
-        description="Define how this remote participates in the host application."
-      >
-        <ngx-structural-fields [mfeRemoteForm]="vm.form" />
-        @if (showLifecycleActions()) {
-        <mat-accordion class="form-mfe__lifecycle">
-          <mat-expansion-panel class="form-mfe__lifecycle-panel">
-            <mat-expansion-panel-header
-              class="form-mfe__lifecycle-header"
-            >
-              <mat-panel-title>Danger zone</mat-panel-title>
-            </mat-expansion-panel-header>
-            <p class="form-mfe__lifecycle-description">
-              Archive this remote or permanently delete it from the
-              catalog.
-            </p>
-            <ng-content select="[ngxMfeLifecycleActions]" />
-          </mat-expansion-panel>
-        </mat-accordion>
-        }
-      </ngx-form-section>
-    </form>
+        <ngx-form-section
+          heading="Remote details"
+          [introDelay]="280"
+          [contentDelay]="820"
+          icon="description"
+          [requiredNote]="true"
+          description="Identify the remote and connect it to its deployed entry point."
+        >
+          <ngx-mfe-basic-fields
+            [mfeRemoteForm]="vm.form"
+            [errorMessages]="vm.errors"
+            [verificationState]="
+              (model.verification$ | async) ?? 'idle'
+            "
+            (verifyUrlClick)="model.verify($event)"
+            (urlChanged)="model.verify(null)"
+          />
+        </ngx-form-section>
+        <ngx-form-section
+          heading="Integration behavior"
+          [introDelay]="400"
+          [contentDelay]="900"
+          icon="tune"
+          description="Define how this remote participates in the host application."
+        >
+          <ngx-structural-fields [mfeRemoteForm]="vm.form" />
+          @if (showLifecycleActions()) {
+            <mat-accordion class="form-mfe__lifecycle">
+              <mat-expansion-panel class="form-mfe__lifecycle-panel">
+                <mat-expansion-panel-header
+                  class="form-mfe__lifecycle-header"
+                >
+                  <mat-panel-title>Danger zone</mat-panel-title>
+                </mat-expansion-panel-header>
+                <p class="form-mfe__lifecycle-description">
+                  Archive this remote or permanently delete it from
+                  the catalog.
+                </p>
+                <ng-content select="[ngxMfeLifecycleActions]" />
+              </mat-expansion-panel>
+            </mat-accordion>
+          }
+        </ngx-form-section>
+      </form>
     }
   `,
   styles: [
@@ -99,14 +107,12 @@ import { MfeFormViewModel } from './mfe-form-view-model';
             header-indicator-color: var(--ngx-color-primary),
             header-text-font: var(--ngx-font-mono),
             header-text-size: 0.85rem,
-            header-hover-state-layer-color:
-              color-mix(
+            header-hover-state-layer-color: color-mix(
                 in srgb,
                 var(--ngx-color-primary) 8%,
                 transparent
               ),
-            header-focus-state-layer-color:
-              color-mix(
+            header-focus-state-layer-color: color-mix(
                 in srgb,
                 var(--ngx-color-primary) 14%,
                 transparent

@@ -9,7 +9,7 @@ import { MatIcon } from '@angular/material/icon';
 import { MatTooltip } from '@angular/material/tooltip';
 import { MfeInfoGroup } from './mfe-info-group';
 
-import type { MfeRemoteDto } from '@tmdjr/ngx-mfe-orchestrator-contracts';
+import type { MfeRemoteDtoExtraProps } from '../../models/app.types';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -26,6 +26,10 @@ import type { MfeRemoteDto } from '@tmdjr/ngx-mfe-orchestrator-contracts';
         matTooltipClass="ngx-design-system-overlay"
         matTooltip="Configure development mode"
         aria-label="Configure development mode"
+        type="button"
+        [class.mfe-remote-card-header__dev-mode--active]="
+          initialValue().isDevMode
+        "
         (click)="openDevModeOptions()"
       >
         <mat-icon>code</mat-icon>
@@ -43,6 +47,22 @@ import type { MfeRemoteDto } from '@tmdjr/ngx-mfe-orchestrator-contracts';
   `,
   styles: [
     `
+      .mfe-remote-card-header__dev-mode--active {
+        color: var(--ngx-color-warning);
+        box-shadow:
+          0 0 0 1px
+            color-mix(
+              in srgb,
+              var(--ngx-color-warning) 50%,
+              transparent
+            ),
+          0 0 16px
+            color-mix(
+              in srgb,
+              var(--ngx-color-warning) 45%,
+              transparent
+            );
+      }
       :host {
         min-width: 0;
         max-width: 100%;
@@ -59,14 +79,12 @@ import type { MfeRemoteDto } from '@tmdjr/ngx-mfe-orchestrator-contracts';
           background: var(--ngx-color-surface);
           border-radius: var(--ngx-radius);
         }
-
-
       }
     `,
   ],
 })
 export class MfeRemoteCardHeader {
-  initialValue = input.required<MfeRemoteDto>();
+  initialValue = input.required<MfeRemoteDtoExtraProps>();
   openDevModeOutput = output<void>({ alias: 'openDevModeOptions' });
   previewOutput = output<void>({ alias: 'previewMfeRemote' });
 

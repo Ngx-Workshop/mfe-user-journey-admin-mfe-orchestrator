@@ -4,7 +4,7 @@ Source: `src/app/features/mfe-remotes/api/api-mfe-remotes.ts` and published `@tm
 
 | Operation         | Request                                                          | Client response            | Orchestration                                                                                     |
 | ----------------- | ---------------------------------------------------------------- | -------------------------- | ------------------------------------------------------------------------------------------------- |
-| Catalog           | `GET /api/mfe-remotes`                                           | `MfeRemoteDto[]`           | Read with broker keys; retain prior catalog on failure                                            |
+| Catalog           | `GET /api/mfe-remotes`                                           | `MfeRemoteDto[]`           | Read with broker keys; cached per store lifetime; nonblocking initial load, explicit/post-write refresh; retain prior catalog on failure                                            |
 | Create            | `POST /api/mfe-remotes`, `CreateMfeRemoteDto`                    | `MfeRemoteDto`             | Serialize write, then refresh                                                                     |
 | Update            | `PATCH /api/mfe-remotes/{id}`, `UpdateMfeRemoteDto`              | `MfeRemoteDto`             | Remove `_id`, `lastUpdated`, `version`, `__v`, `isDevMode`, `archived` from body; filter type fields; refresh |
 | Archive/unarchive | `PATCH /api/mfe-remotes/{id}/archive` or `/unarchive`, null body | `MfeRemoteDto`             | Choose action from current archived flag; refresh                                                 |

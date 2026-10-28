@@ -31,8 +31,8 @@ export class MfeFormViewModel {
     switchMap((url) =>
       url
         ? this.store.verifyUrl(url).pipe(
-            map(
-              (ok): UrlVerificationState => (ok ? 'success' : 'error')
+            map((ok): UrlVerificationState =>
+              ok ? 'success' : 'error'
             ),
             startWith<UrlVerificationState>('verifying')
           )

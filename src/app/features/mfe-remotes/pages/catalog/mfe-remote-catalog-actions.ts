@@ -42,28 +42,33 @@ import { SaveNotification } from '../../models/save-notification';
       aria-live="polite"
       aria-atomic="true"
     >
-      @if (saveNotification(); as notification) { @switch
-      (notification.status) { @case ('saving') {
-      <span>Saving {{ notification.name }}…</span>
-      } @case ('saved') {
-      <span class="mfe-remote-catalog-actions__saved"
-        >Changes saved · {{ notification.name }}</span
-      >
-      } @case ('error') {
-      <span class="mfe-remote-catalog-actions__save-error"
-        >Could not save {{ notification.name }}.</span
-      >
-      <button
-        mat-flat-button
-        ngxButton
-        surface="outline"
-        tone="danger"
-        type="button"
-        (click)="retrySave.emit()"
-      >
-        Retry save
-      </button>
-      } } }
+      @if (saveNotification(); as notification) {
+        @switch (notification.status) {
+          @case ('saving') {
+            <span>Saving {{ notification.name }}…</span>
+          }
+          @case ('saved') {
+            <span class="mfe-remote-catalog-actions__saved"
+              >Changes saved · {{ notification.name }}</span
+            >
+          }
+          @case ('error') {
+            <span class="mfe-remote-catalog-actions__save-error"
+              >Could not save {{ notification.name }}.</span
+            >
+            <button
+              mat-flat-button
+              ngxButton
+              surface="outline"
+              tone="danger"
+              type="button"
+              (click)="retrySave.emit()"
+            >
+              Retry save
+            </button>
+          }
+        }
+      }
     </div>
 
     <button
@@ -71,10 +76,11 @@ import { SaveNotification } from '../../models/save-notification';
       ngxButton
       shape="chevron"
       surface="outline"
-      (click)="createRemote.emit()"
+      type="button"
+      (click)="creating() ? backToList.emit() : createRemote.emit()"
     >
-      <mat-icon>add</mat-icon>
-      New remote
+      <mat-icon>{{ creating() ? 'arrow_forward' : 'add' }}</mat-icon>
+      {{ creating() ? 'MFE Remote List' : 'New remote' }}
     </button>
   `,
   styles: [
@@ -164,6 +170,8 @@ import { SaveNotification } from '../../models/save-notification';
   ],
 })
 export class MfeRemoteCatalogActions {
+  readonly creating = input(false);
+  readonly backToList = output<void>();
   readonly devModeCount = input(0);
   readonly saveNotification = input<SaveNotification>(null);
   readonly retrySave = output<void>();

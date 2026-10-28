@@ -70,15 +70,15 @@ import { MfeRemoteListItem } from './mfe-remote-list-item';
           />
           <mat-icon matPrefix>search</mat-icon>
           @if (searchTerm()) {
-          <button
-            matSuffix
-            mat-icon-button
-            type="button"
-            aria-label="Clear search"
-            (click)="searchChanged.emit('')"
-          >
-            <mat-icon>close</mat-icon>
-          </button>
+            <button
+              matSuffix
+              mat-icon-button
+              type="button"
+              aria-label="Clear search"
+              (click)="searchChanged.emit('')"
+            >
+              <mat-icon>close</mat-icon>
+            </button>
           }
         </mat-form-field>
 
@@ -105,27 +105,28 @@ import { MfeRemoteListItem } from './mfe-remote-list-item';
           aria-label="Available MFE remotes"
         >
           @for (remote of remotes(); track remote._id) {
-          <ngx-mfe-remote-list-item
-            [remote]="remote"
-            [selected]="selectedRemoteId() === remote._id"
-            (remoteSelected)="remoteSelected.emit($event)"
-          />
+            <ngx-mfe-remote-list-item
+              [style.--remote-item-order]="$index"
+              [remote]="remote"
+              [selected]="selectedRemoteId() === remote._id"
+              (remoteSelected)="remoteSelected.emit($event)"
+            />
           } @empty {
-          <div class="mfe-remote-rail__empty-state">
-            <mat-icon>search_off</mat-icon>
-            <strong>No remotes found</strong>
-            <span>Try a different name, URL, type, or status.</span>
-            @if (searchTerm()) {
-            <button
-              mat-flat-button
-              ngxButton
-              surface="outline"
-              (click)="searchChanged.emit('')"
-            >
-              Clear search
-            </button>
-            }
-          </div>
+            <div class="mfe-remote-rail__empty-state">
+              <mat-icon>search_off</mat-icon>
+              <strong>No remotes found</strong>
+              <span>Try a different name, URL, type, or status.</span>
+              @if (searchTerm()) {
+                <button
+                  mat-flat-button
+                  ngxButton
+                  surface="outline"
+                  (click)="searchChanged.emit('')"
+                >
+                  Clear search
+                </button>
+              }
+            </div>
           }
         </nav>
       </aside>
@@ -133,11 +134,53 @@ import { MfeRemoteListItem } from './mfe-remote-list-item';
   `,
   styles: [
     `
+      ngx-panel {
+        animation: panel-arrival 240ms ease-out backwards;
+      }
+      @keyframes panel-arrival {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        ngx-panel {
+          animation: none;
+        }
+      }
+
       :host {
         position: sticky;
-        top: 182px;
+        top: 180px;
         display: block;
         min-width: 0;
+        height: auto;
+        align-self: start;
+      }
+
+      ngx-mfe-remote-list-item {
+        animation: remote-item-arrival 220ms ease-out backwards;
+        animation-delay: calc(
+          260ms + min(var(--remote-item-order, 0), 12) * 40ms
+        );
+      }
+      ngx-mfe-remote-list-item:focus-within {
+        animation: none;
+      }
+      @keyframes remote-item-arrival {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        ngx-mfe-remote-list-item {
+          animation: none;
+        }
       }
 
       aside {
@@ -226,9 +269,11 @@ import { MfeRemoteListItem } from './mfe-remote-list-item';
   ],
 })
 export class MfeRemoteRail {
-  private readonly element = inject<ElementRef<HTMLElement>>(ElementRef);
+  private readonly element =
+    inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly destroyRef = inject(DestroyRef);
-  private readonly catalogBody = viewChild.required<ElementRef<HTMLElement>>('catalogBody');
+  private readonly catalogBody =
+    viewChild.required<ElementRef<HTMLElement>>('catalogBody');
   readonly bodyHeight = signal<number | null>(null);
 
   constructor() {
@@ -240,10 +285,14 @@ export class MfeRemoteRail {
       const measure = () => {
         const bounds = host.getBoundingClientRect();
         // Measure panel chrome rather than assuming a fixed theme/header height.
-        const chrome = bounds.height - body.getBoundingClientRect().height;
-        const available = viewport.innerHeight - bounds.top - chrome - 16;
+        const chrome =
+          bounds.height - body.getBoundingClientRect().height;
+        const available =
+          viewport.innerHeight - bounds.top - chrome - 16;
         const height = Math.max(0, Math.floor(available));
-        this.bodyHeight.set(viewport.innerWidth <= 900 ? Math.min(480, height) : height);
+        this.bodyHeight.set(
+          viewport.innerWidth <= 900 ? Math.min(480, height) : height
+        );
       };
       const schedule = () => {
         viewport.cancelAnimationFrame(frame);
@@ -253,7 +302,10 @@ export class MfeRemoteRail {
       observer.observe(host);
       observer.observe(body);
       viewport.addEventListener('resize', schedule);
-      viewport.addEventListener('scroll', schedule, { capture: true, passive: true });
+      viewport.addEventListener('scroll', schedule, {
+        capture: true,
+        passive: true,
+      });
       measure();
       this.destroyRef.onDestroy(() => {
         observer.disconnect();

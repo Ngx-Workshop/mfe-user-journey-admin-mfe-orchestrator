@@ -1,5 +1,3 @@
-import { MfeCapabilities } from './form-mfe-capabilities';
-import type { RemoteForm } from '../../../forms/mfe-remote-form';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -10,6 +8,8 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIcon } from '@angular/material/icon';
 import { MatSelectModule } from '@angular/material/select';
 import type { MfeRemoteType } from '@tmdjr/ngx-mfe-orchestrator-contracts';
+import type { RemoteForm } from '../../../forms/mfe-remote-form';
+import { MfeCapabilities } from './form-mfe-capabilities';
 import { StructuralOverrides } from './form-mfe-structural-overrides';
 import { StructuralSubTypeOptions } from './form-mfe-structural-subtypes';
 
@@ -83,6 +83,7 @@ import { StructuralSubTypeOptions } from './form-mfe-structural-subtypes';
     `
       :host {
         display: block;
+        margin-top: 0.5rem;
       }
 
       .mfe-structural-fields__configuration {

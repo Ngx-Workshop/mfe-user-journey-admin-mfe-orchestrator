@@ -1,3 +1,4 @@
+import { provideRouter } from '@angular/router';
 import { provideHttpClient } from '@angular/common/http';
 import {
   HttpTestingController,
@@ -40,6 +41,7 @@ describe('MfeRemotesStore and catalog view model', () => {
     storage.set.and.returnValue(of(undefined));
     TestBed.configureTestingModule({
       providers: [
+        provideRouter([]),
         provideHttpClient(),
         provideHttpClientTesting(),
         CatalogViewModel,
@@ -53,7 +55,7 @@ describe('MfeRemotesStore and catalog view model', () => {
   afterEach(() => http.verify());
 
   function load(remotes = [remote]) {
-    store.load().subscribe();
+    store.refresh();
     http.expectOne('/api/mfe-remotes').flush(remotes);
   }
 
@@ -62,6 +64,60 @@ describe('MfeRemotesStore and catalog view model', () => {
     const state = await firstValueFrom(store.state$);
     expect(state.remotes[0].isDevMode).toBeTrue();
     expect(state.pending).toBe(0);
+  });
+
+  it('coalesces concurrent initial loads and reuses successful catalog state', async () => {
+    store.ensureLoaded();
+    store.ensureLoaded();
+    store.refresh();
+    expect((await firstValueFrom(store.state$)).loading).toBeTrue();
+    const request = http.expectOne('/api/mfe-remotes');
+    request.flush([remote]);
+    store.ensureLoaded();
+    http.expectNone('/api/mfe-remotes');
+    expect(storage.keys).toHaveBeenCalledTimes(1);
+    expect((await firstValueFrom(store.state$)).loaded).toBeTrue();
+    store.refresh();
+    http.expectOne('/api/mfe-remotes').flush([remote]);
+  });
+
+  it('caches an empty successful catalog and retries a failed initial read', async () => {
+    store.ensureLoaded();
+    http
+      .expectOne('/api/mfe-remotes')
+      .flush('Unavailable', {
+        status: 503,
+        statusText: 'Unavailable',
+      });
+    expect((await firstValueFrom(store.state$)).loaded).toBeFalse();
+    expect((await firstValueFrom(store.state$)).loading).toBeFalse();
+    store.ensureLoaded();
+    http.expectOne('/api/mfe-remotes').flush([]);
+    store.ensureLoaded();
+    http.expectNone('/api/mfe-remotes');
+    expect((await firstValueFrom(store.state$)).loaded).toBeTrue();
+    expect((await firstValueFrom(store.state$)).error).toBeNull();
+  });
+
+  it('orders initial loading before a write and its fresh post-write catalog read', async () => {
+    store.ensureLoaded();
+    store.update({ ...remote, name: 'Newer name' });
+    http.expectNone('/api/mfe-remotes/remote-1');
+    http.expectOne('/api/mfe-remotes').flush([remote]);
+    http
+      .expectOne('/api/mfe-remotes/remote-1')
+      .flush({ ...remote, name: 'Newer name' });
+    // Navigation during the post-write refresh must not schedule another read.
+    store.ensureLoaded();
+    store.refresh();
+    http
+      .expectOne('/api/mfe-remotes')
+      .flush([{ ...remote, name: 'Newer name' }]);
+    expect((await firstValueFrom(store.state$)).remotes[0].name).toBe(
+      'Newer name'
+    );
+    expect((await firstValueFrom(store.state$)).pending).toBe(0);
+    http.expectNone('/api/mfe-remotes');
   });
 
   it('preserves the catalog on refresh failure and recovers on retry', async () => {
@@ -145,52 +201,91 @@ describe('MfeRemotesStore and catalog view model', () => {
   });
 
   it('shows saved only after the PATCH succeeds and clears the notification after three seconds', () => {
-    jasmine.clock().install(); jasmine.clock().mockDate();
+    jasmine.clock().install();
+    jasmine.clock().mockDate();
     let notification!: import('../../../../../src/app/features/mfe-remotes/models/save-notification').SaveNotification;
-    const sub = store.saveNotification$.subscribe(value => { notification = value; });
+    const sub = store.saveNotification$.subscribe((value) => {
+      notification = value;
+    });
     try {
       store.update({ ...remote, isDevMode: false });
-      expect(notification).toEqual({ status: 'saving', name: remote.name });
+      expect(notification).toEqual({
+        status: 'saving',
+        name: remote.name,
+      });
       jasmine.clock().tick(4000);
-      expect(notification).toEqual({ status: 'saving', name: remote.name });
+      expect(notification).toEqual({
+        status: 'saving',
+        name: remote.name,
+      });
       const patch = http.expectOne('/api/mfe-remotes/remote-1');
       expect(patch.request.body.archived).toBeUndefined();
       patch.flush(remote);
       http.expectOne('/api/mfe-remotes').flush([remote]);
-      expect(notification).toEqual({ status: 'saved', name: remote.name });
+      expect(notification).toEqual({
+        status: 'saved',
+        name: remote.name,
+      });
       jasmine.clock().tick(2999);
       expect(notification).not.toBeNull();
       jasmine.clock().tick(1);
       expect(notification).toBeNull();
-    } finally { sub.unsubscribe(); jasmine.clock().uninstall(); }
+    } finally {
+      sub.unsubscribe();
+      jasmine.clock().uninstall();
+    }
   });
 
   it('retains failed saves for retry and never announces a failed PATCH as saved', () => {
     const notifications: unknown[] = [];
-    const sub = store.saveNotification$.subscribe(value => notifications.push(value));
+    const sub = store.saveNotification$.subscribe((value) =>
+      notifications.push(value)
+    );
     store.update({ ...remote, isDevMode: false, name: 'Edited' });
-    http.expectOne('/api/mfe-remotes/remote-1').flush('Failed', { status: 500, statusText: 'Failed' });
-    expect(notifications.at(-1)).toEqual({ status: 'error', name: 'Edited' });
+    http
+      .expectOne('/api/mfe-remotes/remote-1')
+      .flush('Failed', { status: 500, statusText: 'Failed' });
+    expect(notifications.at(-1)).toEqual({
+      status: 'error',
+      name: 'Edited',
+    });
     store.retryUpdate();
     const retry = http.expectOne('/api/mfe-remotes/remote-1');
     expect(retry.request.body.name).toBe('Edited');
     retry.flush({ ...remote, name: 'Edited' });
-    http.expectOne('/api/mfe-remotes').flush([{ ...remote, name: 'Edited' }]);
-    expect(notifications.at(-1)).toEqual({ status: 'saved', name: 'Edited' });
+    http
+      .expectOne('/api/mfe-remotes')
+      .flush([{ ...remote, name: 'Edited' }]);
+    expect(notifications.at(-1)).toEqual({
+      status: 'saved',
+      name: 'Edited',
+    });
     sub.unsubscribe();
   });
 
   it('keeps the latest save status while older serialized writes finish', () => {
     const notifications: unknown[] = [];
-    const sub = store.saveNotification$.subscribe(value => notifications.push(value));
+    const sub = store.saveNotification$.subscribe((value) =>
+      notifications.push(value)
+    );
     store.update({ ...remote, isDevMode: false, name: 'Older' });
     store.update({ ...remote, isDevMode: false, name: 'Newer' });
     http.expectOne('/api/mfe-remotes/remote-1').flush(remote);
     http.expectOne('/api/mfe-remotes').flush([remote]);
-    expect(notifications.at(-1)).toEqual({ status: 'saving', name: 'Newer' });
-    http.expectOne('/api/mfe-remotes/remote-1').flush({ ...remote, name: 'Newer' });
-    http.expectOne('/api/mfe-remotes').flush([{ ...remote, name: 'Newer' }]);
-    expect(notifications.at(-1)).toEqual({ status: 'saved', name: 'Newer' });
+    expect(notifications.at(-1)).toEqual({
+      status: 'saving',
+      name: 'Newer',
+    });
+    http
+      .expectOne('/api/mfe-remotes/remote-1')
+      .flush({ ...remote, name: 'Newer' });
+    http
+      .expectOne('/api/mfe-remotes')
+      .flush([{ ...remote, name: 'Newer' }]);
+    expect(notifications.at(-1)).toEqual({
+      status: 'saved',
+      name: 'Newer',
+    });
     sub.unsubscribe();
   });
 
@@ -221,6 +316,34 @@ describe('MfeRemotesStore and catalog view model', () => {
     ).toBeFalse();
   });
 
+  it('reports a created ID after catalog refresh and allows retry after a failed create', () => {
+    const created = jasmine.createSpy('created');
+    const draft = {
+      name: 'New remote',
+      remoteEntryUrl: remote.remoteEntryUrl,
+      type: 'user-journey' as const,
+    };
+    store.create(draft, created);
+    http
+      .expectOne('/api/mfe-remotes')
+      .flush('Unavailable', {
+        status: 503,
+        statusText: 'Unavailable',
+      });
+    expect(created).not.toHaveBeenCalled();
+    store.create(draft, created);
+    http
+      .expectOne('/api/mfe-remotes')
+      .flush({ ...remote, _id: 'created-id' });
+    expect(created).not.toHaveBeenCalled();
+    http
+      .expectOne('/api/mfe-remotes')
+      .flush([{ ...remote, _id: 'created-id' }]);
+    expect(created).toHaveBeenCalledOnceWith(
+      jasmine.objectContaining({ _id: 'created-id' })
+    );
+  });
+
   it('searches status and keeps selection coherent as results change', async () => {
     load([
       remote,
@@ -233,10 +356,9 @@ describe('MfeRemotesStore and catalog view model', () => {
       },
     ]);
     const model = TestBed.inject(CatalogViewModel);
-    model.select('remote-2');
     expect(
       (await firstValueFrom(model.viewModel$)).selected?._id
-    ).toBe('remote-2');
+    ).toBe('remote-1');
     model.searchFor('  ACTIVE  ');
     const result = await firstValueFrom(model.viewModel$);
     expect(result.filtered.length).toBe(1);

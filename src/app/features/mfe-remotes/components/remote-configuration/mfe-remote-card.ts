@@ -37,67 +37,84 @@ import { MfeRemoteCardHeader } from './mfe-remote-card-header';
   ],
   template: `
     @if (initialValue(); as mfe) {
-    <ngx-panel
-      [heading]="mfe.name"
-      headingMotion="stagger"
-      [headingMotionKey]="mfe._id"
-      eyebrow="REMOTE CONFIGURATION"
-      shape="stepped"
-      background="grid"
-      [tone]="mfe.isDevMode ? 'secondary' : 'primary'"
-    >
-      <div ngxPanelHeader class="mfe-remote-card__header-content">
-        <ngx-mfe-remote-card-header
-          [initialValue]="mfe"
-          (openDevModeOptions)="openDevModeOptions(mfe)"
-          (previewMfeRemote)="previewMfeRemote(mfe)"
-        ></ngx-mfe-remote-card-header>
-      </div>
-      <!-- <ngx-mfe-remote-summary [remote]="mfe" /> -->
+      <ngx-panel
+        [heading]="mfe.name"
+        headingMotion="stagger"
+        [headingMotionKey]="mfe._id"
+        eyebrow="REMOTE CONFIGURATION"
+        shape="stepped"
+        background="grid"
+        [tone]="mfe.isDevMode ? 'secondary' : 'primary'"
+      >
+        <div ngxPanelHeader class="mfe-remote-card__header-content">
+          <ngx-mfe-remote-card-header
+            [initialValue]="mfe"
+            (openDevModeOptions)="openDevModeOptions(mfe)"
+            (previewMfeRemote)="previewMfeRemote(mfe)"
+          ></ngx-mfe-remote-card-header>
+        </div>
+        <!-- <ngx-mfe-remote-summary [remote]="mfe" /> -->
 
-      <div class="mfe-remote-card__form">
-        <ngx-mfe-form
-          [initialValue]="initialValue()"
-          [showLifecycleActions]="true"
-          (autosave)="saveRemote($event)"
-        >
-          <div
-            ngxMfeLifecycleActions
-            class="mfe-remote-card__lifecycle-actions"
+        <div class="mfe-remote-card__form">
+          <ngx-mfe-form
+            [initialValue]="initialValue()"
+            [showLifecycleActions]="true"
+            (autosave)="saveRemote($event)"
           >
-            <button
-              mat-flat-button
-              ngxButton
-              surface="outline"
-              tone="danger"
-              motion="glitch"
-              type="button"
-              (click)="deleteRemote()"
+            <div
+              ngxMfeLifecycleActions
+              class="mfe-remote-card__lifecycle-actions"
             >
-              <mat-icon>delete</mat-icon>
-              Delete
-            </button>
-            <button
-              mat-flat-button
-              ngxButton
-              surface="outline"
-              tone="secondary"
-              type="button"
-              (click)="archive.emit(mfe)"
-            >
-              <mat-icon>{{
-                mfe.archived ? 'unarchive' : 'archive'
-              }}</mat-icon>
-              {{ mfe.archived ? 'Unarchive' : 'Archive' }}
-            </button>
-          </div>
-        </ngx-mfe-form>
-      </div>
-    </ngx-panel>
+              <button
+                mat-flat-button
+                ngxButton
+                surface="outline"
+                tone="danger"
+                motion="glitch"
+                type="button"
+                (click)="deleteRemote()"
+              >
+                <mat-icon>delete</mat-icon>
+                Delete
+              </button>
+              <button
+                mat-flat-button
+                ngxButton
+                surface="outline"
+                tone="secondary"
+                type="button"
+                (click)="archive.emit(mfe)"
+              >
+                <mat-icon>{{
+                  mfe.archived ? 'unarchive' : 'archive'
+                }}</mat-icon>
+                {{ mfe.archived ? 'Unarchive' : 'Archive' }}
+              </button>
+            </div>
+          </ngx-mfe-form>
+        </div>
+      </ngx-panel>
     }
   `,
   styles: [
     `
+      ngx-panel {
+        animation: panel-arrival 240ms ease-out backwards;
+      }
+      @keyframes panel-arrival {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        ngx-panel {
+          animation: none;
+        }
+      }
+
       :host {
         display: block;
         min-width: 0;
@@ -175,6 +192,7 @@ export class MfeRemoteCard {
       backdropClass: 'ngx-design-system-backdrop',
       data: mfe,
       width: '600px',
+      maxWidth: 'calc(100vw - 2rem)',
       panelClass: 'ngx-design-system-overlay',
     });
   }

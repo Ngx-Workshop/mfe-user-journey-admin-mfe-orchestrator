@@ -39,7 +39,13 @@ import { MfeRemoteCard } from '../../components/remote-configuration/mfe-remote-
             <span class="mfe-remote-detail__empty-state-icon">
               <mat-icon>dns</mat-icon>
             </span>
-            @if (searchActive()) {
+            @if (missingRemote()) {
+              <h2>Remote not found</h2>
+              <p>
+                This remote is no longer in the catalog. Select
+                another remote or create one.
+              </p>
+            } @else if (searchActive()) {
               <h2>No matching remote</h2>
               <p>
                 Clear the search to return to your remote catalog.
@@ -74,6 +80,23 @@ import { MfeRemoteCard } from '../../components/remote-configuration/mfe-remote-
   `,
   styles: [
     `
+      ngx-panel {
+        animation: panel-arrival 240ms ease-out backwards;
+      }
+      @keyframes panel-arrival {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        ngx-panel {
+          animation: none;
+        }
+      }
+
       :host {
         display: block;
         min-width: 0;
@@ -129,8 +152,6 @@ import { MfeRemoteCard } from '../../components/remote-configuration/mfe-remote-
         :host {
           width: 100%;
         }
-
-
       }
     `,
   ],
@@ -138,6 +159,7 @@ import { MfeRemoteCard } from '../../components/remote-configuration/mfe-remote-
 export class MfeRemoteDetail {
   remote = input<MfeRemoteDtoExtraProps | null>(null);
   searchActive = input(false);
+  missingRemote = input(false);
   clearSearch = output<void>();
 
   createRemote = output<void>();

@@ -45,24 +45,30 @@ import { MfeRemotesStore } from '../../../state/mfe-remotes-store';
         Use a local entry point for {{ mfeRemote.name }} in this
         browser. The deployed catalog entry stays unchanged.
       </p>
-      <mat-slide-toggle
-        [disabled]="loading"
-        labelPosition="before"
-        [(ngModel)]="devModeEnabled"
-        (ngModelChange)="devModeEnabledValueChange()"
-        >Turn {{ devModeEnabled ? 'Off' : 'On' }} Dev
-        Mode</mat-slide-toggle
-      >
-      <mat-form-field subscriptSizing="dynamic" appearance="outline">
-        <mat-label>Remote Entry Point</mat-label>
-        <input
-          matInput
-          type="text"
-          [disabled]="loading || !devModeEnabled"
-          [(ngModel)]="remoteEntryPoint"
-          (ngModelChange)="remoteEntryPointValueChange()"
-        />
-      </mat-form-field>
+      <div class="dev-mode-options__override-row">
+        <mat-slide-toggle
+          class="dev-mode-options__toggle"
+          aria-label="Development mode"
+          [disabled]="loading"
+          labelPosition="before"
+          [(ngModel)]="devModeEnabled"
+          (ngModelChange)="devModeEnabledValueChange()"
+          >Dev mode</mat-slide-toggle
+        >
+        <mat-form-field
+          subscriptSizing="dynamic"
+          appearance="outline"
+        >
+          <mat-label>Remote Entry Point</mat-label>
+          <input
+            matInput
+            type="text"
+            [disabled]="loading || !devModeEnabled"
+            [(ngModel)]="remoteEntryPoint"
+            (ngModelChange)="remoteEntryPointValueChange()"
+          />
+        </mat-form-field>
+      </div>
     </mat-dialog-content>
     <mat-dialog-actions>
       <button
@@ -77,12 +83,42 @@ import { MfeRemotesStore } from '../../../state/mfe-remotes-store';
   `,
   styles: [
     `
-      :host {
-        mat-dialog-content {
-          display: flex;
-          flex-direction: column;
-          gap: 2.3em;
-        }
+      @use '@angular/material' as mat;
+
+      .dev-mode-options__override-row {
+        display: grid;
+        grid-template-columns: auto minmax(0, 1fr);
+        align-items: center;
+        gap: var(--ngx-space-4);
+        margin-top: var(--ngx-space-4);
+      }
+      mat-form-field {
+        width: 100%;
+        min-width: 0;
+      }
+      .dev-mode-options__toggle {
+        @include mat.slide-toggle-overrides(
+          (
+            selected-track-color: var(--ngx-color-warning),
+            selected-hover-track-color: var(--ngx-color-warning),
+            selected-focus-track-color: var(--ngx-color-warning),
+            selected-pressed-track-color: var(--ngx-color-warning),
+            selected-handle-color: var(--ngx-color-canvas),
+            selected-hover-handle-color: var(--ngx-color-canvas),
+            selected-focus-handle-color: var(--ngx-color-canvas),
+            selected-pressed-handle-color: var(--ngx-color-canvas),
+            selected-icon-color: var(--ngx-color-warning),
+            selected-hover-state-layer-color: var(
+                --ngx-color-warning
+              ),
+            selected-focus-state-layer-color: var(
+                --ngx-color-warning
+              ),
+            selected-pressed-state-layer-color: var(
+                --ngx-color-warning
+              ),
+          )
+        );
       }
     `,
   ],

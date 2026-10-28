@@ -28,6 +28,9 @@ import { DevModeStorage } from '../api/dev-mode-storage';
 type CatalogState = {
   remotes: MfeRemoteDtoExtraProps[];
   pending: number;
+  loaded: boolean;
+  loading: boolean;
+  showProgress: boolean;
   error: string | null;
 };
 
@@ -40,8 +43,12 @@ export class MfeRemotesStore {
   private readonly state = new BehaviorSubject<CatalogState>({
     remotes: [],
     pending: 0,
+    loaded: false,
+    loading: false,
+    showProgress: false,
     error: null,
   });
+  private loadScheduled = false;
   private readonly commands = new Subject<
     () => Observable<unknown>
   >();
@@ -87,10 +94,15 @@ export class MfeRemotesStore {
       .subscribe();
   }
 
-  load() {
+  ensureLoaded(): void {
+    if (!this.state.value.loaded) this.refresh();
+  }
+
+  private load(showProgress = true) {
     return defer(() => {
       this.patch({
-        pending: this.state.value.pending + 1,
+        loading: true,
+        showProgress,
         error: null,
       });
       return forkJoin({
@@ -114,7 +126,7 @@ export class MfeRemotesStore {
             isDevMode: keys.includes(remote._id),
           }))
         ),
-        tap((remotes) => this.patch({ remotes })),
+        tap((remotes) => this.patch({ remotes, loaded: true })),
         catchError(() => {
           this.patch({
             error:
@@ -123,18 +135,34 @@ export class MfeRemotesStore {
           return of(this.state.value.remotes);
         }),
         finalize(() =>
-          this.patch({ pending: this.state.value.pending - 1 })
+          this.patch({ loading: false, showProgress: false })
         )
       );
     });
   }
 
-  refresh() {
-    this.enqueue(() => this.load());
+  refresh(): void {
+    if (this.loadScheduled || this.state.value.loading) return;
+    this.loadScheduled = true;
+    this.enqueue(() =>
+      this.load().pipe(
+        finalize(() => {
+          this.loadScheduled = false;
+        })
+      )
+    );
   }
 
-  create(remote: CreateMfeRemoteDto) {
-    this.mutate(() => this.api.createMfeRemote(remote));
+  create(
+    remote: CreateMfeRemoteDto,
+    onCreated?: (remote: MfeRemoteDto) => void
+  ) {
+    this.enqueue(() =>
+      this.api.createMfeRemote(remote).pipe(
+        switchMap((created) => this.load().pipe(map(() => created))),
+        tap((created) => onCreated?.(created))
+      )
+    );
   }
 
   update(remote: MfeRemoteDtoExtraProps) {
@@ -162,27 +190,29 @@ export class MfeRemotesStore {
             isAdmin: false,
           }
         : { ...common, structuralOverrides };
-    this.mutate(() =>
-      this.api.updateMfeRemote(_id, payload).pipe(
-        tap({
-          next: () => {
-            if (revision === this.saveRevision)
-              this.saveState.next({
-                status: 'saved',
-                name: remote.name,
-              });
-          },
-          error: () => {
-            if (revision === this.saveRevision) {
-              this.failedUpdate = remote;
-              this.saveState.next({
-                status: 'error',
-                name: remote.name,
-              });
-            }
-          },
-        })
-      )
+    this.mutate(
+      () =>
+        this.api.updateMfeRemote(_id, payload).pipe(
+          tap({
+            next: () => {
+              if (revision === this.saveRevision)
+                this.saveState.next({
+                  status: 'saved',
+                  name: remote.name,
+                });
+            },
+            error: () => {
+              if (revision === this.saveRevision) {
+                this.failedUpdate = remote;
+                this.saveState.next({
+                  status: 'error',
+                  name: remote.name,
+                });
+              }
+            },
+          })
+        ),
+      false
     );
   }
 
@@ -225,8 +255,13 @@ export class MfeRemotesStore {
     );
   }
 
-  private mutate(request: () => Observable<unknown>) {
-    this.enqueue(() => request().pipe(switchMap(() => this.load())));
+  private mutate(
+    request: () => Observable<unknown>,
+    showProgress = true
+  ) {
+    this.enqueue(() =>
+      request().pipe(switchMap(() => this.load(showProgress)))
+    );
   }
 
   private enqueue(command: () => Observable<unknown>) {

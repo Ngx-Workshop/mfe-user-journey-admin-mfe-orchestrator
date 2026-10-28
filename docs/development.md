@@ -82,3 +82,48 @@ in both repositories using Node 22.23.4/npm 10.9.9. All 29 remote tests and thre
 shell tests pass against published 21.0.4. Local preview package copies are no longer
 needed. The original Actions attempt has not been rerun; commit/push the changes
 and deploy the matching shell before the remote.
+
+## Catalog routing — 2026-10-27
+
+The suite now has 34 passing tests. RouterTestingHarness checks use the public
+route definitions with authentication bypassed and a mocked store, including
+ID links, back navigation, shell-relative creation/cancel, missing/deleted IDs,
+creation validation/type projection, failed draft retry and ignored late completion.
+Store HTTP tests verify creation completion occurs after refresh and failed creates
+can be retried. These checks do not establish deployed shell routing, real auth or
+backend persistence. The production build retains the existing unused
+`mfe-remote-summary.ts` warning.
+
+## Creation wizard — 2026-10-27
+
+Creation now uses `new-mfe-remote` (hosted at `/mfe-orchestrator/new-mfe-remote`).
+The former `list-mfe-remotes/new` creation route is removed. The 35-test suite
+additionally checks three-step ordering, linear header navigation, required URL/name,
+URL checking/failure/retry, stale verification cancellation and Back preservation.
+Creation verification remains the existing HTTP text-read check. Production build
+passes with the existing unused summary warning; development output is restored
+for the running local server. Hosted authentication and live persistence remain
+outside local test evidence.
+
+## Nonblocking shared catalog — 2026-10-27
+
+The 42-test suite includes real-router/HTTP-double regressions that complete
+navigation before catalog HTTP and broker reads resolve, navigate across list/detail/
+creation with one shared read, and verify explicit refresh/error recovery. Store tests
+cover cached empty results, concurrent ensures, failed initial retry, and ordering
+between initial reads, writes and post-write refreshes. Templates consume the scoped
+VM's `toSignal` bridge. The root RxJS store owns state and request subscriptions.
+These checks do not establish live backend persistence or hosted auth/federation.
+
+## Development override and copy controls — 2026-10-27
+
+The 49-test suite covers the modal's same-row control geometry, broker loading/
+disabled states, selected warning token, dev launcher glow transitions, toggle
+persistence and clipboard ID/current edited URL values. Clipboard success/failure
+uses a CDK Clipboard double; this verifies UI and exact requested values, not OS
+clipboard permissions in a deployed browser. Existing storage-key, form, router,
+nonblocking loading and animation suites remain covered.
+
+The 50-test suite also covers mouse/Enter/Space copying from the plain-text remote
+ID and rail-height stability while adjacent child-panel animations advance. The
+rail regression fails with percentage height and passes with natural height.

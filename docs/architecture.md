@@ -47,21 +47,20 @@ Paths below are relative to `src/app/features/mfe-remotes/` unless stated otherw
 | Shared model   | `state/mfe-remotes-store.ts`                                                         | Root singleton catalog, pending/errors, serialized commands and refresh orchestration   |
 | Domain types   | `models/app.types.ts`                                                                | Remote plus UI dev flag; URL verification states                                        |
 | Form factory   | `forms/mfe-remote-form.ts`                                                           | Typed controls, validation and type-specific request values                             |
-| Resolution     | `resolvers/mfe-remote.resolver.ts`                                                   | Populate the store before route activation                                              |
-| Catalog        | `pages/catalog/list-mfe-remotes.ts`, `catalog-view-model.ts`                         | Create dialog orchestration; scoped search/selection and derived counts                 |
+| Catalog        | `pages/catalog/list-mfe-remotes.ts`, `catalog-view-model.ts`                         | Routed creation/configuration; scoped search/selection and derived counts                 |
 | Catalog views  | `pages/catalog/mfe-remote-{catalog-actions,rail,list-item,detail}.ts` | Page-only input/event views                                                             |
-| Create dialog  | `pages/catalog/dialog-create-mfe.ts`                                                 | Catalog-only dialog returning a typed draft                                             |
+| Create page | `pages/catalog/create-mfe-page.ts` | Routed typed creation form, pending/retry and completion navigation |
 | Configuration  | `components/remote-configuration/`                                                   | Card orchestrator, summary/header/info views, confirmation/dev/preview dialogs          |
 | Form workspace | `components/remote-configuration/form-mfe/`                                          | Form orchestrator/local VM, basic fields, capabilities, structural fields and overrides |
 | Tests          | `testing/app/features/mfe-remotes/`                                                  | Mirrored API, state and form-workspace suites; root app test under `testing/app`        |
 
 ## Routes and data flow
 
-The empty authenticated route redirects to `list-mfe-remotes`. That child lazily loads `ListMfeRemotes` after `mfeRemoteResolver` loads the singleton catalog. The hosted mount observed earlier in this chat was `/mfe-orchestrator/list-mfe-remotes`; it is the shell's mount, not a hardcoded route inside this remote.
+The empty authenticated route redirects to `list-mfe-remotes`. Catalog routes lazily load `ListMfeRemotes` without a data resolver. The route-scoped CatalogViewModel calls `ensureLoaded()` for list/detail routes; it does not wait for the HTTP response. Creation does not require an initial catalog read. `list-mfe-remotes/:remoteId` selects a configuration by persisted ID; the static `new-mfe-remote` route opens creation. Navigation stays relative to the shell mount. Once catalog data is available, the base catalog replaces its URL with `list-mfe-remotes/<first persisted ID>`, preserving query parameters and fragment. Empty catalogs remain on the base route. Search filters the rail without changing an ID-routed configuration. Unknown/deleted IDs display Remote not found only after a successful catalog load. The hosted mount observed earlier in this chat was `/mfe-orchestrator/list-mfe-remotes`; it is the shell's mount, not a hardcoded route inside this remote.
 
-The API adapter returns cold HTTP observables without state, refreshes or swallowed errors. `MfeRemotesStore` reads catalog records plus broker keys, enriches records with `isDevMode` and exposes state. Commands use `concatMap`; successful HTTP writes refresh the catalog. Failed commands leave the queue usable; failed refreshes retain the previous catalog and expose an error. Development persistence updates dev badges after a successful write. Root state survives route component destruction and is lost on application reload.
+The API adapter returns cold HTTP observables without state, refreshes or swallowed errors. `MfeRemotesStore` reads catalog records plus broker keys, enriches records with `isDevMode` and exposes state. Commands use `concatMap`; successful HTTP writes refresh the catalog. Failed commands leave the queue usable; failed refreshes retain the previous catalog and expose an error. Development persistence updates dev badges after a successful write. Root state survives route component destruction and is lost on application reload. `loaded` distinguishes a successful empty catalog from an uninitialized one; `loading` tracks active reads. Initial reads and explicit refreshes are coalesced and serialized with writes. Successful cached data is reused across navigation. Failed initial reads permit retry; failed refreshes retain prior data.
 
-`CatalogViewModel` is provided by the list route component. Search/selection subjects are local, with counts, filtered rows, fallback selection and busy/error state derived as streams. The route opens the create dialog and invokes store commands; the card handles confirmation, preview and development dialogs. Presentational views emit intent and do not call adapters.
+`CatalogViewModel` is provided by the list route component. Search is local and selection comes from ActivatedRoute, with counts, filtered rows, base-route fallback selection and busy/error state derived as streams. The route navigates to creation and invokes store commands; the card handles confirmation, preview and development dialogs. The VM exposes `viewModel` via a single `toSignal(viewModel$, { requireSync: true })`; the existing RxJS store remains the state source. Templates read that signal without initiating requests. Presentational views emit intent and do not call adapters.
 
 `MfeFormViewModel` is provided per form instance. Input replacement cancels old form streams with `switchMap`; initial values and validity are emitted. The factory retains typed controls for both remote types and projects only relevant fields. URL verification uses a cancellable stream; edits and input replacement reset verification. Explicit `DestroyRef` arguments to `takeUntilDestroyed` preserve compatibility with the current federated runtime.
 
@@ -107,3 +106,116 @@ The selected remote panel opts into headingMotion=stagger and binds headingMotio
 to its persisted ID. This shared API animates only title characters, preserves
 panel/form state, and respects reduced motion. The shared API is provided by published 21.0.4; clean installs no longer require
 a local package preview. Hosted deployment acceptance remains pending.
+
+## Routed creation — 2026-10-27
+
+`CreateMfePage` at `new-mfe-remote` uses a linear, keyboard-operable Material
+stepper: (1) remote entry URL verification, (2) display name and optional description,
+(3) integration behavior and explicit Create. Its scoped `CreateMfeViewModel` owns
+one typed form built by the shared factory, verification state and submission.
+Shared basic fields have all/url/details modes; existing edit forms retain all fields.
+The wizard reuses StructuralFields for type, capabilities, subtypes and shell overrides.
+
+Successful URL verification gates step two; a valid display name gates step three.
+A changed URL clears success and cancels the current request; late results cannot
+unlock progression. Back navigation retains values. Creation requires the final
+step, a valid form and successful current-URL verification. Verification checks
+HTTP readability only, using the existing adapter; it does not inspect exports.
+
+Pending requests disable duplicate submission. Errors remain visible in the catalog
+and preserve the creation form for retry. The optional store completion callback
+receives the POST result after catalog refresh and navigates to its persisted ID.
+Pages destroyed by cancel/navigation ignore late completion. The top action switches from New remote to Back to List during creation and returns
+to the base catalog; the wizard has no separate Cancel button. Preview, development settings and delete confirmation retain their dialogs.
+
+The creation route hides the All remotes rail and centers the wizard at a maximum
+width of 765px with responsive outer gutters. Its panel uses the public glass
+background. Continue buttons use the chevron shape; step headers provide backward
+navigation without separate Back buttons. Catalog/configuration routes retain the rail.
+
+The final-step Create button uses chevron shape and projects through the public
+`ngxPanelActions` slot into the panel footer. It appears only on integration step
+three and retains form/verification/pending guards.
+
+All three wizard steps now render their primary action in the same `ngxPanelActions`
+footer: Continue to details, Continue to integration, then Create. Continue calls the
+linear stepper's next method with the existing validation gates. Every action uses
+chevron shape; step content contains fields and verification controls only.
+
+The creation route host is a flex column with a minimum height covering the remaining
+dynamic viewport. It measures its document offset on render/resize to account for
+standalone and hosted shell chrome; the toolbar keeps its natural height and the
+creation grid grows into remaining space. Minimum height permits long steps to grow
+and scroll naturally; the centered wizard retains its 765px cap and natural height.
+
+## Catalog read lifetime — 2026-10-27
+
+No resolver waits for HTTP or the development-settings broker. Initial list/detail
+navigation renders immediately with a loading status and hides premature empty or
+missing-record states. Creation renders its form without triggering the catalog read.
+`ensureLoaded()` reuses successful root-store data and any scheduled/in-flight load.
+`refresh()` is explicit, coalesces concurrent requests, and uses the existing serialized
+command queue; post-write reads remain ordered after their successful mutation.
+The root store owns subscriptions so navigating away cannot cancel the shared read.
+No TTL or polling is added: external changes appear in a new application session; the catalog action bar has
+no manual refresh control. Failed refreshes keep known records visible with Retry.
+
+Foreground catalog reads display a labelled indeterminate Material progress bar below
+the action bar for initial loading and foreground refresh. Form update refreshes
+run silently behind the existing save notification. The store keeps loading/pending
+state separate from the showProgress presentation flag. Cached content stays visible
+during refresh; the bar disappears on success or failure and Retry remains available.
+
+The measured viewport minimum height applies to every catalog route, including
+initial loading, refresh and error states. Background coverage no longer depends
+on creation mode or the amount of content. Creation retains its flex-column layout;
+loaded catalog views retain the existing grid and natural scrolling.
+
+## Staged panel entrance — 2026-10-27
+
+The generic shared boot effect is removed. The CATALOG / SELECT and REMOTE
+CONFIGURATION panels fade together over 240ms without scaling. Remote rows fade
+in after 260ms, staggered by 40ms per row (delay capped at index 12 for long lists).
+Existing row nodes remain stable through search/refresh.
+
+Remote details and Integration behavior panels start at 150px and grow to their
+measured intrinsic height over 420ms, starting at 280/400ms. FormSection uses the
+browser Web Animations API after rendering, so no fixed max-height or text scaling
+is needed. The projected content fades in at 820/900ms, after both child panels have
+grown. Animation completion removes clipping and leaves natural automatic sizing.
+Resize, preference changes, keyboard focus and destruction cancel the intro and
+restore live layout. Reduced motion skips height/content animation and CSS fades.
+No render/request delay or form-state recreation is introduced; cached refreshes
+retain existing panel nodes. Creation and empty-state panels use a simple fade.
+
+## Default remote selection — 2026-10-27
+
+The catalog VM combines root-store state with NavigationEnd to normalize only the
+base `list-mfe-remotes` route to the first record in catalog order. Navigation and
+loading remain nonblocking; cached data needs no new GET. The one-shot subscription
+is destroyed with the VM. `replaceUrl` avoids an extra base-route history entry.
+Explicit remote IDs (including missing ones) and creation routes are preserved.
+Returning through MFE Remote List now opens the first remote when data is available.
+
+## Development override and clipboard controls — 2026-10-27
+
+Development override uses a compact toggle and a URL field in an auto/minmax grid
+row. The field fills remaining width; the dialog keeps its 600px desktop size with
+viewport gutters. Public Material slide-toggle selected-state overrides use
+`--ngx-color-warning`, including hover/focus/pressed states. Existing broker loading,
+disabled state and persistence handlers are preserved. The Configure development
+mode launcher gets a warning-colored ring/glow only from the catalog `isDevMode`
+flag, which updates after successful local override persistence.
+
+Remote ID is focusable clickable text using CdkCopyToClipboard to copy the
+persisted `_id`, with Enter/Space support and visible keyboard focus. Remote entry URL's link prefix icon is wrapped in a labelled icon
+button and copies the current reactive-form control value. It is disabled when
+empty. Both copy controls have tooltip and polite live-region success/failure
+feedback; copying does not edit values, verify URLs or submit forms. URL input edits
+clear previous copy feedback. These use installed CDK clipboard support with no
+new service/API/dependency or changes to dev override key conventions.
+
+The catalog rail uses natural height with align-self:start. It must not inherit
+100% of the animated configuration grid row: that inflated its measured panel
+chrome, reducing the available list space during sibling panel growth. Row reveal
+remains opacity-only, with the existing bounded viewport list and scroll handling.

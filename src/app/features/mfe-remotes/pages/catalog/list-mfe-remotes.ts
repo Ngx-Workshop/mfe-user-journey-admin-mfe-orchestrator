@@ -1,82 +1,117 @@
 import { AsyncPipe } from '@angular/common';
 import {
+  afterNextRender,
   ChangeDetectionStrategy,
   Component,
   DestroyRef,
+  ElementRef,
   inject,
 } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatButton } from '@angular/material/button';
-import { MatDialog } from '@angular/material/dialog';
-import type { CreateMfeRemoteDto } from '@tmdjr/ngx-mfe-orchestrator-contracts';
+import { MatProgressBar } from '@angular/material/progress-bar';
 import { NgxButton } from '@tmdjr/ngx-workshop-design-system';
-import { filter } from 'rxjs';
+import { ActivatedRoute, Router } from '@angular/router';
 import { CatalogViewModel } from './catalog-view-model';
-import { CreateMFEDialog } from './dialog-create-mfe';
+import { CreateMfePage } from './create-mfe-page';
 import { MfeRemoteCatalogActions } from './mfe-remote-catalog-actions';
 import { MfeRemoteDetail } from './mfe-remote-detail';
 import { MfeRemoteRail } from './mfe-remote-rail';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: { class: 'list-mfe-remotes ngx-design-system' },
+  host: {
+    class: 'list-mfe-remotes ngx-design-system',
+    '[class.list-mfe-remotes--creation]': 'model.creating',
+  },
   selector: 'ngx-mfe-remotes',
   providers: [CatalogViewModel],
   imports: [
     AsyncPipe,
     MatButton,
+    MatProgressBar,
     NgxButton,
     MfeRemoteCatalogActions,
     MfeRemoteDetail,
     MfeRemoteRail,
+    CreateMfePage,
   ],
   template: `
     <ngx-mfe-remote-catalog-actions
-      [devModeCount]="(viewModel$ | async)?.devModeCount ?? 0"
+      [creating]="model.creating"
+      (backToList)="backToList()"
+      [devModeCount]="model.viewModel().devModeCount"
       [saveNotification]="model.store.saveNotification$ | async"
       (retrySave)="model.store.retryUpdate()"
-      (createRemote)="openDialog()"
+      (createRemote)="createRemote()"
     ></ngx-mfe-remote-catalog-actions>
 
-    @if (viewModel$ | async; as vm) { @if (vm.error) {
-    <div class="catalog__error" role="alert">
-      {{ vm.error }}
-      <button
-        mat-flat-button
-        ngxButton
-        surface="outline"
-        tone="danger"
-        type="button"
-        (click)="model.store.refresh()"
-        [disabled]="vm.busy"
+    @if (model.viewModel(); as vm) {
+      @if (vm.showProgress) {
+        <mat-progress-bar
+          class="catalog__progress"
+          mode="indeterminate"
+          [attr.aria-label]="
+            vm.loaded ? 'Refreshing remotes' : 'Loading remotes'
+          "
+        />
+      }
+      @if (vm.error) {
+        <div class="catalog__error" role="alert">
+          {{ vm.error }}
+          <button
+            mat-flat-button
+            ngxButton
+            surface="outline"
+            tone="danger"
+            type="button"
+            (click)="model.store.refresh()"
+            [disabled]="vm.busy"
+          >
+            Retry
+          </button>
+        </div>
+      }
+
+      @if (!model.creating && !vm.loaded && !vm.loading && !vm.busy) {
+        <p class="catalog__status" role="status" aria-live="polite">
+          Remote catalog is unavailable. Use Retry to load it.
+        </p>
+      }
+      <main
+        class="catalog__layout"
+        [class.catalog__layout--creation]="model.creating"
+        [attr.aria-busy]="vm.busy"
       >
-        Retry
-      </button>
-    </div>
-    }
+        @if (!model.creating && vm.loaded) {
+          <ngx-mfe-remote-rail
+            [remotes]="vm.filtered"
+            [selectedRemoteId]="
+              model.creating ? null : (vm.selected?._id ?? null)
+            "
+            [searchTerm]="vm.searchTerm"
+            [activeCount]="vm.activeCount"
+            [archivedCount]="vm.archivedCount"
+            [devModeCount]="vm.devModeCount"
+            (remoteSelected)="selectRemote($event)"
+            (searchChanged)="model.searchFor($event)"
+          ></ngx-mfe-remote-rail>
+        }
 
-    <main class="catalog__layout" [attr.aria-busy]="vm.busy">
-      <ngx-mfe-remote-rail
-        [remotes]="vm.filtered"
-        [selectedRemoteId]="vm.selected?._id ?? null"
-        [searchTerm]="vm.searchTerm"
-        [activeCount]="vm.activeCount"
-        [archivedCount]="vm.archivedCount"
-        [devModeCount]="vm.devModeCount"
-        (remoteSelected)="model.select($event)"
-        (searchChanged)="model.searchFor($event)"
-      ></ngx-mfe-remote-rail>
-
-      <ngx-mfe-remote-detail
-        [remote]="vm.selected"
-        [searchActive]="!!vm.searchTerm.trim()"
-        (clearSearch)="model.searchFor('')"
-        (createRemote)="openDialog()"
-        (update)="model.store.update($event)"
-        (archive)="model.store.archive($event)"
-        (delete)="model.store.delete($event)"
-      ></ngx-mfe-remote-detail>
-    </main>
+        @if (model.creating) {
+          <ngx-create-mfe-page />
+        } @else if (vm.loaded) {
+          <ngx-mfe-remote-detail
+            [remote]="vm.selected"
+            [searchActive]="!!vm.searchTerm.trim()"
+            [missingRemote]="vm.missingRemote"
+            (clearSearch)="model.searchFor('')"
+            (createRemote)="createRemote()"
+            (update)="model.store.update($event)"
+            (archive)="model.store.archive($event)"
+            (delete)="model.store.delete($event)"
+          ></ngx-mfe-remote-detail>
+        }
+      </main>
     }
   `,
   styles: [
@@ -84,7 +119,12 @@ import { MfeRemoteRail } from './mfe-remote-rail';
       :host {
         display: block;
         min-width: 0;
-        background: radial-gradient(
+        min-height: max(
+          0px,
+          calc(100dvh - var(--catalog-top-offset, 0px))
+        );
+        background:
+          radial-gradient(
             circle at 85% 15%,
             color-mix(
               in srgb,
@@ -97,6 +137,16 @@ import { MfeRemoteRail } from './mfe-remote-rail';
         color: var(--ngx-color-text);
       }
 
+      :host.list-mfe-remotes--creation {
+        display: flex;
+        flex-direction: column;
+      }
+
+      :host.list-mfe-remotes--creation
+        > ngx-mfe-remote-catalog-actions {
+        flex-shrink: 0;
+      }
+
       .catalog__layout {
         display: grid;
         grid-template-columns: minmax(280px, 340px) minmax(0, 1fr);
@@ -105,6 +155,16 @@ import { MfeRemoteRail } from './mfe-remote-rail';
         margin: 0 auto;
         padding: 1rem 0;
         align-items: start;
+      }
+
+      .catalog__layout--creation {
+        flex: 1 0 auto;
+        box-sizing: border-box;
+        grid-template-columns: minmax(0, 1fr);
+      }
+
+      .catalog__progress {
+        flex-shrink: 0;
       }
 
       .catalog__error,
@@ -136,31 +196,58 @@ import { MfeRemoteRail } from './mfe-remote-rail';
   ],
 })
 export class ListMfeRemotes {
-  private readonly dialog = inject(MatDialog);
-  private readonly destroyRef = inject(DestroyRef);
+  private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
   readonly model = inject(CatalogViewModel);
-  readonly viewModel$ = this.model.viewModel$;
 
-  openDialog(): void {
-    this.dialog
-      .open<CreateMFEDialog, void, CreateMfeRemoteDto>(
-        CreateMFEDialog,
-        {
-          width: '860px',
-          maxWidth: 'calc(100vw - 2rem)',
-          panelClass: [
-            'ngx-design-system-overlay',
-            'orchestrator-dialog',
-            'orchestrator-dialog--wide',
-          ],
-          backdropClass: 'ngx-design-system-backdrop',
-        }
-      )
-      .afterClosed()
-      .pipe(
-        filter((remote): remote is CreateMfeRemoteDto => !!remote),
-        takeUntilDestroyed(this.destroyRef)
-      )
-      .subscribe((remote) => this.model.store.create(remote));
+  constructor() {
+    const host =
+      inject<ElementRef<HTMLElement>>(ElementRef).nativeElement;
+    const destroyRef = inject(DestroyRef);
+    afterNextRender(() => {
+      const viewport = host.ownerDocument.defaultView!;
+      let frame = 0;
+      const measure = () => {
+        // Use document position so scrolling does not change the available height.
+        const top = Math.max(
+          0,
+          host.getBoundingClientRect().top + viewport.scrollY
+        );
+        host.style.setProperty('--catalog-top-offset', `${top}px`);
+      };
+      const schedule = () => {
+        viewport.cancelAnimationFrame(frame);
+        frame = viewport.requestAnimationFrame(measure);
+      };
+      const observer = new ResizeObserver(schedule);
+      observer.observe(host.parentElement ?? host);
+      viewport.addEventListener('resize', schedule);
+      measure();
+      destroyRef.onDestroy(() => {
+        observer.disconnect();
+        viewport.cancelAnimationFrame(frame);
+        viewport.removeEventListener('resize', schedule);
+      });
+    });
+  }
+
+  selectRemote(id: string): void {
+    void this.router.navigate(['list-mfe-remotes', id], {
+      relativeTo: this.route.parent,
+    });
+  }
+
+  backToList(): void {
+    void this.router.navigate(['list-mfe-remotes'], {
+      relativeTo: this.route.parent,
+    });
+  }
+
+  createRemote(): void {
+    if (!this.model.creating) {
+      void this.router.navigate(['new-mfe-remote'], {
+        relativeTo: this.route.parent,
+      });
+    }
   }
 }
