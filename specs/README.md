@@ -11,3 +11,5 @@ Follow the local [workflow](../.specify/README.md). Select work from the user's 
 | 005 Nonblocking shared catalog | Implemented; hosted integration pending | [Spec](005-nonblocking-catalog/spec.md), [plan](005-nonblocking-catalog/plan.md), [tasks](005-nonblocking-catalog/tasks.md), [handoff](005-nonblocking-catalog/handoff.md) |
 | 006 Staged catalog panel introduction | Implemented; hosted visual review pending | [Spec](006-staged-panel-intro/spec.md), [plan](006-staged-panel-intro/plan.md), [tasks](006-staged-panel-intro/tasks.md), [handoff](006-staged-panel-intro/handoff.md) |
 | 007 Development override and copy controls | Implemented; hosted integration pending | [Spec](007-dev-mode-and-copy/spec.md), [plan](007-dev-mode-and-copy/plan.md), [tasks](007-dev-mode-and-copy/tasks.md), [handoff](007-dev-mode-and-copy/handoff.md) |
+
+- [008 — Shared motion and Material policy](008-shared-motion-material-policy/spec.md) — Implemented locally; release integration pending

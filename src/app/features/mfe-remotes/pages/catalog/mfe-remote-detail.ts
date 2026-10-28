@@ -1,4 +1,5 @@
 import {
+  NgxEntrance,
   NgxButton,
   NgxPanel,
 } from '@tmdjr/ngx-workshop-design-system';
@@ -18,7 +19,14 @@ import { MfeRemoteCard } from '../../components/remote-configuration/mfe-remote-
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'mfe-remote-detail' },
   selector: 'ngx-mfe-remote-detail',
-  imports: [NgxButton, NgxPanel, MatButton, MatIcon, MfeRemoteCard],
+  imports: [
+    NgxEntrance,
+    NgxButton,
+    NgxPanel,
+    MatButton,
+    MatIcon,
+    MfeRemoteCard,
+  ],
   template: `
     <section aria-live="polite">
       @if (remote(); as selected) {
@@ -30,6 +38,7 @@ import { MfeRemoteCard } from '../../components/remote-configuration/mfe-remote-
         ></ngx-mfe-remote>
       } @else {
         <ngx-panel
+          ngxEntrance="fade"
           heading="Remote workspace"
           eyebrow="CATALOG / CONFIGURE"
           shape="stepped"
@@ -80,23 +89,6 @@ import { MfeRemoteCard } from '../../components/remote-configuration/mfe-remote-
   `,
   styles: [
     `
-      ngx-panel {
-        animation: panel-arrival 240ms ease-out backwards;
-      }
-      @keyframes panel-arrival {
-        from {
-          opacity: 0;
-        }
-        to {
-          opacity: 1;
-        }
-      }
-      @media (prefers-reduced-motion: reduce) {
-        ngx-panel {
-          animation: none;
-        }
-      }
-
       :host {
         display: block;
         min-width: 0;

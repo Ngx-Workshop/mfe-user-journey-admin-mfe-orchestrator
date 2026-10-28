@@ -219,3 +219,20 @@ The catalog rail uses natural height with align-self:start. It must not inherit
 100% of the animated configuration grid row: that inflated its measured panel
 chrome, reducing the available list space during sibling panel growth. Row reveal
 remains opacity-only, with the existing bounded viewport list and scroll handling.
+
+## Shared motion and Material policy — 2026-10-27
+
+The design system now owns NgxEntrance fade/grow mechanics, reduced-motion/focus/
+resize cancellation and cleanup. FormSection retains its descriptive layout and
+projects content through a shared fade directive; MfeForm applies shared growth
+to section hosts. Catalog panels and rows use the same directive. The MFE retains
+existing sequence delays, durations and row delay cap; forms stay mounted.
+MfeForm and DevModeOptions include public expansion-theme()/warning-slide-toggle()
+Sass mixins instead of local Material override maps. Component-scoped inclusion
+works with the host's existing global theme, including dialogs.
+
+Source adoption is verified against a local built package preview. Published
+21.0.4 cannot supply these APIs. A clean install removes the preview: release the
+producer, align shell and remote package/lock/strict-singleton versions with the
+actual published version, then deploy shell before remote. See
+[handoff](../specs/008-shared-motion-material-policy/handoff.md).

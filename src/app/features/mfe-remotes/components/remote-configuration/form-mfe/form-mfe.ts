@@ -1,3 +1,4 @@
+import { NgxEntrance } from '@tmdjr/ngx-workshop-design-system';
 import { AsyncPipe } from '@angular/common';
 import {
   ChangeDetectionStrategy,
@@ -36,6 +37,7 @@ import { MfeFormViewModel } from './mfe-form-view-model';
     MfeBasicFields,
     StructuralFields,
     FormSection,
+    NgxEntrance,
     MatExpansionModule,
   ],
   template: `
@@ -47,7 +49,9 @@ import { MfeFormViewModel } from './mfe-form-view-model';
       >
         <ngx-form-section
           heading="Remote details"
-          [introDelay]="280"
+          ngxEntrance="grow"
+          [entranceDelay]="280"
+          [entranceDuration]="420"
           [contentDelay]="820"
           icon="description"
           [requiredNote]="true"
@@ -65,7 +69,9 @@ import { MfeFormViewModel } from './mfe-form-view-model';
         </ngx-form-section>
         <ngx-form-section
           heading="Integration behavior"
-          [introDelay]="400"
+          ngxEntrance="grow"
+          [entranceDelay]="400"
+          [entranceDuration]="420"
           [contentDelay]="900"
           icon="tune"
           description="Define how this remote participates in the host application."
@@ -93,34 +99,10 @@ import { MfeFormViewModel } from './mfe-form-view-model';
   `,
   styles: [
     `
-      @use '@angular/material' as mat;
+      @use '@tmdjr/ngx-workshop-design-system/theme' as ngx;
 
       :host {
-        @include mat.expansion-overrides(
-          (
-            container-background-color: var(--ngx-color-surface),
-            container-text-color: var(--ngx-color-text),
-            container-shape: var(--ngx-radius),
-            container-elevation-shadow: none,
-            header-text-color: var(--ngx-color-text),
-            header-description-color: var(--ngx-color-muted),
-            header-indicator-color: var(--ngx-color-primary),
-            header-text-font: var(--ngx-font-mono),
-            header-text-size: 0.85rem,
-            header-hover-state-layer-color: color-mix(
-                in srgb,
-                var(--ngx-color-primary) 8%,
-                transparent
-              ),
-            header-focus-state-layer-color: color-mix(
-                in srgb,
-                var(--ngx-color-primary) 14%,
-                transparent
-              ),
-            header-collapsed-state-height: 56px,
-            header-expanded-state-height: 56px,
-          )
-        );
+        @include ngx.expansion-theme();
         display: block;
         container-type: inline-size;
       }

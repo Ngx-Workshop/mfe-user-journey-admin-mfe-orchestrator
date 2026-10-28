@@ -83,7 +83,7 @@ import { MfeRemotesStore } from '../../../state/mfe-remotes-store';
   `,
   styles: [
     `
-      @use '@angular/material' as mat;
+      @use '@tmdjr/ngx-workshop-design-system/theme' as ngx;
 
       .dev-mode-options__override-row {
         display: grid;
@@ -97,28 +97,7 @@ import { MfeRemotesStore } from '../../../state/mfe-remotes-store';
         min-width: 0;
       }
       .dev-mode-options__toggle {
-        @include mat.slide-toggle-overrides(
-          (
-            selected-track-color: var(--ngx-color-warning),
-            selected-hover-track-color: var(--ngx-color-warning),
-            selected-focus-track-color: var(--ngx-color-warning),
-            selected-pressed-track-color: var(--ngx-color-warning),
-            selected-handle-color: var(--ngx-color-canvas),
-            selected-hover-handle-color: var(--ngx-color-canvas),
-            selected-focus-handle-color: var(--ngx-color-canvas),
-            selected-pressed-handle-color: var(--ngx-color-canvas),
-            selected-icon-color: var(--ngx-color-warning),
-            selected-hover-state-layer-color: var(
-                --ngx-color-warning
-              ),
-            selected-focus-state-layer-color: var(
-                --ngx-color-warning
-              ),
-            selected-pressed-state-layer-color: var(
-                --ngx-color-warning
-              ),
-          )
-        );
+        @include ngx.warning-slide-toggle();
       }
     `,
   ],

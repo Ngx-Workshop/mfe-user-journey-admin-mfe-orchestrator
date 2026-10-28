@@ -8,6 +8,7 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { MatButton } from '@angular/material/button';
 import { MatStepperModule } from '@angular/material/stepper';
 import {
+  NgxEntrance,
   NgxButton,
   NgxPanel,
 } from '@tmdjr/ngx-workshop-design-system';
@@ -20,6 +21,7 @@ import { CreateMfeViewModel } from './create-mfe-view-model';
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [CreateMfeViewModel],
   imports: [
+    NgxEntrance,
     AsyncPipe,
     ReactiveFormsModule,
     MatButton,
@@ -31,6 +33,7 @@ import { CreateMfeViewModel } from './create-mfe-view-model';
   ],
   template: `
     <ngx-panel
+      ngxEntrance="fade"
       heading="Create remote"
       eyebrow="REMOTE CONFIGURATION"
       shape="stepped"
@@ -141,23 +144,6 @@ import { CreateMfeViewModel } from './create-mfe-view-model';
   `,
   styles: [
     `
-      ngx-panel {
-        animation: panel-arrival 240ms ease-out backwards;
-      }
-      @keyframes panel-arrival {
-        from {
-          opacity: 0;
-        }
-        to {
-          opacity: 1;
-        }
-      }
-      @media (prefers-reduced-motion: reduce) {
-        ngx-panel {
-          animation: none;
-        }
-      }
-
       :host {
         display: block;
         box-sizing: border-box;

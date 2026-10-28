@@ -1,14 +1,17 @@
+import { NgxEntrance } from '@tmdjr/ngx-workshop-design-system';
 import { Component, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormSection } from '../../../../../../../src/app/features/mfe-remotes/components/remote-configuration/form-mfe/form-section';
 
 @Component({
-  imports: [FormSection],
+  imports: [FormSection, NgxEntrance],
   template: `<ngx-form-section
     heading="Remote details"
     description="Describe the remote"
     icon="description"
-    [introDelay]="280"
+    ngxEntrance="grow"
+    [entranceDelay]="280"
+    [entranceDuration]="420"
     [contentDelay]="820"
   >
     <div class="test-content" [style.height.px]="contentHeight()">
@@ -81,9 +84,7 @@ describe('Staged configuration panel entrance', () => {
       naturalHeight,
       0
     );
-    expect(
-      section.classList.contains('form-section--growing')
-    ).toBeFalse();
+    expect(getComputedStyle(section).overflow).toBe('visible');
     expect(getComputedStyle(content).opacity).toBe('0');
     reveal.finish();
     await reveal.finished;
@@ -105,9 +106,7 @@ describe('Staged configuration panel entrance', () => {
     window.dispatchEvent(new Event('resize'));
     expect(section.getAnimations().length).toBe(0);
     expect(content.getAnimations().length).toBe(0);
-    expect(
-      section.classList.contains('form-section--growing')
-    ).toBeFalse();
+    expect(getComputedStyle(section).overflow).toBe('visible');
     expect(section.getBoundingClientRect().height).toBeGreaterThan(
       150
     );

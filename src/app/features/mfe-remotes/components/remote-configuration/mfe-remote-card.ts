@@ -12,6 +12,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatIcon } from '@angular/material/icon';
 import type { CreateMfeRemoteDto } from '@tmdjr/ngx-mfe-orchestrator-contracts';
 import {
+  NgxEntrance,
   NgxButton,
   NgxPanel,
 } from '@tmdjr/ngx-workshop-design-system';
@@ -28,6 +29,7 @@ import { MfeRemoteCardHeader } from './mfe-remote-card-header';
   host: { class: 'mfe-remote-card' },
   selector: 'ngx-mfe-remote',
   imports: [
+    NgxEntrance,
     NgxPanel,
     NgxButton,
     MatButton,
@@ -38,6 +40,7 @@ import { MfeRemoteCardHeader } from './mfe-remote-card-header';
   template: `
     @if (initialValue(); as mfe) {
       <ngx-panel
+        ngxEntrance="fade"
         [heading]="mfe.name"
         headingMotion="stagger"
         [headingMotionKey]="mfe._id"
@@ -98,23 +101,6 @@ import { MfeRemoteCardHeader } from './mfe-remote-card-header';
   `,
   styles: [
     `
-      ngx-panel {
-        animation: panel-arrival 240ms ease-out backwards;
-      }
-      @keyframes panel-arrival {
-        from {
-          opacity: 0;
-        }
-        to {
-          opacity: 1;
-        }
-      }
-      @media (prefers-reduced-motion: reduce) {
-        ngx-panel {
-          animation: none;
-        }
-      }
-
       :host {
         display: block;
         min-width: 0;

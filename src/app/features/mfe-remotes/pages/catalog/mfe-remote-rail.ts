@@ -20,6 +20,7 @@ import {
 import { MatIcon } from '@angular/material/icon';
 import { MatInput } from '@angular/material/input';
 import {
+  NgxEntrance,
   NgxButton,
   NgxPanel,
 } from '@tmdjr/ngx-workshop-design-system';
@@ -31,6 +32,7 @@ import { MfeRemoteListItem } from './mfe-remote-list-item';
   host: { class: 'mfe-remote-rail' },
   selector: 'ngx-mfe-remote-rail',
   imports: [
+    NgxEntrance,
     NgxPanel,
     NgxButton,
     MfeRemoteListItem,
@@ -45,6 +47,7 @@ import { MfeRemoteListItem } from './mfe-remote-list-item';
   ],
   template: `
     <ngx-panel
+      ngxEntrance="fade"
       heading="All remotes"
       eyebrow="CATALOG / SELECT"
       shape="chamfered"
@@ -106,7 +109,9 @@ import { MfeRemoteListItem } from './mfe-remote-list-item';
         >
           @for (remote of remotes(); track remote._id) {
             <ngx-mfe-remote-list-item
-              [style.--remote-item-order]="$index"
+              ngxEntrance="fade"
+              [entranceDuration]="220"
+              [entranceDelay]="260 + ($index < 12 ? $index : 12) * 40"
               [remote]="remote"
               [selected]="selectedRemoteId() === remote._id"
               (remoteSelected)="remoteSelected.emit($event)"
@@ -134,23 +139,6 @@ import { MfeRemoteListItem } from './mfe-remote-list-item';
   `,
   styles: [
     `
-      ngx-panel {
-        animation: panel-arrival 240ms ease-out backwards;
-      }
-      @keyframes panel-arrival {
-        from {
-          opacity: 0;
-        }
-        to {
-          opacity: 1;
-        }
-      }
-      @media (prefers-reduced-motion: reduce) {
-        ngx-panel {
-          animation: none;
-        }
-      }
-
       :host {
         position: sticky;
         top: 180px;
@@ -158,29 +146,6 @@ import { MfeRemoteListItem } from './mfe-remote-list-item';
         min-width: 0;
         height: auto;
         align-self: start;
-      }
-
-      ngx-mfe-remote-list-item {
-        animation: remote-item-arrival 220ms ease-out backwards;
-        animation-delay: calc(
-          260ms + min(var(--remote-item-order, 0), 12) * 40ms
-        );
-      }
-      ngx-mfe-remote-list-item:focus-within {
-        animation: none;
-      }
-      @keyframes remote-item-arrival {
-        from {
-          opacity: 0;
-        }
-        to {
-          opacity: 1;
-        }
-      }
-      @media (prefers-reduced-motion: reduce) {
-        ngx-mfe-remote-list-item {
-          animation: none;
-        }
       }
 
       aside {
