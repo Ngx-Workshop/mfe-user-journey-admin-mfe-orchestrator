@@ -35,6 +35,11 @@ Dialog dimensions are supplied through MatDialog config so hosted mode does not
 depend on remote-only global sizing classes. The routed App/Routes exports,
 providers, API and persistence adapters retain their contracts.
 
+The create-MFE page renders the shared `NgxBackground` with viewport placement.
+Its isolated host keeps the decoration behind the glass form while retaining its
+765px content width. Background artwork inherits the active document theme; the
+page does not implement theme selection or load separate image assets.
+
 ## Source map
 
 Paths below are relative to `src/app/features/mfe-remotes/` unless stated otherwise.
@@ -236,3 +241,20 @@ Source adoption is verified against a local built package preview. Published
 producer, align shell and remote package/lock/strict-singleton versions with the
 actual published version, then deploy shell before remote. See
 [handoff](../specs/008-shared-motion-material-policy/handoff.md).
+
+
+Remote type supplies the public `mfe-structural-fields__type-panel` panel class.
+Its component-loaded, BEM-scoped styles retain the select fade's final frame until
+Material detaches the overlay. This prevents a terminal opacity reset while keeping
+Material's animations, focus handling and reactive form value ownership. These
+styles load with the component in federated mode rather than relying on the
+remote's standalone global stylesheet.
+
+Structural placement independently applies the same final-frame retention through
+`mfe-structural-subtypes__placement-panel` in StructuralSubTypeOptions. Its styles
+load with the child component and do not depend on StructuralFields rendering.
+
+Header, Navigation and Footer shell override selects also retain the closing fade's
+final frame via `mfe-structural-overrides__select-panel`. StructuralOverrides loads
+its own portal styles; its host, title, field and container-query styles remain
+explicitly scoped to avoid affecting other forms.

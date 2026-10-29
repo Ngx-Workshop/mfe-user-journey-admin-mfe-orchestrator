@@ -271,3 +271,53 @@ verifies workflow delivery and public asset reachability, not authenticated jour
 Only after that successful shell deployment, prepared this orchestrator dependency
 repair for commit/push as requested. The orchestrator workflow will perform its
 own clean install and rebuild from the corrected lockfile and published 21.0.4.
+
+## Remote type closing flash — 2026-10-29
+
+AC-016 implemented locally. The real animated StructuralFields fixture reproduced
+opacity returning to 1 immediately after its exit fade, before overlay detachment,
+for selection, outside click and Escape. A unique public panelClass retains the
+final frame using animation-fill-mode: forwards. BEM-scoped styles are loaded with
+the component via ViewEncapsulation.None so hosted overlays receive the fix without
+shell global changes. No form binding, values, focus or autosave changes.
+
+Verification: all three tests failed on the terminal opacity assertion before the
+fix; all 54 ChromeHeadless tests pass after it. Tests also verify value changes only
+on selection, overlay detachment and visible reopening. Source layout, production
+build, restored development build and git diff --check pass. Existing unused
+mfe-remote-summary.ts build warning remains. No live catalog writes performed.
+
+Hosted visual acceptance remains pending: the reported URL fails to load in this
+browser session because deployed remoteEntry.js requires design system 21.0.7 but
+the shared runtime supplies 21.0.8. Existing local package/lock/webpack 21.0.8 edits
+were present before this fix and preserved. Deploy the already aligned remote
+through the normal user-authorized release process, then verify Remote type closes
+smoothly on selection/outside click/Escape in the hosted shell. No deployment,
+commit, push or dependency modification performed for this fix.
+
+## Structural placement closing flash — 2026-10-29
+
+AC-017 implemented in form-mfe-structural-subtypes.ts using a unique public panel
+class, final-frame retention and BEM-scoped component-loaded styles. No placement
+values, form bindings or other selects changed. The isolated child fixture's three
+real-animation regressions all failed before the fix (terminal opacity 1 rather
+than 0) and pass after it, including value/detachment/visible reopening checks.
+All 57 ChromeHeadless tests, layout, production build, restored development build
+and whitespace checks pass. Existing unused mfe-remote-summary.ts warning remains.
+No live record changes, hosted visual verification, commit, push or deployment
+performed for this follow-up. The user confirmed the earlier Remote type fix
+visually in Chrome; that does not establish hosted Structural placement acceptance.
+
+## Shell override closing flashes — 2026-10-29
+
+AC-018 implemented for Header, Navigation and Footer in StructuralOverrides through
+a shared component-owned public panelClass and animation-fill-mode: forwards.
+Portal styles load with the component; all formerly encapsulated type/host rules
+are explicitly scoped. Accordion behavior, region values and form bindings remain.
+
+Nine isolated real-animation tests (three regions by three dismissal paths) failed
+before the fix with terminal opacity 1 rather than 0 and pass after it. They also
+check values, detachment and visible reopening. All 66 ChromeHeadless tests,
+source layout, production build, restored development build and whitespace checks
+pass. The existing unused mfe-remote-summary.ts warning remains. No hosted visual
+verification, live record writes, commit, push or deployment performed.

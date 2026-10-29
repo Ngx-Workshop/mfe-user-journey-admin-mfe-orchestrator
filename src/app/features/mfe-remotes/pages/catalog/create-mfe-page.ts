@@ -8,8 +8,9 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { MatButton } from '@angular/material/button';
 import { MatStepperModule } from '@angular/material/stepper';
 import {
-  NgxEntrance,
+  NgxBackground,
   NgxButton,
+  NgxEntrance,
   NgxPanel,
 } from '@tmdjr/ngx-workshop-design-system';
 import { MfeBasicFields } from '../../components/remote-configuration/form-mfe/form-mfe-basic-fields';
@@ -21,6 +22,7 @@ import { CreateMfeViewModel } from './create-mfe-view-model';
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [CreateMfeViewModel],
   imports: [
+    NgxBackground,
     NgxEntrance,
     AsyncPipe,
     ReactiveFormsModule,
@@ -32,6 +34,7 @@ import { CreateMfeViewModel } from './create-mfe-view-model';
     StructuralFields,
   ],
   template: `
+    <ngx-background placement="viewport" />
     <ngx-panel
       ngxEntrance="fade"
       heading="Create remote"
@@ -67,17 +70,10 @@ import { CreateMfeViewModel } from './create-mfe-view-model';
               role="status"
               aria-live="polite"
             >
-              @switch (model.verification()) {
-                @case ('verifying') {
-                  Checking remote entry…
-                }
-                @case ('success') {
-                  URL verified. Continue to remote details.
-                }
-                @case ('error') {
-                  Verification failed. Check the URL and try again.
-                }
-              }
+              @switch (model.verification()) { @case ('verifying') {
+              Checking remote entry… } @case ('success') { URL
+              verified. Continue to remote details. } @case ('error')
+              { Verification failed. Check the URL and try again. } }
             </p>
           </ng-template>
         </mat-step>
@@ -101,43 +97,43 @@ import { CreateMfeViewModel } from './create-mfe-view-model';
       </mat-stepper>
       <div ngxPanelActions class="create-mfe-page__panel-actions">
         @if (model.step() === 0) {
-          <button
-            mat-flat-button
-            ngxButton
-            shape="chevron"
-            type="button"
-            [disabled]="model.verification() !== 'success'"
-            (click)="wizard.next()"
-          >
-            Continue to details
-          </button>
+        <button
+          mat-flat-button
+          ngxButton
+          shape="chevron"
+          type="button"
+          [disabled]="model.verification() !== 'success'"
+          (click)="wizard.next()"
+        >
+          Continue to details
+        </button>
         } @else if (model.step() === 1) {
-          <button
-            mat-flat-button
-            ngxButton
-            shape="chevron"
-            type="button"
-            [disabled]="model.form.controls.name.invalid"
-            (click)="wizard.next()"
-          >
-            Continue to integration
-          </button>
+        <button
+          mat-flat-button
+          ngxButton
+          shape="chevron"
+          type="button"
+          [disabled]="model.form.controls.name.invalid"
+          (click)="wizard.next()"
+        >
+          Continue to integration
+        </button>
         } @else if (model.step() === 2) {
-          <button
-            mat-flat-button
-            ngxButton
-            shape="chevron"
-            type="button"
-            [disabled]="
-              model.form.invalid ||
-              model.verification() !== 'success' ||
-              model.submitting() ||
-              ((model.store.state$ | async)?.pending ?? 0) > 0
-            "
-            (click)="model.create()"
-          >
-            {{ model.submitting() ? 'Creating…' : 'Create' }}
-          </button>
+        <button
+          mat-flat-button
+          ngxButton
+          shape="chevron"
+          type="button"
+          [disabled]="
+            model.form.invalid ||
+            model.verification() !== 'success' ||
+            model.submitting() ||
+            ($any(model.store.state$ | async)?.pending ?? 0) > 0
+          "
+          (click)="model.create()"
+        >
+          {{ model.submitting() ? 'Creating…' : 'Create' }}
+        </button>
         }
       </div>
     </ngx-panel>
@@ -145,6 +141,8 @@ import { CreateMfeViewModel } from './create-mfe-view-model';
   styles: [
     `
       :host {
+        position: relative;
+        isolation: isolate;
         display: block;
         box-sizing: border-box;
         width: 100%;

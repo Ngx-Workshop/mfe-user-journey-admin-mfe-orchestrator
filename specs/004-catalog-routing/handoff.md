@@ -83,3 +83,9 @@ ID-routed selection. Local tests cover URL replacement and the nonblocking cache
 Default-route verification: 47 ChromeHeadless tests PASS; layout/whitespace and
 production build PASS with the existing unused summary warning. Development output
 restored for the running local server.
+
+## Theme-aware creation background — 2026-10-29
+
+CreateMfePage now imports the installed shared NgxBackground and renders it with viewport placement before the glass wizard panel. Its host uses relative positioning/isolation so the decorative layer stays behind the form; the centered 765px form width and wizard behavior are preserved. Theme artwork follows existing document tokens without page-level theme logic or dependency changes.
+
+Verification: production build, source layout check, all 51 ChromeHeadless tests and git diff --check passed. No new tests were added for this static component integration; existing real-template wizard regressions ran. Hosted visual integration and deployment were not performed.

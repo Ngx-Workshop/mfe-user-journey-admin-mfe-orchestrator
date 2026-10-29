@@ -43,3 +43,20 @@ transitions and widths down to 320px. See [handoff](handoff.md) for boundaries a
 
 - [x] T017: Enable shared staggered heading intro keyed to selected ID (AC-015).
 - [x] T018: Verify shared library/demo/Storybook/package, replay/reduced-motion/mobile and remote regressions/build (AC-015).
+
+
+- [x] T019 (AC-016): Reproduce the final-frame opacity reset for selection,
+  outside click and Escape using StructuralFields with real Material animations.
+- [x] T020 (AC-016): Retain the fade's final frame through a unique public
+  panelClass; keep component CSS scoped and available to federated overlays.
+- [x] T021 (AC-016): Verify all three regressions, value preservation, detachment,
+  reopening, full unit suite, layout and production/development builds. Record
+  hosted verification limits in the handoff.
+
+- [x] T022 (AC-017): Reproduce Structural placement terminal opacity reset for
+  selection/outside click/Escape, apply the independently scoped panel fix, verify
+  control values/detachment/reopening, and run suite/layout/builds.
+
+- [x] T023 (AC-018): Reproduce the opacity reset in all three shell override
+  selects for selection/outside click/Escape, apply scoped final-frame retention,
+  and verify the real animations, values, detachment and reopening.

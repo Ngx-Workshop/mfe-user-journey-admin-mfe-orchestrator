@@ -49,8 +49,7 @@ import type { MfeRemoteDtoExtraProps } from '../../models/app.types';
     `
       .mfe-remote-card-header__dev-mode--active {
         color: var(--ngx-color-warning);
-        box-shadow:
-          0 0 0 1px
+        box-shadow: 0 0 0 1px
             color-mix(
               in srgb,
               var(--ngx-color-warning) 50%,
@@ -76,8 +75,6 @@ import type { MfeRemoteDtoExtraProps } from '../../models/app.types';
           display: flex;
           gap: 0.25rem;
           padding: 0.2rem;
-          background: var(--ngx-color-surface);
-          border-radius: var(--ngx-radius);
         }
       }
     `,

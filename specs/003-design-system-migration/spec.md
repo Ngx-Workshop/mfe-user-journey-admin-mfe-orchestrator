@@ -98,3 +98,23 @@ undo archive/unarchive actions. Existing create submission remains explicit.
 ## Selected heading intro — 2026-10-27
 
 FR-015 / AC-015: Selected remote headings reveal characters with a brief staggered neon fade. Replay on selection/name changes, preserve unchanged refreshes and form state, keep the complete accessible heading, and disable motion for reduced-motion users.
+
+## Remote type closing flash — 2026-10-29
+
+FR-016 / AC-016: Remote type remains transparent between completion of its closing
+fade and overlay removal, for option selection, outside click and Escape. Reopening
+shows the panel normally. Selection updates the same form control; dismissal alone
+preserves its value. Keep the existing theme, animation and persistence behavior.
+
+## Structural placement closing flash — 2026-10-29
+
+FR-017 / AC-017: Structural placement retains the final transparent closing frame
+on selection, outside click and Escape, then detaches and reopens visibly. Only
+selection changes the existing placement control; Header/Footer/Navigation values
+and the theme remain intact.
+
+## Shell override closing flashes — 2026-10-29
+
+FR-018 / AC-018: Header, Navigation and Footer override menus retain their final
+transparent closing frame on selection, outside click and Escape; detach and reopen
+normally. Dismissal preserves values; selection updates only its region control.

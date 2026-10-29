@@ -2,6 +2,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   input,
+  ViewEncapsulation,
 } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatIcon } from '@angular/material/icon';
@@ -16,6 +17,8 @@ type StructuralSubTypes = {
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
+  // The select panel is portaled outside this host, including in federated mode.
+  encapsulation: ViewEncapsulation.None,
   host: { class: 'mfe-structural-subtypes' },
   selector: 'ngx-structural-subtypes',
   imports: [ReactiveFormsModule, MatSelectModule, MatIcon],
@@ -24,7 +27,7 @@ type StructuralSubTypes = {
       <mat-label>Structural placement</mat-label>
       <mat-icon matPrefix>view_quilt</mat-icon>
       <mat-select
-        panelClass="ngx-design-system-overlay"
+        panelClass="ngx-design-system-overlay mfe-structural-subtypes__placement-panel"
         [formControl]="structuralSubTypeControl()"
       >
         @for (type of structuralSubTypes; track type) {
@@ -40,12 +43,17 @@ type StructuralSubTypes = {
   `,
   styles: [
     `
-      :host {
+      .mfe-structural-subtypes {
         display: block;
       }
 
-      mat-form-field {
+      .mfe-structural-subtypes mat-form-field {
         width: 100%;
+      }
+
+      .mfe-structural-subtypes__placement-panel {
+        // Keep the final fade frame until Material detaches the overlay.
+        animation-fill-mode: forwards !important;
       }
     `,
   ],

@@ -97,3 +97,35 @@ Omit archived from update projection; archive/unarchive remains lifecycle-owned.
 Verify exact timing with Jasmine clocks, real component form events and HTTP doubles.
 
 FR-015: Add opt-in headingMotion=stagger and headingMotionKey APIs to shared NgxPanel (which owns the title). Render grapheme spans with bounded delays and reduced-motion fallback. The card binds the persisted ID as its heading animation key. No per-letter pipe or private Material DOM styling required. Local verification uses a built shared package; release and align shell/remote published versions before deployment.
+
+## Remote type closing flash — 2026-10-29
+
+FR-016: The installed Material 21.1.0 exit animation fades opacity to zero without
+retaining its final frame. A real-browser component test reproduces opacity returning
+to one before animationend detaches the overlay for all three dismissal paths.
+Add a unique public panelClass and animation-fill-mode: forwards. Its important flag
+only overrides the fill reset in Material's animation shorthand. No private Material
+selector, event override, DOM mutation or value binding workaround is needed.
+
+Use ViewEncapsulation.None with BEM-scoped component rules: the portaled panel is
+outside the host and federated mode does not load remote global styles. Scope the
+existing host/form-field rules explicitly. Constitution Check: form, focus, keyboard,
+MVVM, API and federation contracts remain intact. Test actual animations rather than
+NoopAnimations, including the terminal frame, detachment, value and reopening.
+
+## Structural placement closing flash — 2026-10-29
+
+FR-017 extends the verified AC-016 fix to StructuralSubTypeOptions using its own
+public BEM panelClass and component-loaded, scoped styles. Keep the child component
+self-contained so the fix also works without StructuralFields. Constitution Check:
+no value, form, keyboard, focus, persistence or federation contract changes. Verify
+real animation terminal opacity, detachment, control value and visible reopening
+for all three dismissal paths in an isolated child fixture.
+
+## Shell override closing flashes — 2026-10-29
+
+FR-018: Apply the AC-016/017 public panelClass/final-frame retention fix independently
+in StructuralOverrides. Scope all component styles explicitly for unencapsulated
+portal styling, including panel title and responsive description rules. Constitution
+Check: preserve accordion, region values, form bindings, focus, API and federation
+behavior. Isolated real-animation tests cover each region and dismissal method.
