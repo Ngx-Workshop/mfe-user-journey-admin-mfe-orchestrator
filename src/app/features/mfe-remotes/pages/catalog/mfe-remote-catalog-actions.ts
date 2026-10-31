@@ -42,33 +42,28 @@ import { SaveNotification } from '../../models/save-notification';
       aria-live="polite"
       aria-atomic="true"
     >
-      @if (saveNotification(); as notification) {
-        @switch (notification.status) {
-          @case ('saving') {
-            <span>Saving {{ notification.name }}…</span>
-          }
-          @case ('saved') {
-            <span class="mfe-remote-catalog-actions__saved"
-              >Changes saved · {{ notification.name }}</span
-            >
-          }
-          @case ('error') {
-            <span class="mfe-remote-catalog-actions__save-error"
-              >Could not save {{ notification.name }}.</span
-            >
-            <button
-              mat-flat-button
-              ngxButton
-              surface="outline"
-              tone="danger"
-              type="button"
-              (click)="retrySave.emit()"
-            >
-              Retry save
-            </button>
-          }
-        }
-      }
+      @if (saveNotification(); as notification) { @switch
+      (notification.status) { @case ('saving') {
+      <span>Saving {{ notification.name }}…</span>
+      } @case ('saved') {
+      <span class="mfe-remote-catalog-actions__saved"
+        >Changes saved · {{ notification.name }}</span
+      >
+      } @case ('error') {
+      <span class="mfe-remote-catalog-actions__save-error"
+        >Could not save {{ notification.name }}.</span
+      >
+      <button
+        mat-flat-button
+        ngxButton
+        surface="outline"
+        tone="danger"
+        type="button"
+        (click)="retrySave.emit()"
+      >
+        Retry save
+      </button>
+      } } }
     </div>
 
     <button
@@ -139,7 +134,6 @@ import { SaveNotification } from '../../models/save-notification';
         gap: var(--ngx-space-2);
         color: var(--ngx-color-muted);
         font-family: var(--ngx-font-mono);
-        font-size: 0.5rem;
       }
       .mfe-remote-catalog-actions__dev-light {
         flex: 0 0 0.5rem;
