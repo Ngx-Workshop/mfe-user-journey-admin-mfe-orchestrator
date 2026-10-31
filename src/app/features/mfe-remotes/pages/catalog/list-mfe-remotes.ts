@@ -6,6 +6,7 @@ import {
   DestroyRef,
   ElementRef,
   inject,
+  signal,
 } from '@angular/core';
 import { MatButton } from '@angular/material/button';
 import { MatProgressBar } from '@angular/material/progress-bar';
@@ -21,6 +22,7 @@ import { MfeRemoteRail } from './mfe-remote-rail';
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     class: 'list-mfe-remotes ngx-design-system',
+    '[style.--catalog-action-bar-height.px]': 'actionBarHeight()',
     '[class.list-mfe-remotes--creation]': 'model.creating',
   },
   selector: 'ngx-mfe-remotes',
@@ -37,6 +39,7 @@ import { MfeRemoteRail } from './mfe-remote-rail';
   ],
   template: `
     <ngx-mfe-remote-catalog-actions
+      (heightChange)="actionBarHeight.set($event)"
       [creating]="model.creating"
       (backToList)="backToList()"
       [devModeCount]="model.viewModel().devModeCount"
@@ -142,11 +145,6 @@ import { MfeRemoteRail } from './mfe-remote-rail';
         flex-direction: column;
       }
 
-      :host.list-mfe-remotes--creation
-        > ngx-mfe-remote-catalog-actions {
-        flex-shrink: 0;
-      }
-
       .catalog__layout {
         display: grid;
         grid-template-columns: minmax(280px, 340px) minmax(0, 1fr);
@@ -198,6 +196,7 @@ import { MfeRemoteRail } from './mfe-remote-rail';
 export class ListMfeRemotes {
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
+  readonly actionBarHeight = signal(56);
   readonly model = inject(CatalogViewModel);
 
   constructor() {

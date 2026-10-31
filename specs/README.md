@@ -15,3 +15,5 @@ Follow the local [workflow](../.specify/README.md). Select work from the user's 
 - [008 — Shared motion and Material policy](008-shared-motion-material-policy/spec.md) — Implemented locally; release integration pending
 
 - [009 — Remote domains](009-remote-domains/spec.md) — Implemented; deployment integration pending
+
+- [010 Shared workspace feedback](010-shared-workspace-feedback/spec.md) — Implemented locally; hosted acceptance pending.

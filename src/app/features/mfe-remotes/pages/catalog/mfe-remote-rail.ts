@@ -143,7 +143,10 @@ import { MfeRemoteListItem } from './mfe-remote-list-item';
 
       :host {
         position: sticky;
-        top: 180px;
+        top: calc(
+          var(--catalog-toolbar-top, 96px) +
+          var(--catalog-action-bar-height, 56px) + 28px
+        );
         display: block;
         min-width: 0;
         height: auto;

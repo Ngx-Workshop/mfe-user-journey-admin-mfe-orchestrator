@@ -10,8 +10,9 @@ The host provides shell composition and authentication context. `App` is a minim
 
 ## Design system integration
 
-The remote and admin shell install and share `@tmdjr/ngx-workshop-design-system`
-21.0.4 as a strict singleton. The catalog route host has `ngx-design-system`.
+The remote installs `@tmdjr/ngx-workshop-design-system` 21.0.9 and requires
+a shared singleton compatible with ^21.0.9. The local admin shell still pins 21.0.8
+and must be aligned before hosting these new components. The catalog route host has `ngx-design-system`.
 The shell supplies semantic Ngx tokens, shared button/code styles and a scoped
 Material adapter. Its legacy body palettes continue to style older remotes.
 Standalone global styles include the public `theme()` mixin and matching adapter scopes.
@@ -274,3 +275,23 @@ legacy isAdmin from writes. Legacy membership is inferred only for missing domai
 explicit empty arrays remain empty. The catalog retains the unfiltered read; domain
 selection for shell loading belongs to the service endpoint. See API contracts and
 feature 009 for delivery order and compatibility.
+
+## Shared action bar adoption — 2026-10-31
+
+The app consumes published design-system 21.0.9 NgxActionBar, NgxSaveFeedback and
+NgxInlineStatus. Its existing action component is a thin domain adapter for labels,
+notifications and action intent, with display:contents so the shared sticky element
+belongs to the workspace layout. It no longer duplicates live-region/status markup,
+visual styles or ResizeObserver code. The owning workspace binds shared heightChange
+to its existing sizing CSS variable. Stores retain persistence, notification timers,
+retry execution and canonical counts. Routes, DTOs and federation exposures are unchanged.
+
+The design-system singleton now requires ^21.0.9: older releases lack the new exports.
+The local admin shell still pins 21.0.8; upgrade it to the published 21.0.9 or newer
+compatible release before hosted acceptance. This feature does not modify the shell.
+
+The orchestrator retains 96px/76px offsets, with --catalog-toolbar-top as a host
+override. ListMfeRemotes owns --catalog-action-bar-height from the shared height
+output; the rail derives its sticky top from that height plus the existing 28px gap.
+Dev-mode counts remain catalog-wide, and Retry save still calls the store's existing
+retryUpdate through the adapter output. Saved/failed notifications keep store lifetime.

@@ -137,3 +137,13 @@ contract dependency before building this source in a clean install. Service has 
 tests; admin shell has 6. Workshop domain test and production build pass; two unchanged
 App tests lack ActivatedRoute setup. See [009 handoff](../specs/009-remote-domains/handoff.md)
 for exact delivery order and remaining integration acceptance.
+
+## Shared workspace feedback adoption — 2026-10-31
+
+Feature 010 adopts the installed design-system 21.0.9 presentation components.
+Mirrored action-adapter tests cover stable live regions, save-state mapping, recovery
+intent, count wording and height/offset integration. Existing store and routed-flow
+tests retain command/timing coverage. See specs/010-shared-workspace-feedback/handoff.md
+for current results and the inherited orchestrator heading failure where applicable.
+The shell must supply >=21.0.9 within the compatible major range before hosted checks;
+a standalone build alone cannot establish its shared runtime version.

@@ -678,7 +678,7 @@ describe('Design system catalog interactions', () => {
     notifications.next({ status: 'saved', name: remote.name });
     await settle();
     expect(
-      bar.querySelector('.mfe-remote-catalog-actions__save')
+      bar.querySelector('ngx-save-feedback')
         ?.textContent
     ).toContain('Changes saved');
     notifications.next(null);
