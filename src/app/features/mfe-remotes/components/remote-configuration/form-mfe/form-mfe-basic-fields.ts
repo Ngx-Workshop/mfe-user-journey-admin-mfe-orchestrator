@@ -11,6 +11,8 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIcon } from '@angular/material/icon';
+import { MatSelectModule } from '@angular/material/select';
+import type { MfeRemoteDomain } from '@tmdjr/ngx-mfe-orchestrator-contracts';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { NgxButton } from '@tmdjr/ngx-workshop-design-system';
@@ -30,6 +32,7 @@ import type { UrlVerificationState } from '../../../models/app.types';
     MatFormFieldModule,
     MatIcon,
     MatInputModule,
+    MatSelectModule,
     MatProgressSpinner,
   ],
   template: `
@@ -77,6 +80,29 @@ import type { UrlVerificationState } from '../../../models/app.types';
             <mat-hint>
               Help administrators understand when this remote is used.
             </mat-hint>
+          </mat-form-field>
+        }
+        @if (fields() !== 'details') {
+          <mat-form-field
+            subscriptSizing="dynamic"
+            appearance="outline"
+          >
+            <mat-label>Domains</mat-label>
+            <mat-select
+              formControlName="domains"
+              multiple
+              panelClass="ngx-design-system-overlay"
+            >
+              @for (domain of domains; track domain.value) {
+                <mat-option [value]="domain.value">{{
+                  domain.label
+                }}</mat-option>
+              }
+            </mat-select>
+            <mat-hint
+              >Choose the shells that load this remote. Leave empty to
+              load in neither.</mat-hint
+            >
           </mat-form-field>
         }
         @if (fields() !== 'details') {
@@ -273,6 +299,10 @@ import type { UrlVerificationState } from '../../../models/app.types';
   ],
 })
 export class MfeBasicFields {
+  readonly domains: { value: MfeRemoteDomain; label: string }[] = [
+    { value: 'admin', label: 'Admin' },
+    { value: 'workshop', label: 'Workshop' },
+  ];
   readonly copyStatus = signal('');
   fields = input<'all' | 'url' | 'details'>('all');
   formGroup = input.required<RemoteForm>({ alias: 'mfeRemoteForm' });

@@ -127,3 +127,13 @@ nonblocking loading and animation suites remain covered.
 The 50-test suite also covers mouse/Enter/Space copying from the plain-text remote
 ID and rail-height stability while adjacent child-panel animations advance. The
 rail regression fails with percentage height and passes with natural height.
+
+## Remote domain verification — 2026-10-30
+
+Feature 009 adds DTO/domain filtering, form selection, shell request and store projection regressions.
+All 70 admin-remote tests and its production build pass using locally generated new
+contracts; the original installed package was restored afterward. Upgrade the published
+contract dependency before building this source in a clean install. Service has 12 passing
+tests; admin shell has 6. Workshop domain test and production build pass; two unchanged
+App tests lack ActivatedRoute setup. See [009 handoff](../specs/009-remote-domains/handoff.md)
+for exact delivery order and remaining integration acceptance.

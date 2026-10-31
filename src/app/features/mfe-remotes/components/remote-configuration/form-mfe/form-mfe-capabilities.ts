@@ -24,7 +24,7 @@ import type { RemoteForm } from '../../../forms/mfe-remote-form';
       <mat-expansion-panel-header class="mfe-capabilities__header">
         <mat-panel-title>Route capabilities</mat-panel-title>
         <mat-panel-description class="mfe-capabilities__count">
-          {{ enabledCapabilityCount(form()) }}/3 enabled
+          {{ enabledCapabilityCount(form()) }}/2 enabled
         </mat-panel-description>
       </mat-expansion-panel-header>
       <div class="mfe-capabilities__layout" [formGroup]="form()">
@@ -65,25 +65,6 @@ import type { RemoteForm } from '../../../forms/mfe-remote-form';
             <mat-slide-toggle
               formControlName="requiresAuth"
               aria-label="Requires authentication"
-            ></mat-slide-toggle>
-          </label>
-
-          <label
-            class="mfe-capabilities__capability-card"
-            [class.mfe-capabilities__capability-card--enabled]="
-              form().controls.isAdmin.value
-            "
-          >
-            <span class="mfe-capabilities__capability-icon">
-              <mat-icon>admin_panel_settings</mat-icon>
-            </span>
-            <span class="mfe-capabilities__capability-copy">
-              <strong>Admin only</strong>
-              <small>Restricts access to administrators.</small>
-            </span>
-            <mat-slide-toggle
-              formControlName="isAdmin"
-              aria-label="Admin only"
             ></mat-slide-toggle>
           </label>
         </div>
@@ -132,7 +113,7 @@ import type { RemoteForm } from '../../../forms/mfe-remote-form';
 
       .mfe-capabilities__capability-grid {
         display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
+        grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 0.65rem;
       }
 
@@ -217,7 +198,7 @@ import type { RemoteForm } from '../../../forms/mfe-remote-form';
 export class MfeCapabilities {
   form = input.required<RemoteForm>();
   enabledCapabilityCount(form: RemoteForm) {
-    return ['useRoutes', 'requiresAuth', 'isAdmin'].filter(
+    return ['useRoutes', 'requiresAuth'].filter(
       (name) => form.get(name)?.value
     ).length;
   }

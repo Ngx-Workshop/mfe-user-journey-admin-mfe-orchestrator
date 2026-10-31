@@ -13,3 +13,5 @@ Follow the local [workflow](../.specify/README.md). Select work from the user's 
 | 007 Development override and copy controls | Implemented; hosted integration pending | [Spec](007-dev-mode-and-copy/spec.md), [plan](007-dev-mode-and-copy/plan.md), [tasks](007-dev-mode-and-copy/tasks.md), [handoff](007-dev-mode-and-copy/handoff.md) |
 
 - [008 — Shared motion and Material policy](008-shared-motion-material-policy/spec.md) — Implemented locally; release integration pending
+
+- [009 — Remote domains](009-remote-domains/spec.md) — Implemented; deployment integration pending

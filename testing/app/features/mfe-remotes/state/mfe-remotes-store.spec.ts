@@ -59,6 +59,24 @@ describe('MfeRemotesStore and catalog view model', () => {
     http.expectOne('/api/mfe-remotes').flush(remotes);
   }
 
+  it('keeps explicit domains for structural updates while dropping legacy membership and metadata', () => {
+    store.update({
+      ...remote,
+      type: 'structural',
+      domains: ['admin', 'workshop'],
+      isAdmin: true,
+    });
+    const request = http.expectOne('/api/mfe-remotes/remote-1');
+    expect(request.request.body.domains).toEqual([
+      'admin',
+      'workshop',
+    ]);
+    expect(request.request.body.isAdmin).toBeUndefined();
+    expect(request.request.body._id).toBeUndefined();
+    request.flush({ ...remote, domains: ['admin', 'workshop'] });
+    http.expectOne('/api/mfe-remotes').flush([]);
+  });
+
   it('enriches server data and exposes read-only observable state', async () => {
     load();
     const state = await firstValueFrom(store.state$);
@@ -83,12 +101,10 @@ describe('MfeRemotesStore and catalog view model', () => {
 
   it('caches an empty successful catalog and retries a failed initial read', async () => {
     store.ensureLoaded();
-    http
-      .expectOne('/api/mfe-remotes')
-      .flush('Unavailable', {
-        status: 503,
-        statusText: 'Unavailable',
-      });
+    http.expectOne('/api/mfe-remotes').flush('Unavailable', {
+      status: 503,
+      statusText: 'Unavailable',
+    });
     expect((await firstValueFrom(store.state$)).loaded).toBeFalse();
     expect((await firstValueFrom(store.state$)).loading).toBeFalse();
     store.ensureLoaded();
@@ -324,12 +340,10 @@ describe('MfeRemotesStore and catalog view model', () => {
       type: 'user-journey' as const,
     };
     store.create(draft, created);
-    http
-      .expectOne('/api/mfe-remotes')
-      .flush('Unavailable', {
-        status: 503,
-        statusText: 'Unavailable',
-      });
+    http.expectOne('/api/mfe-remotes').flush('Unavailable', {
+      status: 503,
+      statusText: 'Unavailable',
+    });
     expect(created).not.toHaveBeenCalled();
     store.create(draft, created);
     http

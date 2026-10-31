@@ -175,6 +175,7 @@ export class MfeRemotesStore {
       archived,
       version,
       isDevMode,
+      isAdmin,
       __v,
       ...changes
     } = remote;
@@ -187,7 +188,6 @@ export class MfeRemotesStore {
             structuralSubType,
             useRoutes: false,
             requiresAuth: false,
-            isAdmin: false,
           }
         : { ...common, structuralOverrides };
     this.mutate(

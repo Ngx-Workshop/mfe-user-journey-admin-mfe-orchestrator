@@ -258,3 +258,14 @@ Header, Navigation and Footer shell override selects also retain the closing fad
 final frame via `mfe-structural-overrides__select-panel`. StructuralOverrides loads
 its own portal styles; its host, title, field and container-query styles remain
 explicitly scoped to avoid affecting other forms.
+
+## Domain membership — 2026-10-30
+
+Basic fields now include a themed Material multi-select for Admin and Workshop,
+rendered in the URL/all modes so creation shows it in step one. Route capabilities
+contain only Uses routes and Authentication, with an enabled count out of two.
+The typed form and store preserve explicit domains for both remote types and omit
+legacy isAdmin from writes. Legacy membership is inferred only for missing domains;
+explicit empty arrays remain empty. The catalog retains the unfiltered read; domain
+selection for shell loading belongs to the service endpoint. See API contracts and
+feature 009 for delivery order and compatibility.

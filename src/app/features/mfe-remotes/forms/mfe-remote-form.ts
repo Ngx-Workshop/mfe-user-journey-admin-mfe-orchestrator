@@ -2,6 +2,7 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import type {
   CreateMfeRemoteDto,
   MfeRemoteDto,
+  MfeRemoteDomain,
   MfeRemoteType,
   StructuralOverrideMode,
   StructuralSubType,
@@ -33,9 +34,15 @@ export function createRemoteForm(value: Partial<MfeRemoteDto>) {
     requiresAuth: new FormControl(value.requiresAuth ?? false, {
       nonNullable: true,
     }),
-    isAdmin: new FormControl(value.isAdmin ?? false, {
-      nonNullable: true,
-    }),
+    domains: new FormControl<MfeRemoteDomain[]>(
+      value.domains ??
+        (value.isAdmin
+          ? ['admin']
+          : value.type === 'structural'
+            ? ['admin', 'workshop']
+            : ['workshop']),
+      { nonNullable: true }
+    ),
     structuralSubType: new FormControl<StructuralSubType>(
       value.structuralSubType ?? 'header',
       { nonNullable: true }
@@ -66,7 +73,6 @@ export function remoteFormValue(
     structuralOverrides,
     useRoutes,
     requiresAuth,
-    isAdmin,
     ...common
   } = form.getRawValue();
   return common.type === 'structural'
@@ -75,13 +81,11 @@ export function remoteFormValue(
         structuralSubType,
         useRoutes: false,
         requiresAuth: false,
-        isAdmin: false,
       }
     : {
         ...common,
         structuralOverrides,
         useRoutes,
         requiresAuth,
-        isAdmin,
       };
 }

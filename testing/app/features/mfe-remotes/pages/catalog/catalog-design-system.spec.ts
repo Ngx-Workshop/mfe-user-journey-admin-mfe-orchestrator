@@ -478,7 +478,7 @@ describe('Design system catalog interactions', () => {
       'mat-expansion-panel-header'
     ) as HTMLElement;
     expect(header.getAttribute('aria-expanded')).toBe('false');
-    expect(header.textContent).toContain('3/3 enabled');
+    expect(header.textContent).toContain('2/2 enabled');
     header.click();
     await settle();
     expect(header.getAttribute('aria-expanded')).toBe('true');
@@ -487,7 +487,7 @@ describe('Design system catalog interactions', () => {
     ) as HTMLElement;
     toggle.click();
     await settle();
-    expect(header.textContent).toContain('2/3 enabled');
+    expect(header.textContent).toContain('1/2 enabled');
     header.click();
     await settle();
     header.click();
@@ -702,7 +702,7 @@ describe('Design system catalog interactions', () => {
         structuralSubType: 'header',
         useRoutes: false,
         requiresAuth: false,
-        isAdmin: false,
+        domains: ['workshop'],
       }),
       jasmine.any(Function)
     );
