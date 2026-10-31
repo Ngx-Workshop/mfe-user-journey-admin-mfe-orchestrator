@@ -53,3 +53,21 @@ negotiation, authorization or service persistence.
 No publication, deployment, live catalog writes or uploaded assets. Temporary
 preview sources and servers were removed after verification. X001 remains the
 external shell/runtime and authenticated host acceptance step.
+
+## Heading regression resolved — 2026-10-31
+
+The selected-panel heading now appends the existing domain suffix only for a
+nonempty domains array. Legacy records with missing domains and explicit empty
+membership show the selected name alone, eliminating the literal undefined and
+trailing colon. The existing header integration test covers missing, empty,
+single-domain and both-domain records, including the full accessible heading.
+
+Verification: all 73 ChromeHeadless tests PASS; spec TypeScript compilation,
+source layout and whitespace checks PASS. Normal production build at
+/tmp/orchestrator-heading-build PASS with nonempty license output; the inherited
+unused mfe-remote-summary.ts warning remains. No real service writes or deployment.
+This supersedes the earlier 72/73 result and outstanding heading failure above.
+
+Confirmed local mfe-shell-admin/package.json now installs design-system 21.0.9,
+as reported by the user. The earlier local shell-version prerequisite is resolved;
+authenticated hosted runtime acceptance remains unverified.

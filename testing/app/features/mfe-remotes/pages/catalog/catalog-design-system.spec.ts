@@ -272,7 +272,7 @@ describe('Design system catalog interactions', () => {
     expect(list.scrollHeight).toBeGreaterThan(list.clientHeight);
   });
 
-  it('puts the selected name, ID and quick actions in one panel header', async () => {
+  it('keeps the selected name, optional domains, ID and quick actions in one panel header', async () => {
     const detail = fixture.nativeElement.querySelector(
       'ngx-mfe-remote-detail'
     ) as HTMLElement;
@@ -308,6 +308,26 @@ describe('Design system catalog interactions', () => {
         .querySelector('mat-card-title')
         ?.getAttribute('aria-label')
     ).toBe('Selected header');
+    // Legacy records omit domains; explicit empty membership also needs no suffix.
+    for (const [domains, heading] of [
+      [[], 'Selected header'],
+      [['admin'], 'Selected header: admin'],
+      [['admin', 'workshop'], 'Selected header: admin,workshop'],
+    ] as const) {
+      state.next({
+        remotes: [{
+          ...remote,
+          name: 'Selected header',
+          domains: [...domains],
+        }],
+        pending: 0,
+        error: null,
+      });
+      await settle();
+      expect(
+        header.querySelector('mat-card-title')?.getAttribute('aria-label')
+      ).toBe(heading);
+    }
   });
 
   it('copies the persisted ID and the current URL through labelled buttons, with failure feedback', async () => {

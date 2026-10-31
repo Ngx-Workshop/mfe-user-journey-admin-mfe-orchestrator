@@ -147,3 +147,9 @@ tests retain command/timing coverage. See specs/010-shared-workspace-feedback/ha
 for current results and the inherited orchestrator heading failure where applicable.
 The shell must supply >=21.0.9 within the compatible major range before hosted checks;
 a standalone build alone cannot establish its shared runtime version.
+
+Heading regression follow-up (2026-10-31): the full orchestrator suite now passes
+73/73. Selected headings omit the domain suffix for missing/empty membership;
+header coverage verifies missing, empty, single and both-domain records. The earlier
+inherited heading failure is resolved; normal production build and layout/spec
+checks pass. See feature 010 handoff for evidence and hosted acceptance limits.

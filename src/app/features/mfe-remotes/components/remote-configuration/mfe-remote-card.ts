@@ -41,7 +41,7 @@ import { MfeRemoteCardHeader } from './mfe-remote-card-header';
     @if (initialValue(); as mfe) {
     <ngx-panel
       ngxEntrance="fade"
-      [heading]="mfe.name + ': ' + mfe.domains"
+      [heading]="mfe.name + (mfe.domains?.length ? ': ' + mfe.domains : '')"
       headingMotion="stagger"
       [headingMotionKey]="mfe._id"
       eyebrow="REMOTE CONFIGURATION"
