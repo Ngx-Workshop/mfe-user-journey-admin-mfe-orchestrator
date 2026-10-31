@@ -153,3 +153,14 @@ Heading regression follow-up (2026-10-31): the full orchestrator suite now passe
 header coverage verifies missing, empty, single and both-domain records. The earlier
 inherited heading failure is resolved; normal production build and layout/spec
 checks pass. See feature 010 handoff for evidence and hosted acceptance limits.
+
+## Shared overlay policy adoption — 2026-10-31
+
+Feature 011 uses installed design-system 21.0.10 policy via global theme().
+Existing native closing tests now assert the shared panel marker and loaded CSS;
+no component-local final-frame rules remain. Navigation adds light-theme native
+select regressions for selection/outside click/Escape, value retention and reopening.
+The shell theme integration suite checks actual detached select/dialog policy in
+light and dark modes. See specs/011-shared-overlay-policy/handoff.md for results.
+Start/rebuild shell and remotes together when previewing the raised ^21.0.10 shared
+requirement; an older running shell bundle cannot supply the new policy reliably.

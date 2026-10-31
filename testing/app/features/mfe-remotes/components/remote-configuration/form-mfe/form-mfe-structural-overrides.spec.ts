@@ -32,6 +32,7 @@ describe(`Shell override ${region} select closing animation`, () => {
       fixture.detectChanges();
       await fixture.whenStable();
       const panel = select.panel.nativeElement as HTMLElement;
+      expect(panel.classList.contains('ngx-select-panel')).toBeTrue();
       for (const animation of panel.getAnimations()) animation.finish();
       await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
 

@@ -91,7 +91,7 @@ import type { UrlVerificationState } from '../../../models/app.types';
             <mat-select
               formControlName="domains"
               multiple
-              panelClass="ngx-design-system-overlay"
+              panelClass="ngx-design-system-overlay ngx-select-panel"
             >
               @for (domain of domains; track domain.value) {
                 <mat-option [value]="domain.value">{{

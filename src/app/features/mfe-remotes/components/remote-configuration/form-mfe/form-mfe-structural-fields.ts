@@ -2,7 +2,6 @@ import {
   ChangeDetectionStrategy,
   Component,
   input,
-  ViewEncapsulation,
 } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -16,8 +15,6 @@ import { StructuralSubTypeOptions } from './form-mfe-structural-subtypes';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
-  // The select panel is portaled outside this host, including in federated mode.
-  encapsulation: ViewEncapsulation.None,
   host: { class: 'mfe-structural-fields' },
   selector: 'ngx-structural-fields',
   imports: [
@@ -39,7 +36,7 @@ import { StructuralSubTypeOptions } from './form-mfe-structural-subtypes';
         <mat-label>Remote type</mat-label>
         <mat-icon matPrefix>category</mat-icon>
         <mat-select
-          panelClass="ngx-design-system-overlay mfe-structural-fields__type-panel"
+          panelClass="ngx-design-system-overlay ngx-select-panel"
           formControlName="type"
         >
           @for (type of mfeTypes; track type) {
@@ -79,7 +76,7 @@ import { StructuralSubTypeOptions } from './form-mfe-structural-subtypes';
   `,
   styles: [
     `
-      .mfe-structural-fields {
+      :host {
         display: block;
         margin-top: 0.5rem;
       }
@@ -89,15 +86,10 @@ import { StructuralSubTypeOptions } from './form-mfe-structural-subtypes';
         gap: 1.25rem;
       }
 
-      .mfe-structural-fields mat-form-field {
+      mat-form-field {
         width: 100%;
       }
 
-      .mfe-structural-fields__type-panel {
-        // Material's animation shorthand resets fill-mode. Keep the final fade
-        // frame until its animationend handler detaches the overlay.
-        animation-fill-mode: forwards !important;
-      }
     `,
   ],
 })

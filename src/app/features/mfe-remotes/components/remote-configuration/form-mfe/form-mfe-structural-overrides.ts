@@ -3,7 +3,6 @@ import {
   Component,
   input,
   signal,
-  ViewEncapsulation,
 } from '@angular/core';
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MatExpansionModule } from '@angular/material/expansion';
@@ -19,8 +18,6 @@ type StructuralOverrideModes = {
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
-  // Select panels are portaled outside this host, including in federated mode.
-  encapsulation: ViewEncapsulation.None,
   host: { class: 'mfe-structural-overrides' },
   selector: 'ngx-structural-overrides',
   imports: [
@@ -59,7 +56,7 @@ type StructuralOverrideModes = {
                 <mat-label>{{ region.label }}</mat-label>
                 <mat-select
                   [formControlName]="region.control"
-                  panelClass="ngx-design-system-overlay mfe-structural-overrides__select-panel"
+                  panelClass="ngx-design-system-overlay ngx-select-panel"
                 >
                   @for (
                     mode of structuralOverrideModes;
@@ -80,7 +77,7 @@ type StructuralOverrideModes = {
   `,
   styles: [
     `
-      .mfe-structural-overrides {
+      :host {
         display: block;
         min-width: 0;
         container-type: inline-size;
@@ -91,7 +88,7 @@ type StructuralOverrideModes = {
         padding-block: 0.5rem;
         box-sizing: border-box;
       }
-      .mfe-structural-overrides mat-panel-title {
+      mat-panel-title {
         min-width: 0;
         overflow-wrap: anywhere;
       }
@@ -110,21 +107,17 @@ type StructuralOverrideModes = {
         );
         gap: 1rem;
       }
-      .mfe-structural-overrides mat-form-field {
+      mat-form-field {
         width: 100%;
         min-width: 0;
       }
 
       @container (max-width: 600px) {
-        .mfe-structural-overrides mat-panel-description {
+        mat-panel-description {
           display: none;
         }
       }
 
-      .mfe-structural-overrides__select-panel {
-        // Keep the final fade frame until Material detaches the overlay.
-        animation-fill-mode: forwards !important;
-      }
     `,
   ],
 })

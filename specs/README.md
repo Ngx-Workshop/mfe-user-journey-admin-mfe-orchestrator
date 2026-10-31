@@ -17,3 +17,5 @@ Follow the local [workflow](../.specify/README.md). Select work from the user's 
 - [009 — Remote domains](009-remote-domains/spec.md) — Implemented; deployment integration pending
 
 - [010 Shared workspace feedback](010-shared-workspace-feedback/spec.md) — Implemented locally; hosted acceptance pending.
+
+- [011 Shared overlay policy](011-shared-overlay-policy/spec.md) — Implemented locally; hosted acceptance pending.

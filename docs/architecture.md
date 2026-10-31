@@ -10,9 +10,8 @@ The host provides shell composition and authentication context. `App` is a minim
 
 ## Design system integration
 
-The remote installs `@tmdjr/ngx-workshop-design-system` 21.0.9 and requires
-a shared singleton compatible with ^21.0.9. The local admin shell still pins 21.0.8
-and must be aligned before hosting these new components. The catalog route host has `ngx-design-system`.
+The remote and admin shell install `@tmdjr/ngx-workshop-design-system` 21.0.10
+and require a shared singleton compatible with ^21.0.10. The catalog route host has `ngx-design-system`.
 The shell supplies semantic Ngx tokens, shared button/code styles and a scoped
 Material adapter. Its legacy body palettes continue to style older remotes.
 Standalone global styles include the public `theme()` mixin and matching adapter scopes.
@@ -295,3 +294,23 @@ override. ListMfeRemotes owns --catalog-action-bar-height from the shared height
 output; the rail derives its sticky top from that height plus the existing 28px gap.
 Dev-mode counts remain catalog-wide, and Retry save still calls the store's existing
 retryUpdate through the adapter output. Saved/failed notifications keep store lifetime.
+
+## Shared overlay policy adoption — 2026-10-31
+
+The shell and both migrated remotes install design-system 21.0.10 and require
+^21.0.10 in federation sharing. Shell theme() emits the shared overlay-policy()
+once globally; standalone remote theme() supplies the same policy for isolated use.
+The page and portal scopes no longer regenerate a dark Material adapter. Root theme
+roles, typography and color scheme reach controls and overlays in both palettes.
+Local duplicated portal font/text/backdrop and fixed-dark rules are removed.
+
+All owned mat-select panels have ngx-design-system-overlay and ngx-select-panel.
+Autocomplete/menu/tooltip/dialog markers retain their public configuration without
+receiving select-only animation policy. Existing app-specific layout, dialog sizing,
+classes, forms, values, routes, stores and persistence are retained.
+
+StructuralFields, StructuralSubTypeOptions and StructuralOverrides no longer emit
+local animation-fill-mode fixes or disable style encapsulation. Their own styles
+use :host and encapsulated local selectors. Real native closing regressions load
+the shared policy from the test global stylesheet, including all three dismissal
+paths for remote type, structural placement and each shell override select.
