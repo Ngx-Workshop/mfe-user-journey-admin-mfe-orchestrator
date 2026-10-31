@@ -118,7 +118,12 @@ a local package preview. Hosted deployment acceptance remains pending.
 stepper: (1) remote entry URL verification, (2) display name and optional description,
 (3) integration behavior and explicit Create. Its scoped `CreateMfeViewModel` owns
 one typed form built by the shared factory, verification state and submission.
-Shared basic fields have all/url/details modes; existing edit forms retain all fields.
+Shared basic fields have all/url/details modes. In existing remote cards,
+Remote details uses details mode for name/description, while Domains and Remote entry URL
+use url mode inside the collapsed Danger zone alongside lifecycle actions. Both instances
+bind the same typed form and verification stream, retaining autosave, URL checking and
+clipboard feedback. Creation keeps Domains/URL in step one and name/description in step two;
+its step layout and progression are unchanged. Forms without lifecycle actions retain all fields.
 The wizard reuses StructuralFields for type, capabilities, subtypes and shell overrides.
 
 Successful URL verification gates step two; a valid display name gates step three.

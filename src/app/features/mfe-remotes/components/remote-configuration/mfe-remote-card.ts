@@ -12,8 +12,8 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatIcon } from '@angular/material/icon';
 import type { CreateMfeRemoteDto } from '@tmdjr/ngx-mfe-orchestrator-contracts';
 import {
-  NgxEntrance,
   NgxButton,
+  NgxEntrance,
   NgxPanel,
 } from '@tmdjr/ngx-workshop-design-system';
 import { filter } from 'rxjs';
@@ -39,64 +39,64 @@ import { MfeRemoteCardHeader } from './mfe-remote-card-header';
   ],
   template: `
     @if (initialValue(); as mfe) {
-      <ngx-panel
-        ngxEntrance="fade"
-        [heading]="mfe.name"
-        headingMotion="stagger"
-        [headingMotionKey]="mfe._id"
-        eyebrow="REMOTE CONFIGURATION"
-        shape="stepped"
-        background="grid"
-        [tone]="mfe.isDevMode ? 'secondary' : 'primary'"
-      >
-        <div ngxPanelHeader class="mfe-remote-card__header-content">
-          <ngx-mfe-remote-card-header
-            [initialValue]="mfe"
-            (openDevModeOptions)="openDevModeOptions(mfe)"
-            (previewMfeRemote)="previewMfeRemote(mfe)"
-          ></ngx-mfe-remote-card-header>
-        </div>
-        <!-- <ngx-mfe-remote-summary [remote]="mfe" /> -->
+    <ngx-panel
+      ngxEntrance="fade"
+      [heading]="mfe.name + ': ' + mfe.domains"
+      headingMotion="stagger"
+      [headingMotionKey]="mfe._id"
+      eyebrow="REMOTE CONFIGURATION"
+      shape="stepped"
+      background="grid"
+      [tone]="mfe.isDevMode ? 'secondary' : 'primary'"
+    >
+      <div ngxPanelHeader class="mfe-remote-card__header-content">
+        <ngx-mfe-remote-card-header
+          [initialValue]="mfe"
+          (openDevModeOptions)="openDevModeOptions(mfe)"
+          (previewMfeRemote)="previewMfeRemote(mfe)"
+        ></ngx-mfe-remote-card-header>
+      </div>
+      <!-- <ngx-mfe-remote-summary [remote]="mfe" /> -->
 
-        <div class="mfe-remote-card__form">
-          <ngx-mfe-form
-            [initialValue]="initialValue()"
-            [showLifecycleActions]="true"
-            (autosave)="saveRemote($event)"
+      <div class="mfe-remote-card__form">
+        <ngx-mfe-form
+          [initialValue]="initialValue()"
+          [showLifecycleActions]="true"
+          (autosave)="saveRemote($event)"
+        >
+          <div
+            ngxMfeLifecycleActions
+            class="mfe-remote-card__lifecycle-actions"
           >
-            <div
-              ngxMfeLifecycleActions
-              class="mfe-remote-card__lifecycle-actions"
+            <button
+              mat-flat-button
+              ngxButton
+              surface="outline"
+              tone="danger"
+              motion="glitch"
+              type="button"
+              (click)="deleteRemote()"
             >
-              <button
-                mat-flat-button
-                ngxButton
-                surface="outline"
-                tone="danger"
-                motion="glitch"
-                type="button"
-                (click)="deleteRemote()"
-              >
-                <mat-icon>delete</mat-icon>
-                Delete
-              </button>
-              <button
-                mat-flat-button
-                ngxButton
-                surface="outline"
-                tone="secondary"
-                type="button"
-                (click)="archive.emit(mfe)"
-              >
-                <mat-icon>{{
-                  mfe.archived ? 'unarchive' : 'archive'
-                }}</mat-icon>
-                {{ mfe.archived ? 'Unarchive' : 'Archive' }}
-              </button>
-            </div>
-          </ngx-mfe-form>
-        </div>
-      </ngx-panel>
+              <mat-icon>delete</mat-icon>
+              Delete
+            </button>
+            <button
+              mat-flat-button
+              ngxButton
+              surface="outline"
+              tone="secondary"
+              type="button"
+              (click)="archive.emit(mfe)"
+            >
+              <mat-icon>{{
+                mfe.archived ? 'unarchive' : 'archive'
+              }}</mat-icon>
+              {{ mfe.archived ? 'Unarchive' : 'Archive' }}
+            </button>
+          </div>
+        </ngx-mfe-form>
+      </div>
+    </ngx-panel>
     }
   `,
   styles: [

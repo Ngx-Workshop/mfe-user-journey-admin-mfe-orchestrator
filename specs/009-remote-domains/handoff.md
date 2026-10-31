@@ -29,3 +29,11 @@ Missing domains retain prior shell membership; explicit arrays override it for b
 4. Confirm each shell loads assigned journey and structural remotes; edit a remote to both domains and verify it loads in both; clear domains and verify neither loads it. Verify existing legacy records retain membership, unknown domain returns 400, and writes persist through the real gateway/auth/database.
 
 No data backfill is required. Do not remove the missing-domain fallback until all legacy records have explicit assignments and old writers are retired. Domain placement is independent of authorization.
+
+## Card connection-field placement — 2026-10-31
+
+Remote-card Domains and Remote entry URL now live in the existing collapsed Danger zone. Name/Description remain in Remote details. This mechanical layout change reuses the existing details/url field modes and the same form/verification bindings; shared basic fields and the Create page source are unchanged. Non-card forms without lifecycle actions retain their all-fields presentation.
+
+Added a card regression covering unique field placement, initially collapsed panel, URL verify/reset, domain selection, ID-bearing autosave and retained values after collapsing/reopening. The creation wizard test asserts its original step-one controls, and clipboard coverage opens Danger zone and targets its own feedback region.
+
+All 71 ChromeHeadless tests pass, including existing wizard gating/back-navigation, clipboard, lifecycle and autosave coverage. Source layout, Angular application typecheck, test TypeScript compilation and isolated production build pass; license output is non-empty. The existing unused mfe-remote-summary warning remains. Build output is isolated under /tmp/orchestrator-danger-fields-build, preserving any running local preview. No deployment or live catalog writes were performed; authenticated host visual acceptance remains pending.

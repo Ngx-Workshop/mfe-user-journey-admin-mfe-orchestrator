@@ -39,25 +39,25 @@ import { MfeRemoteDtoExtraProps } from '../../models/app.types';
         <span class="mfe-remote-list-item__remote-meta">
           {{ formatType(remote().type) }}
           @if (remote().archived) {
-            <span
-              class="mfe-remote-list-item__status mfe-remote-list-item__status--archived"
-              >Archived</span
-            >
+          <span
+            class="mfe-remote-list-item__status mfe-remote-list-item__status--archived"
+            >Archived</span
+          >
           } @else {
-            <span
-              class="mfe-remote-list-item__status mfe-remote-list-item__status--active"
-              >Active</span
-            >
+          <span
+            class="mfe-remote-list-item__status mfe-remote-list-item__status--active"
+            >Active</span
+          >
           }
         </span>
       </span>
       @if (remote().isDevMode) {
-        <mat-icon
-          class="mfe-remote-list-item__dev-indicator"
-          title="Development mode"
-        >
-          code
-        </mat-icon>
+      <mat-icon
+        class="mfe-remote-list-item__dev-indicator"
+        title="Development mode"
+      >
+        code
+      </mat-icon>
       }
       <mat-icon class="mfe-remote-list-item__chevron"
         >chevron_right</mat-icon
@@ -75,17 +75,16 @@ import { MfeRemoteDtoExtraProps } from '../../models/app.types';
         gap: 0.7rem;
         align-items: center;
         width: 100%;
-        padding: 0.75rem;
+        padding: 0.5rem 0.75rem;
         color: var(--ngx-color-text);
-        background: transparent;
+        background: var(--ngx-color-surface-low);
         border: 1px solid transparent;
+        border-bottom: 1px solid var(--ngx-color-border);
         border-radius: var(--ngx-radius);
         font: inherit;
         text-align: left;
         cursor: pointer;
-        transition:
-          background 160ms ease,
-          border-color 160ms ease,
+        transition: background 160ms ease, border-color 160ms ease,
           transform 160ms ease;
       }
 
@@ -120,11 +119,17 @@ import { MfeRemoteDtoExtraProps } from '../../models/app.types';
       .mfe-remote-list-item__remote-icon {
         display: grid;
         place-items: center;
-        width: 40px;
-        height: 40px;
+        width: 35px;
+        height: 35px;
         color: var(--ngx-color-primary);
         background: var(--ngx-color-surface);
         border-radius: var(--ngx-radius);
+      }
+
+      .mfe-remote-list-item__remote-icon mat-icon {
+        width: 1.25rem;
+        height: 1.25rem;
+        font-size: 1.25rem;
       }
 
       .mfe-remote-list-item__remote-icon.mfe-remote-list-item__remote-icon--structural {
@@ -150,9 +155,9 @@ import { MfeRemoteDtoExtraProps } from '../../models/app.types';
       }
 
       .mfe-remote-list-item__remote-meta {
-        margin-top: 0.25rem;
         color: var(--ngx-color-muted);
         font-size: 0.69rem;
+        line-height: 0.69rem;
       }
 
       .mfe-remote-list-item__status {

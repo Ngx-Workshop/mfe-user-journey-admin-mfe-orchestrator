@@ -134,6 +134,7 @@ import { SaveNotification } from '../../models/save-notification';
         gap: var(--ngx-space-2);
         color: var(--ngx-color-muted);
         font-family: var(--ngx-font-mono);
+        font-size: 0.7rem;
       }
       .mfe-remote-catalog-actions__dev-light {
         flex: 0 0 0.5rem;

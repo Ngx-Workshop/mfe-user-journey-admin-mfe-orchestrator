@@ -20,8 +20,8 @@ import {
 import { MatIcon } from '@angular/material/icon';
 import { MatInput } from '@angular/material/input';
 import {
-  NgxEntrance,
   NgxButton,
+  NgxEntrance,
   NgxPanel,
 } from '@tmdjr/ngx-workshop-design-system';
 import { MfeRemoteDtoExtraProps } from '../../models/app.types';
@@ -73,15 +73,15 @@ import { MfeRemoteListItem } from './mfe-remote-list-item';
           />
           <mat-icon matPrefix>search</mat-icon>
           @if (searchTerm()) {
-            <button
-              matSuffix
-              mat-icon-button
-              type="button"
-              aria-label="Clear search"
-              (click)="searchChanged.emit('')"
-            >
-              <mat-icon>close</mat-icon>
-            </button>
+          <button
+            matSuffix
+            mat-icon-button
+            type="button"
+            aria-label="Clear search"
+            (click)="searchChanged.emit('')"
+          >
+            <mat-icon>close</mat-icon>
+          </button>
           }
         </mat-form-field>
 
@@ -108,30 +108,30 @@ import { MfeRemoteListItem } from './mfe-remote-list-item';
           aria-label="Available MFE remotes"
         >
           @for (remote of remotes(); track remote._id) {
-            <ngx-mfe-remote-list-item
-              ngxEntrance="fade"
-              [entranceDuration]="220"
-              [entranceDelay]="260 + ($index < 12 ? $index : 12) * 40"
-              [remote]="remote"
-              [selected]="selectedRemoteId() === remote._id"
-              (remoteSelected)="remoteSelected.emit($event)"
-            />
+          <ngx-mfe-remote-list-item
+            ngxEntrance="fade"
+            [entranceDuration]="220"
+            [entranceDelay]="260 + ($index < 12 ? $index : 12) * 40"
+            [remote]="remote"
+            [selected]="selectedRemoteId() === remote._id"
+            (remoteSelected)="remoteSelected.emit($event)"
+          />
           } @empty {
-            <div class="mfe-remote-rail__empty-state">
-              <mat-icon>search_off</mat-icon>
-              <strong>No remotes found</strong>
-              <span>Try a different name, URL, type, or status.</span>
-              @if (searchTerm()) {
-                <button
-                  mat-flat-button
-                  ngxButton
-                  surface="outline"
-                  (click)="searchChanged.emit('')"
-                >
-                  Clear search
-                </button>
-              }
-            </div>
+          <div class="mfe-remote-rail__empty-state">
+            <mat-icon>search_off</mat-icon>
+            <strong>No remotes found</strong>
+            <span>Try a different name, URL, type, or status.</span>
+            @if (searchTerm()) {
+            <button
+              mat-flat-button
+              ngxButton
+              surface="outline"
+              (click)="searchChanged.emit('')"
+            >
+              Clear search
+            </button>
+            }
+          </div>
           }
         </nav>
       </aside>
@@ -139,6 +139,8 @@ import { MfeRemoteListItem } from './mfe-remote-list-item';
   `,
   styles: [
     `
+      @use '@angular/material' as mat;
+
       :host {
         position: sticky;
         top: 180px;
@@ -146,6 +148,7 @@ import { MfeRemoteListItem } from './mfe-remote-list-item';
         min-width: 0;
         height: auto;
         align-self: start;
+        @include mat.form-field-density(-3);
       }
 
       aside {
@@ -174,11 +177,13 @@ import { MfeRemoteListItem } from './mfe-remote-list-item';
       }
 
       .mfe-remote-rail__catalog-summary span {
+        margin-top: 8px;
         display: flex;
         flex-direction: column;
         padding: 0.6rem 0.45rem;
         color: var(--ngx-color-muted);
         background: var(--ngx-color-surface);
+        border: 1px solid var(--ngx-color-border);
         border-radius: var(--ngx-radius);
         font-size: 0.65rem;
         text-align: center;
@@ -192,7 +197,7 @@ import { MfeRemoteListItem } from './mfe-remote-list-item';
       .mfe-remote-rail__remote-list {
         display: flex;
         flex-direction: column;
-        gap: 0.35rem;
+        // gap: 0.35rem;
         padding: 0.25rem 0.25rem 0.75rem;
         min-height: 0;
         overflow-y: auto;

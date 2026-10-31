@@ -55,9 +55,12 @@ import { MfeFormViewModel } from './mfe-form-view-model';
           [contentDelay]="820"
           icon="description"
           [requiredNote]="true"
-          description="Identify the remote and connect it to its deployed entry point."
+          [description]="showLifecycleActions()
+            ? 'Identify the remote and describe its purpose.'
+            : 'Identify the remote and connect it to its deployed entry point.'"
         >
           <ngx-mfe-basic-fields
+            [fields]="showLifecycleActions() ? 'details' : 'all'"
             [mfeRemoteForm]="vm.form"
             [errorMessages]="vm.errors"
             [verificationState]="
@@ -86,9 +89,18 @@ import { MfeFormViewModel } from './mfe-form-view-model';
                   <mat-panel-title>Danger zone</mat-panel-title>
                 </mat-expansion-panel-header>
                 <p class="form-mfe__lifecycle-description">
-                  Archive this remote or permanently delete it from
-                  the catalog.
+                  Configure shell domains and the deployed entry point,
+                  archive this remote, or permanently delete it from the catalog.
                 </p>
+                <ngx-mfe-basic-fields
+                  class="form-mfe__connection-fields"
+                  fields="url"
+                  [mfeRemoteForm]="vm.form"
+                  [errorMessages]="vm.errors"
+                  [verificationState]="(model.verification$ | async) ?? 'idle'"
+                  (verifyUrlClick)="model.verify($event)"
+                  (urlChanged)="model.verify(null)"
+                />
                 <ng-content select="[ngxMfeLifecycleActions]" />
               </mat-expansion-panel>
             </mat-accordion>
@@ -120,6 +132,9 @@ import { MfeFormViewModel } from './mfe-form-view-model';
       .form-mfe__lifecycle-header {
         height: auto;
         min-height: 56px;
+      }
+      .form-mfe__connection-fields {
+        margin-bottom: var(--ngx-space-6);
       }
       .form-mfe__lifecycle-description {
         margin: 0 0 var(--ngx-space-4);

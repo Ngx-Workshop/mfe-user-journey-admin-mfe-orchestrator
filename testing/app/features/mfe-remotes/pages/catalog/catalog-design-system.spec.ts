@@ -340,6 +340,8 @@ describe('Design system catalog interactions', () => {
     expect(
       root.querySelector('.mfe-info-group__copy-status')?.textContent
     ).toContain('Remote ID copied');
+    (root.querySelector('.form-mfe__lifecycle mat-expansion-panel-header') as HTMLElement).click();
+    await settle();
     const url = root.querySelector(
       'input[formControlName=remoteEntryUrl]'
     ) as HTMLInputElement;
@@ -362,7 +364,7 @@ describe('Design system catalog interactions', () => {
     expect(store.verifyUrl).not.toHaveBeenCalled();
     expect(store.update).not.toHaveBeenCalled();
     expect(
-      root.querySelector('.mfe-basic-fields__copy-status')
+      root.querySelector('.form-mfe__lifecycle .mfe-basic-fields__copy-status')
         ?.textContent
     ).toContain('Remote entry URL copied');
     copy.and.returnValue(false);
@@ -370,7 +372,7 @@ describe('Design system catalog interactions', () => {
     id.click();
     await settle();
     expect(
-      root.querySelector('.mfe-basic-fields__copy-status')
+      root.querySelector('.form-mfe__lifecycle .mfe-basic-fields__copy-status')
         ?.textContent
     ).toContain('Could not copy remote entry URL');
     expect(
@@ -590,6 +592,56 @@ describe('Design system catalog interactions', () => {
     );
   });
 
+  it('keeps card connection fields in Danger zone with shared verification and autosave', async () => {
+    const root = fixture.nativeElement as HTMLElement;
+    const card = root.querySelector('ngx-mfe-remote') as HTMLElement;
+    const basic = card.querySelector('ngx-mfe-basic-fields')!;
+    expect(basic.querySelector('[formControlName=name]')).not.toBeNull();
+    expect(basic.querySelector('[formControlName=description]')).not.toBeNull();
+    expect(basic.querySelector('[formControlName=domains]')).toBeNull();
+    expect(basic.querySelector('[formControlName=remoteEntryUrl]')).toBeNull();
+    const danger = card.querySelector('.form-mfe__lifecycle') as HTMLElement;
+    const header = danger.querySelector('mat-expansion-panel-header') as HTMLElement;
+    expect(header.textContent).toContain('Danger zone');
+    expect(header.getAttribute('aria-expanded')).toBe('false');
+    header.click();
+    await settle();
+    for (const field of ['domains', 'remoteEntryUrl']) {
+      expect(card.querySelectorAll(`[formControlName=${field}]`).length).toBe(1);
+      expect(danger.querySelector(`[formControlName=${field}]`)).not.toBeNull();
+    }
+    enter(danger, 'remoteEntryUrl', 'https://example.com/updated.js');
+    await settle();
+    button(danger, 'Verify').click();
+    await settle();
+    expect(store.verifyUrl).toHaveBeenCalledWith('https://example.com/updated.js');
+    expect(danger.textContent).toContain('Remote entry responded successfully.');
+    enter(danger, 'remoteEntryUrl', 'https://example.com/final.js');
+    await settle();
+    expect(danger.textContent).not.toContain('Remote entry responded successfully.');
+    const domains = await TestbedHarnessEnvironment.loader(fixture).getHarness(
+      MatSelectHarness.with({ selector: '[formControlName=domains]' })
+    );
+    await domains.open();
+    await domains.clickOptions({ text: 'Workshop' });
+    await domains.close();
+    header.click();
+    await settle();
+    await new Promise<void>((resolve) => setTimeout(resolve, 550));
+    await settle();
+    expect(store.update).toHaveBeenCalledWith(jasmine.objectContaining({
+      _id: remote._id,
+      remoteEntryUrl: 'https://example.com/final.js',
+      domains: ['admin', 'workshop'],
+    }));
+    header.click();
+    await settle();
+    expect((danger.querySelector('[formControlName=remoteEntryUrl]') as HTMLInputElement).value)
+      .toBe('https://example.com/final.js');
+    expect(button(danger, 'Archive')).toBeTruthy();
+    expect(button(danger, 'Delete')).toBeTruthy();
+  });
+
   it('autosaves valid edits with the persisted ID and has no manual save button', async () => {
     expect(fixture.nativeElement.textContent).not.toContain(
       'Save changes'
@@ -759,6 +811,10 @@ describe('Design system catalog interactions', () => {
         MatStepperHarness
       );
     const steps = await stepper.getSteps();
+    expect(content.querySelector('.form-mfe__lifecycle')).toBeNull();
+    expect(Array.from(content.querySelectorAll('[formControlName]'))
+      .map((control) => control.getAttribute('formControlName')))
+      .toEqual(['domains', 'remoteEntryUrl']);
     expect(steps.length).toBe(3);
     await steps[2].select();
     expect(await steps[0].isSelected()).toBeTrue();
