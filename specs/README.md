@@ -19,3 +19,5 @@ Follow the local [workflow](../.specify/README.md). Select work from the user's 
 - [010 Shared workspace feedback](010-shared-workspace-feedback/spec.md) — Implemented locally; hosted acceptance pending.
 
 - [011 Shared overlay policy](011-shared-overlay-policy/spec.md) — Implemented locally; hosted acceptance pending.
+
+- [012-static-deployment-cleanup](012-static-deployment-cleanup/spec.md): Static deployment cleanup; helper verified, Actions rollout pending.
